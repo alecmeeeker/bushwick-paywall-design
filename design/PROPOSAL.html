@@ -1,4 +1,239 @@
 <!doctype html><html lang=en><head><meta name="robots" content="noindex,nofollow"><meta charset=utf-8><meta name=viewport content='width=device-width,initial-scale=1'><title>Paywall design proposal</title><style>body{background:#0a0a0a;color:#e8e8e8;font:16px/1.6 -apple-system,Inter,Helvetica,Arial,sans-serif;max-width:900px;margin:0 auto;padding:24px 16px}a{color:#ffe135}code{background:#1c1c1c;padding:1px 4px;border-radius:3px}table{border-collapse:collapse;width:100%;font-size:14px;display:block;overflow-x:auto}td,th{border:1px solid #333;padding:6px;vertical-align:top}h1,h2,h3{color:#fff;line-height:1.25}pre{background:#1c1c1c;padding:12px;overflow-x:auto}</style></head><body><h1>Paywall design proposal: every reader-facing step in the site's own design (2026-10-13)</h1>
+<h2>V2.1 improvements (2026-10-13, branch <code>design/paywall-v2.1</code>)</h2>
+<p>Status: design spec only (mockups, CSS, the sheet controller). No production file changed; Stripe test mode only. It
+applies on top of V2 below. The build (<code>feat/membership-sheet</code>) takes it as the diff in V2.1-8.</p>
+<p><strong>Journalism purpose.</strong> A reader who has decided to pay should not stall between the gate and a completed payment. On
+the plans step they see one action. On the payment step they see the price and the whole legal disclosure on the first
+phone screen. The sheet opens on the lower commitment, Monthly, as the owner chose.</p>
+<p><strong>Method.</strong> The v2 renders were compared with the comparison page (research 27/28 screenshots). Measurements were taken
+in Chromium 145 and Playwright WebKit 26 at iPhone 13 (390×664) and at 1440×900 (<code>verify_sheet.py</code>,
+<code>evidence/sheet-behaviour.json</code>). The step-by-step flow is in <code>flow.html</code> (for the owner) and <code>FLOW.md</code> (for the build).</p>
+<h3>V2.1-1 Plans: the chosen option no longer looks like the Continue button</h3>
+<ul>
+<li><strong>Problem.</strong> In v2 the chosen Monthly/Yearly option and Continue had the same computed background
+  (rgb(255,225,53)), text colour (rgb(10,10,10)), weight (800) and uppercase. This was true in Chromium at both
+  viewports. On the first phone screen the reader saw two identical yellow "buttons". The upper one (MONTHLY,
+  y 243–295) does nothing when tapped, because it is already chosen.</li>
+<li><strong>Competitors do better.</strong> Hell Gate and 404 Media draw the switch as a grey track with a white pill, and the
+  action in another colour (<code>img/compare/hg-4-plans.webp</code>, <code>404-4-plans-sheet.webp</code>).</li>
+<li><strong>Change.</strong> The chosen option is the card surface <code>#141414</code> with white text and a 2px yellow inset ring (v1's
+  selected-tile token). The unchosen name is <code>#a0a0a0</code>. Continue is the step's only yellow fill.</li>
+<li><code>verify_sheet.py</code> checks this ("the only yellow fill is Continue") in all three set-ups.</li>
+<li>Layout: no element moved (same rectangles before and after).</li>
+<li><strong>Why it helps.</strong> The reader's eye goes to the one action, and the switch reads as a setting.</li>
+<li><strong>Risk: low.</strong> The chosen state is quieter, but stays distinct:</li>
+<li>The ring: 14.10:1 against <code>#141414</code> and 15.15:1 against <code>#0a0a0a</code> (WCAG 1.4.11).</li>
+<li>The text colour: white against <code>#a0a0a0</code>.</li>
+<li>Forced-colors mode keeps its 3px Highlight outline.</li>
+</ul>
+<h3>V2.1-2 Payment: the summary is the heading, and the whole disclosure fits on the first phone screen</h3>
+<ul>
+<li><strong>Problem.</strong> In v2, 182 px of the phone's 605-px scroll box went to a "Payment" title and a boxed summary, before
+  the consent box. Measured on iPhone 13 (Chromium):</li>
+<li>The disclosure ran past the first screen (box bottom 674 &gt; 605).</li>
+<li>Apple Pay was 171 px of scrolling away (WebKit: 159).</li>
+<li>Subscribe was 600 px away (WebKit: 584).</li>
+<li><strong>Competitors.</strong> Stripe Checkout, where both competitors take payment, puts the price at the top and Apple Pay
+  directly under it (<code>img/compare/hg-5-stripe-checkout.webp</code>).</li>
+<li><strong>Change.</strong> There is no separate title and no box. The header has three lines:</li>
+<li>the "PAYMENT" kicker;</li>
+<li>the price, in the band's price voice, with Change beside it;</li>
+<li>"{Plan} membership for {email}".</li>
+<li><strong>Unchanged.</strong> The consent box, its place above both pay buttons, and the disclosure text.</li>
+</ul>
+<table>
+<thead>
+<tr>
+<th>Measured (<code>verify_sheet.py</code>)</th>
+<th>v2</th>
+<th>v2.1</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>iPhone 13, consent box (top–bottom in the 605-px scroll box), Chromium</td>
+<td>210–674</td>
+<td><strong>115–580</strong></td>
+</tr>
+<tr>
+<td>Whole disclosure on the first iPhone 13 screen (Chromium / WebKit)</td>
+<td>no / no</td>
+<td><strong>yes / yes</strong></td>
+</tr>
+<tr>
+<td>iPhone 13, scroll to see Apple Pay whole (Chromium / WebKit)</td>
+<td>171 / 159 px</td>
+<td><strong>76 / 64 px</strong></td>
+</tr>
+<tr>
+<td>iPhone 13, scroll to Subscribe, card form open (Chromium / WebKit)</td>
+<td>600 / 584 px</td>
+<td><strong>505 / 491 px</strong></td>
+</tr>
+<tr>
+<td>…to Subscribe and its error line (Chromium / WebKit)</td>
+<td>630 / 614 px</td>
+<td><strong>536 / 521 px</strong></td>
+</tr>
+<tr>
+<td>Desktop 1440×900, scroll inside the panel to Subscribe (Chromium; the v2 figure is from a one-off probe of the v2 build with the same formula, because v2's verify_sheet.py did not measure desktop)</td>
+<td>109 px</td>
+<td><strong>39 px</strong></td>
+</tr>
+<tr>
+<td>Desktop 1440×900, Apple Pay</td>
+<td>on screen</td>
+<td>on screen</td>
+</tr>
+</tbody>
+</table>
+<ul>
+<li><strong>Why it helps.</strong> The first screen now shows the price and, whole, what the reader is agreeing to, with its
+  checkbox. The pay button is one short scroll away.</li>
+<li><strong>Risk: low.</strong></li>
+<li>Apple Pay is still not on the first 390×664 screen. The last 76 px cannot be removed while the disclosure stays
+    verbatim at 16px and the box stays above the pay buttons (owner rules), short of the two options rejected under
+    "Considered and not done".</li>
+<li>The dialog's accessible name on this step changes from "Payment" to "Payment: $6.99 a month".</li>
+<li>One summary line of the sheet's own copy changes: "For {email}" becomes "{Plan} membership for {email}".</li>
+</ul>
+<h3>V2.1-3 Monthly is selected whenever the sheet opens (owner, 2026-10-13: "default should be monthly")</h3>
+<p>What I found:
+- <strong>No system path in v2 preselects Yearly.</strong>
+  - The gate config sets <code>default_plan</code> "monthly": <code>gate.php:90-96</code> picks the first monthly plan.
+  - <code>build_mockups.py</code> prints the Monthly radio <code>checked</code>.
+  - <code>sheet.js</code> starts <code>planKey</code> from <code>cfg.default_plan</code>.
+  - The signed-in path (<code>setSignedIn</code>) never touches the plan.
+- <strong>A browser can bring back a reader's earlier Yearly choice.</strong>
+  - Chromium (desktop and iPhone 13 emulation): the reader chose Yearly, left the page, and pressed Back. The page
+    was a fresh load (<code>pageshow.persisted</code> false), yet Chromium restored the Yearly radio as checked.
+  - WebKit did not restore it.
+  - Source: <code>verify_sheet.py</code>, <code>after_history_return</code>.
+  - Production reads the checked radio first (<code>membership.js:459</code>), so in Chromium it would start on Yearly.
+- <strong>One render state was wrong.</strong> <code>sheet-plans-yearly</code> selected Yearly before opening. It now opens on Monthly, then
+  the reader taps Yearly.</p>
+<p>What changed:
+- <code>BDSheet</code> gets <code>opts.onOpen(step)</code>, called once per new opening. The gate resets the plan to <code>cfg.default_plan</code>
+  there, whatever the radios hold.
+- <strong>Decision: inside one opening, the reader's own choice is kept.</strong> "Change" and "← Back" from payment show the plan
+  the reader picked.
+  - This departs from one clause of ROLLOUT-PLAN section G, which lists "readers who return from payment through
+    'Change'".
+  - Why: the owner's words are about the default, and a reader's tap is not a default. After "Change", the plans
+    screen must agree with the payment summary the reader just read ("$70.00 a year").
+  - Any new opening (after X, Escape, Back, or a reload) starts on Monthly again.
+  - To reset on "Change" as well, add one call, <code>selectPlan(cfg.default_plan)</code>, to the "Change" handler. The owner
+    may overrule.</p>
+<p>Checked in all three set-ups:
+- First opening: Monthly.
+- Yearly, then Continue: the payment step shows "$70.00 a year". Change: Yearly is still chosen.
+- X, then Continue: Monthly.
+- Leave the page, press Back, Continue: Monthly.
+- Signed in, See plans: Monthly.</p>
+<h3>V2.1-4 to V2.1-7 Defects found while writing the flow (fixed in the spec; not counted as improvements)</h3>
+<table>
+<thead>
+<tr>
+<th>#</th>
+<th>Found</th>
+<th>Severity</th>
+<th>Fix (decision)</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>V2.1-4</td>
+<td>In the mockup, closing the success screen with X, Escape or Back left the story locked. Only "Read the story" or the 2-second timer unlocked it (<code>sheet.js</code> <code>finish()</code>). The spec did not say what those exits do.</td>
+<td><strong>medium</strong>: a reader who has just paid could find the story still locked until reload. Whether the build has the same gap is UNVERIFIED: it depends on how it orders unlock and close.</td>
+<td>Every exit on the success step does what "Read the story" does. <code>BDSheet.close()</code> now calls <code>onClose(reason, step)</code> before focus returns, so the story unlocks first and focus lands in it. Checked with Escape and X in all set-ups: gate gone, receipt line shown, focus in the story, scroll kept.</td>
+</tr>
+<tr>
+<td>V2.1-5</td>
+<td>When gate/start fails on the network, MSG_NETWORK shows under the field, and the field (a correct address) is marked invalid with a red border. Cause: <code>membership.js:600</code> calls <code>setError</code> for every gate/start failure.</td>
+<td><strong>low</strong>: the reader may retype a correct address.</td>
+<td>For a network failure (status 0), show the message but do not set <code>aria-invalid</code>. Render: <code>gate-s1-network-proposed</code>.</td>
+</tr>
+<tr>
+<td>V2.1-6</td>
+<td>During "Processing…", X and Escape waited, but "← Back", "Change" and the terms link still navigated: <code>BDSheet.back()</code> had no busy check.</td>
+<td><strong>low</strong>: no double charge is possible, because <code>runCheckout</code> returns while busy (<code>membership.js:1084</code>). The reader would see the plans step while the charge runs.</td>
+<td><code>back()</code> returns while busy. <code>setBusy</code> sets <code>aria-disabled</code> on "← Back". The gate's in-sheet links wait, and CSS dims them. Checked. <strong>Decision for the phone's Back during processing</strong> (a browser cannot hold it): on success, the story unlocks with the receipt line. On failure, the sheet does not reopen by itself; the card shows the failure text under the address (not marked invalid), and Continue reopens the sheet on Monthly.</td>
+</tr>
+<tr>
+<td>V2.1-7</td>
+<td>In the terms step, the links to /account/, the privacy policy and stripe.com/privacy replaced the article in the same tab, mid-payment.</td>
+<td><strong>low</strong></td>
+<td>These links now open in a new tab and say so, as the privacy link already does (V2-3). mailto: links are unchanged.</td>
+</tr>
+</tbody>
+</table>
+<h3>V2.1-8 Spec diff for the build</h3>
+<p><code>mockups/sheet.js</code>, part 1 <code>BDSheet</code>:
+- <code>open()</code>: calls <code>opts.onOpen(step)</code> on a new opening, before <code>show()</code>.
+- <code>close()</code>: calls <code>opts.onClose(reason, step)</code> BEFORE focus is restored. In v2 it was called after, and without the
+  step.
+- <code>back()</code>: returns while <code>busy</code>.
+- <code>setBusy()</code>: also sets <code>aria-disabled</code> on "← Back".</p>
+<p>The gate (<code>membership.js</code>), as the part 2 driver shows:
+- <code>onOpen</code>: <code>selectPlan(cfg.default_plan)</code>. This is not tracked as a reader choice.
+- <code>onClose</code>: when the step is 'success', clear the auto-close timer, then unlock if the story is not unlocked yet.
+- The in-sheet <code>data-bd-sheet-goto</code> / <code>-next</code> handlers return while busy.
+- A gate/start network failure shows its message without <code>aria-invalid</code>.</p>
+<p><code>mockups/proposed.css</code>, v2 section:
+- <code>.bd-sheet .bd-cadence__opt</code>: colour <code>--bdm-soft</code> (was <code>--bdm-text</code>); the transition adds <code>box-shadow</code>.
+- <code>.bd-sheet .bd-cadence__opt:hover</code>: adds colour <code>--bdm-text</code>.
+- <code>.bd-sheet .bd-cadence__opt:has(.bd-cadence__input:checked)</code>: background <code>--bdm-surface</code>, colour <code>--bdm-text</code>,
+  <code>box-shadow: inset 0 0 0 2px var(--bdm-accent)</code>. In v2: background <code>--bdm-accent</code>, colour <code>--bdm-on-accent</code>.
+- Removed: <code>…:has(:checked) .bd-cadence__save</code> (the saving stays yellow in both states).
+- <code>.bd-sheet .bd-sheet__summary</code>: no padding, background, border or radius; <code>align-items: end</code>; margin-bottom 1rem.
+- New rules: <code>.bd-sheet__summary-head</code> (the h2) and <code>.bd-sheet__kicker</code>.
+- Changed rules:
+  - <code>.bd-sheet__summary-price</code>: block, 1.5rem, line-height 1.1.
+  - <code>.bd-sheet__summary-change</code>: row 1, aligned to the end.
+  - <code>.bd-sheet__summary-for</code>: full width, row 2.
+  - <code>.bd-sheet__summary-plan</code>: now the plan-name span, white, weight 600.
+- <code>.bd-sheet__back[aria-disabled='true']</code> is dimmed like the X.
+- <code>.bd-sheet.is-busy [data-bd-sheet-goto]</code> is dimmed and takes no pointer events.</p>
+<p><code>build_mockups.py</code>:
+- <code>gate_v2()</code>, payment step: <code>&lt;h2 id="bd-sheet-pay-title" class="bd-sheet__summary-head"&gt;</code> holds the kicker and the
+  price; then Change; then the "{Plan} membership for {email}" line. The step's old <code>bd-sheet__step-title</code> "Payment"
+  h2 is gone.
+- <code>terms_article()</code>: page links open in a new tab and say so.</p>
+<p>Not changed:
+- The 527-a disclosure (<code>verify_sheet.py</code> checks it verbatim) and its place above both pay buttons.
+- Prices, the variant C copy, the plan card's lines, the Apple Pay button, the tokens.</p>
+<h3>V2.1-9 Renders, flow document, checks</h3>
+<ul>
+<li>Re-rendered, iPhone 13 and desktop 1440:</li>
+<li>sheet-plans, sheet-plans-yearly, sheet-plans-signed-in;</li>
+<li>sheet-pay, -card, -consent-error, -card-errors, -declined;</li>
+<li>sheet-terms.</li>
+<li>New renders: sheet-pay-processing, sheet-pay-network, gate-s1-network, gate-returned, gate-unlocked-member.</li>
+<li><code>flow.html</code> (owner) and <code>FLOW.md</code> (build): every step on paths A–E. <code>build_flow.py</code> generates both from the mockup.
+  It extracts the on-screen copy and checks each step's "← Back" against the mockup.</li>
+<li><code>verify_sheet.py</code> now asserts each behaviour and exits non-zero on any failure: 56 of 56 checks pass.</li>
+<li><code>competitor-comparison.html</code>: the four Bushwick Daily images showing plans and payment were replaced, and their
+  captions updated. The page structure is unchanged.</li>
+</ul>
+<h3>Considered and not done</h3>
+<ul>
+<li><strong>Pinning the pay button to the bottom of the payment step</strong> (as Continue is on plans). It would put Apple Pay on
+  the first screen. Rejected for this pass:</li>
+<li>A pinned Apple Pay tapped before the box is checked fails (<code>membership.js:985-989</code>). V2-3 put the box first to
+    prevent exactly that.</li>
+<li>The card fields bring up the iOS keyboard. How a bottom-pinned bar behaves over a focused field under that keyboard
+    is UNVERIFIED (no device).</li>
+<li><strong>Smaller type or tighter lines for the disclosure.</strong> Rejected: 527-a requires "clear and conspicuous" (v1, 4e).</li>
+<li><strong>A step counter ("Step 1 of 2"), and "Continue to payment" on the plans step.</strong> Neither competitor does either, and
+  no measurement here shows a hesitation they would fix.</li>
+</ul>
+<h3>UNVERIFIED (v2.1)</h3>
+<ul>
+<li>Real iOS Safari and a real wallet. Every phone number is Chromium or Playwright WebKit with the iPhone 13 profile.</li>
+<li>Whether Firefox restores the plan radio (Firefox is not installed here). The per-opening reset covers it either way.</li>
+<li>Stripe's exact text for a generic decline.</li>
+</ul>
+<hr />
 <h2>V2. v2 changes: the full-screen membership sheet (2026-10-13, branch <code>design/paywall-v2-sheet</code>)</h2>
 <p>Status: mockups and a build spec. No production file changed, nothing deployed, Stripe in test mode only. Sections 0-9
 below are v1 and still hold unless this section changes them. The owner cut the scope (2026-10-13): this section is
@@ -126,8 +361,8 @@ Every exit returns them to the paragraph they were on. Research 27 measured that
 </tr>
 <tr>
 <td>While a payment processes</td>
-<td>X and Escape wait (the X is <code>aria-disabled</code>). Back still closes, because a browser cannot be stopped from going back without trapping the reader. The payment chain in <code>membership.js</code> continues; the outcome lands in the article.</td>
-<td>not measured (mock)</td>
+<td>X and Escape wait (the X is <code>aria-disabled</code>). v2.1: "← Back" and "Change" wait too (V2.1-6). Back still closes, because a browser cannot be stopped from going back without trapping the reader. The payment chain in <code>membership.js</code> continues; the outcome lands in the article (failure: V2.1-6).</td>
+<td>v2.1: ← Back, Change, X and Escape during processing leave the sheet open on payment: all three set-ups</td>
 <td>—</td>
 </tr>
 <tr>
@@ -178,8 +413,10 @@ Every exit returns them to the paragraph they were on. Research 27 measured that
   - Clicking the dimmed page does nothing. Decision: a stray click must not discard a typed card number. The exits are
     X, Escape and Back.</p>
 <h3>V2-3 Payment step: layout and the measured scroll</h3>
+<p>v2.1 changed this step's header and its measurements: see V2.1-2. The v2 figures below are kept as the "before".</p>
 <p>Order, top to bottom:
-1. <strong>Summary</strong>: "Monthly membership · $6.99 a month", "For reader@example.com", and Change (back to plans).
+1. <strong>Summary</strong>: "Monthly membership · $6.99 a month", "For reader@example.com", and Change (back to plans). (v2.1:
+   the summary is the step's heading: "PAYMENT", "$6.99 a month" with Change, "Monthly membership for {email}".)
 2. <strong>The consent box</strong>, with the 527-a disclosure verbatim at 16px white.
 3. "Membership terms" (opens in the sheet) · "Privacy policy ↗".
 4. <strong>The black Apple Pay button</strong>, with its error line under it.
@@ -196,8 +433,8 @@ Every exit returns them to the paragraph they were on. Research 27 measured that
 - <strong>"Pay with card", not "Pay with card instead".</strong> This uses the owner's wording. It changes <code>membership.js:947</code>.
 - <strong>Privacy policy in a new tab.</strong> This is the only new tab, and it is labelled "(opens in a new tab)". It is a
   reference page, not the payment flow. The terms open inside the sheet.</p>
-<p><strong>Measured on iPhone 13 (390×664), monthly plan, disclosure verbatim</strong> (<code>verify_sheet.py</code>, <code>payment_step_iphone13</code> in
-<code>evidence/sheet-behaviour.json</code>). The disclosure text equals <code>cfg.disclosures.monthly</code> (checked). Stripe was loaded in
+<p><strong>Measured on iPhone 13 (390×664), monthly plan, disclosure verbatim</strong> (<code>verify_sheet.py</code>, <code>payment_step</code> in
+<code>evidence/sheet-behaviour.json</code>; v2 figures, see V2.1-2 for the current ones). The disclosure text equals <code>cfg.disclosures.monthly</code> (checked). Stripe was loaded in
 test mode, so the card form has its real height.
 - The sheet's scroll box is <strong>605 px</strong> tall: 664 minus the 59 px top bar.
 - The consent box is 464 px tall (Chromium) / 454 px (WebKit).</p>
@@ -302,7 +539,11 @@ test mode, so the card form has its real height.
 </tr>
 <tr>
 <td><code>verify_sheet.py</code></td>
-<td>The behaviour checks above. It belongs in the build's test suite against the real page (preview link), with the same three set-ups.</td>
+<td>The behaviour checks above. It belongs in the build's test suite against the real page (preview link), with the same three set-ups. v2.1: it asserts and exits non-zero on failure.</td>
+</tr>
+<tr>
+<td><code>FLOW.md</code> / <code>flow.html</code> (v2.1)</td>
+<td>Every step of the reader's journey (paths A–E): copy, actions, where each leads, how to leave. Generated by <code>build_flow.py</code>.</td>
 </tr>
 </tbody>
 </table>
@@ -1353,6 +1594,8 @@ php docs/paywall/pilot/harness/render.php gate docs/paywall/design/evidence/ctx-
 venv/bin/python docs/paywall/design/build_mockups.py       # mockups/*.html
 venv/bin/python docs/paywall/design/render_mockups.py      # img/*.webp + evidence/mockup-measurements.json
 venv/bin/python docs/paywall/design/build_compare.py       # compare.html
+venv/bin/python docs/paywall/design/verify_sheet.py        # sheet behaviour + payment geometry; exits 1 on a failed check
+venv/bin/python docs/paywall/design/build_flow.py          # flow.html + FLOW.md (v2.1), from the mockup and img/
 venv/bin/python docs/paywall/design/contrast.py            # section 6.1 table
 venv/bin/python docs/paywall/design/measure_live_cls.py    # section 6.4 live CLS (read-only)
 php docs/paywall/design/probe_band_placement.php docs/paywall/design/evidence/current-gate-regular-post.html 4

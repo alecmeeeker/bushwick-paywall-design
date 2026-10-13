@@ -1,5 +1,6 @@
 /*
- * PROPOSED membership sheet, design proposal v2 (docs/paywall/design/PROPOSAL.md, section V2). NOT deployed and
+ * PROPOSED membership sheet, design proposal v2 (docs/paywall/design/PROPOSAL.md, section V2), with the v2.1 changes
+ * (section V2.1: per-opening plan reset, onClose before focus return, the success-step exits). NOT deployed and
  * NOT membership.js. Two parts:
  *
  *   1. BDSheet: the full-screen sheet controller (open, close, steps, history, scroll lock, focus, inert). It is
@@ -26,9 +27,15 @@
 
   /**
    * root: the .bd-sheet element, a direct child of <body> (so every other body child can be made inert).
-   * opts.onClose(reason)   reason: 'x' | 'escape' | 'popstate' | 'done' | 'away'
-   * opts.fallbackFocus()   where focus goes when the control that opened the sheet no longer exists (e.g. the gate
-   *                        was replaced by the unlocked text)
+   * opts.onOpen(step)          v2.1: called once per NEW opening (not on in-sheet steps), before the first step shows.
+   *                            The gate resets per-opening state here: the plan goes back to cfg.default_plan, monthly
+   *                            (owner, 2026-10-13: "default should be monthly"; PROPOSAL.md V2.1-3).
+   * opts.onStep(step)          called each time a step shows.
+   * opts.onClose(reason, step) reason: 'x' | 'escape' | 'popstate' | 'done' | 'away'; step: the step it closed on.
+   *                            v2.1: called BEFORE focus returns, so the gate can unlock the story first when the sheet
+   *                            closes on the success step (every exit there = "Read the story", PROPOSAL.md V2.1-4).
+   * opts.fallbackFocus()       where focus goes when the control that opened the sheet no longer exists (e.g. the gate
+   *                            was replaced by the unlocked text)
    */
   function BDSheet(root, opts) {
     var self = this;
@@ -66,6 +73,7 @@
     this.inert(true);
     this.root.hidden = false;
     doc.addEventListener('keydown', this.onKey, true);
+    if (this.opts.onOpen) this.opts.onOpen(step);           // v2.1: per-opening reset (plan = monthly)
     this.show(step);
     var root = this.root;
     // The opening transition (CSS; none under prefers-reduced-motion). Transform/opacity only: no layout shift.
@@ -88,6 +96,7 @@
   };
 
   BDSheet.prototype.back = function () {
+    if (this.busy) return;                  // v2.1: while a payment processes, "← Back" waits like X and Escape
     var el = this.steps[this.step];
     var parent = el && el.getAttribute('data-bd-sheet-parent');
     if (parent) this.show(parent);
@@ -96,6 +105,7 @@
   BDSheet.prototype.setBusy = function (on) {
     this.busy = !!on;
     this.closeBtn.setAttribute('aria-disabled', on ? 'true' : 'false');
+    this.backBtn.setAttribute('aria-disabled', on ? 'true' : 'false');   // v2.1
     this.root.classList.toggle('is-busy', !!on);
   };
 
@@ -115,12 +125,14 @@
       history.back();
     }
     this.pushed = false;
+    // v2.1: the gate hears the close BEFORE focus returns, with the step it closed on. Closing on the success step
+    // unlocks the story there, and focus then lands in the story (the trigger no longer exists).
+    if (this.opts.onClose) this.opts.onClose(reason, this.step);
     var t = this.trigger;
     this.trigger = null;
     var target = (t && doc.body.contains(t) && !(t.closest && t.closest('[inert]'))) ? t
       : (this.opts.fallbackFocus ? this.opts.fallbackFocus() : null);
     focusNoScroll(target);                                   // V2-2: focus returns without moving the page
-    if (this.opts.onClose) this.opts.onClose(reason);
   };
 
   BDSheet.prototype.onPop = function () {
@@ -215,8 +227,20 @@
       if (t && !t.hasAttribute('tabindex')) t.setAttribute('tabindex', '-1');
       return t || qs('#bd-gate-email');
     },
+    // v2.1-3 (owner, 2026-10-13: "default should be monthly"): every NEW opening starts on the default plan, whatever
+    // the radios hold (a browser can restore a radio the reader set earlier: measured in Chromium, PROPOSAL.md
+    // V2.1-3). Inside one opening the reader's own choice is kept: "Change" and "← Back" from payment show it.
+    onOpen: function () { selectPlan(cfg.default_plan || 'monthly'); },
     onStep: function (name) {
       if (name === 'pay') startPay();
+    },
+    // v2.1-4: on the success step every exit (X, Escape, Back) does what "Read the story" does: the story unlocks in
+    // place. v2 left the story locked when the reader closed the success screen with X (the mock unlocked only in
+    // finish()). After a "Read the story" (reason 'done') the story is already unlocked.
+    onClose: function (reason, step) {
+      if (step !== 'success') return;
+      window.clearTimeout(doneTimer);
+      if (doc.body.contains(gate)) unlock(true);
     }
   });
   window.__bdSheet = sheet;                                         // for verify_sheet.py
@@ -332,6 +356,7 @@
   qsa('[data-bd-sheet-next], [data-bd-sheet-goto]', sheetEl).forEach(function (el) {
     el.addEventListener('click', function (e) {
       e.preventDefault();
+      if (sheet.busy) return;                 // v2.1: "Change" and the terms link wait while a payment processes
       sheet.show(el.getAttribute('data-bd-sheet-next') || el.getAttribute('data-bd-sheet-goto'));
     });
   });
@@ -359,19 +384,26 @@
   });
 
   /* payment (mock): consent first, then "processing", then the success screen */
-  qs('#bd-gate-join', sheetEl).addEventListener('submit', function (e) {
-    e.preventDefault();
-    if (!qs('#bd-gate-consent', sheetEl).checked) { consentError(true); qs('#bd-gate-consent', sheetEl).focus(); return; }
+  function processing(on) {
     var btn = qs('#bd-gate-submit', sheetEl);
-    sheet.setBusy(true);
-    btn.setAttribute('aria-busy', 'true');
-    btn.textContent = 'Processing…';                                            // membership.js:1089
-    text('#bd-gate-progress', 'Starting your membership…', sheetEl);              // membership.js:1090
-    window.setTimeout(function () {
-      sheet.setBusy(false);
+    sheet.setBusy(on);
+    body.setAttribute('data-bd-state', on ? 'processing' : 'idle');             // membership.js setState (:1087)
+    if (on) {
+      btn.setAttribute('aria-busy', 'true');
+      btn.textContent = 'Processing…';                                          // membership.js:1089
+      text('#bd-gate-progress', 'Starting your membership…', sheetEl);            // membership.js:1090
+    } else {
       btn.removeAttribute('aria-busy');
       selectPlan(planKey);
       text('#bd-gate-progress', '', sheetEl);
+    }
+  }
+  qs('#bd-gate-join', sheetEl).addEventListener('submit', function (e) {
+    e.preventDefault();
+    if (!qs('#bd-gate-consent', sheetEl).checked) { consentError(true); qs('#bd-gate-consent', sheetEl).focus(); return; }
+    processing(true);
+    window.setTimeout(function () {
+      processing(false);
       success(true);
     }, 900);
   });
@@ -416,6 +448,21 @@
       qs('#bd-gate-email', gate).setAttribute('aria-invalid', 'true');
       text('#bd-gate-email-error', 'Enter an email address, like name@example.com.', gate);
     },
+    // v2.1 flow states (FLOW.md, path D): gate/start failed on the network. MSG_NETWORK (membership.js:40) shows under
+    // the field (:600); decision V2.1-5: the field is NOT marked invalid, because the address is not wrong.
+    's1-network': function () {
+      qs('#bd-gate-email', gate).value = READER;
+      text('#bd-gate-email-error', 'We could not reach Bushwick Daily. Check your connection and try again.', gate);
+    },
+    // v2.1 flow state (FLOW.md, path E): the reader typed an address, the sheet opened, and they closed it with X.
+    'returned': function () {
+      var input = qs('#bd-gate-email', gate);
+      input.value = READER;
+      setReader(READER);
+      landAtGate();
+      sheet.open('plans', qs('#bd-gate-continue', gate));
+      sheet.close('x');
+    },
     'signed-in': function () { setSignedIn(READER); },
     'jump-note': function () { text('[data-bd-gate-jump-note]', '“The Switches” is in the members-only part of this story.', gate); }, // membership.js:1381
     'sheet-code': function () { setReader(MEMBER); sheet.open('code'); },
@@ -425,7 +472,8 @@
       text('#bd-gate-code-error', 'That code is wrong or has expired.', sheetEl);
     },
     'sheet-plans': function () { setReader(READER); sheet.open('plans'); },
-    'sheet-plans-yearly': function () { setReader(READER); selectPlan('annual'); sheet.open('plans'); },
+    // the reader tapped Yearly (the sheet always opens on Monthly, so the choice is made after opening)
+    'sheet-plans-yearly': function () { setReader(READER); sheet.open('plans'); selectPlan('annual'); },
     'sheet-plans-signed-in': function () { setSignedIn(READER); sheet.open('plans'); },
     'sheet-signin': function () { setReader(READER); sheet.open('plans'); sheet.show('signin'); },
     'sheet-pay': function () { setReader(READER); payState('applePay'); },
@@ -439,13 +487,24 @@
       // Stripe's message for a declined test card (card_declined / generic_decline); membership.js:1136 shows it as is.
       text('#bd-gate-alert', 'Your card was declined.', sheetEl);
     },
+    // v2.1 flow states (FLOW.md): the payment is running (X and Escape wait, V2-2); and checkout/subscribe failed on
+    // the network (MSG_NETWORK, membership.js:40, written by fail() under Subscribe, :1099).
+    'sheet-pay-processing': function () {
+      setReader(READER); qs('#bd-gate-consent', sheetEl).checked = true; payState('none'); processing(true);
+    },
+    'sheet-pay-network': function () {
+      setReader(READER); qs('#bd-gate-consent', sheetEl).checked = true; payState('none');
+      text('#bd-gate-alert', 'We could not reach Bushwick Daily. Check your connection and try again.', sheetEl);
+    },
     'sheet-terms': function () { setReader(READER); payState('applePay'); sheet.show('terms'); },
     'sheet-success': function () { setReader(READER); selectPlan(planKey); sheet.open('plans'); success(false); },
-    'unlocked': function () { setReader(READER); unlock(true); }
+    'unlocked': function () { setReader(READER); unlock(true); },
+    // v2.1 flow state (FLOW.md, path B): a member's code was right; the story opens with no receipt line (G-11).
+    'unlocked-member': function () { setReader(MEMBER); unlock(false); }
   };
   setReader(READER);
   selectPlan(planKey);
-  if (/^sheet-/.test(STATE) || STATE === 'unlocked') landAtGate();
+  if (/^sheet-/.test(STATE) || /^unlocked/.test(STATE)) landAtGate();
   (S[STATE] || S.arrive)();
   doc.documentElement.setAttribute('data-mock-state', STATE);
 

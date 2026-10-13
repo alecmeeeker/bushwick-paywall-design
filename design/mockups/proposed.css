@@ -661,7 +661,10 @@ body.bd-membership-page *, body.bd-membership-page *::before, body.bd-membership
   color: var(--bdm-text);
   cursor: pointer;
 }
-.bd-sheet__close[aria-disabled='true'] { opacity: .35; cursor: progress; }     /* a payment is processing (V2-2) */
+.bd-sheet__close[aria-disabled='true'],
+.bd-sheet__back[aria-disabled='true'] { opacity: .35; cursor: progress; }      /* a payment is processing (V2-2; Back: v2.1) */
+/* v2.1: in-sheet navigation waits while a payment processes ("Change", the terms link); the JS guard is in the gate */
+.bd-sheet.is-busy [data-bd-sheet-goto] { opacity: .35; pointer-events: none; }
 .bd-sheet__bar :focus-visible { outline: 2px solid var(--bdm-accent); outline-offset: -2px; }   /* single.php:702 ring */
 
 /* The only scrolling box while the sheet is open; it never hands its scroll to the page (V2-2). */
@@ -734,18 +737,26 @@ body.bd-membership-page *, body.bd-membership-page *::before, body.bd-membership
   min-height: 52px;
   padding: .35rem .5rem;
   border-radius: 2px;
-  color: var(--bdm-text);
+  color: var(--bdm-soft);                           /* #a0a0a0 on #0a0a0a: 7.57:1 (section 6.1) */
   text-align: center;
   cursor: pointer;
-  transition: background-color .15s ease, color .15s ease;
+  transition: background-color .15s ease, color .15s ease, box-shadow .15s ease;
 }
 /* The native radio covers its option (invisible), so the option is the hit area and keyboard arrows work as usual. */
 .bd-sheet .bd-cadence__input { position: absolute; inset: 0; width: 100%; height: 100%; margin: 0; opacity: 0; cursor: pointer; }
 .bd-sheet .bd-cadence__name { font-size: .85rem; font-weight: 800; letter-spacing: .06em; line-height: 1.2; text-transform: uppercase; }
 .bd-sheet .bd-cadence__save { margin-top: .15rem; font-size: .8rem; font-weight: 600; line-height: 1.2; color: var(--bdm-accent); }
-.bd-sheet .bd-cadence__opt:hover { background: var(--bdm-field); }
-.bd-sheet .bd-cadence__opt:has(.bd-cadence__input:checked) { background: var(--bdm-accent); color: var(--bdm-on-accent); }
-.bd-sheet .bd-cadence__opt:has(.bd-cadence__input:checked) .bd-cadence__save { color: var(--bdm-on-accent); }
+.bd-sheet .bd-cadence__opt:hover { background: var(--bdm-field); color: var(--bdm-text); }
+/* v2.1-1: the chosen option is a SELECTED STATE, not a second button. v2 filled it with #ffe135 and #0a0a0a uppercase
+   800 text, the same computed background, colour, weight and case as Continue, so the plans step showed two yellow
+   "buttons" and the first one did nothing when tapped (PROPOSAL.md V2.1-1). Now: the card surface, white text and a
+   2px yellow ring (v1's selected-tile token, PROPOSAL.md section 2 step 4; #ffe135 vs #141414 14.10:1, vs #0a0a0a
+   15.15:1, WCAG 1.4.11). The unchosen option's name is #a0a0a0. Continue is the step's only yellow fill. */
+.bd-sheet .bd-cadence__opt:has(.bd-cadence__input:checked) {
+  background: var(--bdm-surface);
+  color: var(--bdm-text);
+  box-shadow: inset 0 0 0 2px var(--bdm-accent);
+}
 .bd-sheet .bd-cadence__opt:has(.bd-cadence__input:focus-visible) { outline: 2px solid var(--bdm-text); outline-offset: 2px; }
 
 /* The plan card = the card family (single.php:666-673: 1px #2a2a2a, 8px radius, 3px yellow rule) on #141414. */
@@ -785,22 +796,25 @@ body.bd-membership-page *, body.bd-membership-page *::before, body.bd-membership
 
 /* ── payment (V2-3): summary, the 527-a consent (verbatim, above both pay buttons), the black wallet button, the
       "Pay with card" link, the card form, Subscribe with its error line directly under it (D-1545). */
+/* v2.1-2: the summary IS the step's heading. v2 spent 182 px of the 605 px phone scroll box on a "Payment" title and a
+   boxed summary before the consent box, so the 527-a disclosure ran past the first screen and Apple Pay sat 171 px
+   below it (PROPOSAL.md V2.1-2). Now three lines, no box: the kicker "Payment", the price in the band's price voice
+   with Change beside it, and "{Plan} membership for {email}" (Stripe Checkout's header shape: research 28, hg-5). */
 .bd-sheet .bd-sheet__summary {
   display: grid;
   grid-template-columns: minmax(0, 1fr) auto;
   column-gap: 1rem;
-  align-items: center;
-  margin: 0 0 1.25rem;
-  padding: .9rem 1rem;
-  background: var(--bdm-surface);
-  border: 1px solid var(--bdm-rule);
-  border-radius: var(--bdm-radius-tile);
+  align-items: end;
+  margin: 0 0 1rem;
 }
-.bd-sheet .bd-sheet__summary-plan { grid-column: 1; display: flex; flex-wrap: wrap; align-items: baseline; gap: 0 .6rem; margin: 0; font-weight: 600; }
-.bd-sheet .bd-sheet__summary-price { font-family: var(--bdm-font-head); font-size: 1.2rem; font-weight: 900; font-style: italic; }
-.bd-sheet .bd-sheet__summary-for { grid-column: 1; margin: .2rem 0 0; font-size: .9rem; color: var(--bdm-soft); overflow-wrap: anywhere; }
-.bd-sheet .bd-sheet__summary-for strong { color: var(--bdm-text); font-weight: 600; }
-.bd-sheet .bd-sheet__summary-change { grid-column: 2; grid-row: 1 / span 2; }
+.bd-sheet .bd-sheet__summary-head { grid-column: 1; grid-row: 1; margin: 0; font-size: 1rem; font-weight: 400; line-height: 1.3; color: var(--bdm-text); }
+/* kicker = the plan card's label (.bd-offer__label: Inter 600 .7rem .1em uppercase #a0a0a0) */
+.bd-sheet .bd-sheet__kicker { display: block; margin: 0 0 .3rem; font-family: var(--bdm-font-ui); font-size: .7rem; font-style: normal; font-weight: 600; letter-spacing: .1em; line-height: 1.3; text-transform: uppercase; color: var(--bdm-soft); }
+/* price = the band's price voice (.bd-member-band__price, single.php:698: Satoshi 900 italic) at the article h3 size (1.5rem) */
+.bd-sheet .bd-sheet__summary-price { display: block; font-family: var(--bdm-font-head); font-size: 1.5rem; font-weight: 900; font-style: italic; line-height: 1.1; letter-spacing: -.01em; }
+.bd-sheet .bd-sheet__summary-change { grid-column: 2; grid-row: 1; align-self: end; }
+.bd-sheet .bd-sheet__summary-for { grid-column: 1 / -1; grid-row: 2; margin: .3rem 0 0; font-size: .9rem; line-height: 1.45; color: var(--bdm-soft); overflow-wrap: anywhere; }
+.bd-sheet .bd-sheet__summary-for strong, .bd-sheet .bd-sheet__summary-plan { color: var(--bdm-text); font-weight: 600; }
 .bd-gate--sheet .bd-gate__consent { margin-top: 0; }
 /* No wallet in this browser: the card form is already open and is the only path, so its toggle is not shown. */
 .bd-gate--sheet[data-bd-wallets='none'] .bd-gate__card-toggle { display: none; }

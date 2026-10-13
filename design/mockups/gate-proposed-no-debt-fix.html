@@ -2101,11 +2101,12 @@ img:is([sizes=auto i],[sizes^="auto," i]){contain-intrinsic-size:3000px 1500px}
 </div>
 </section>
 <section class="bd-sheet__step bd-sheet__step--pay" data-bd-sheet-parent="plans" data-bd-sheet-step="pay" hidden="">
-<h2 class="bd-sheet__step-title" data-bd-sheet-heading="" id="bd-sheet-pay-title" tabindex="-1">Payment</h2>
+<!-- v2.1-2 (PROPOSAL.md V2.1-2): the summary is the step's heading (no separate "Payment" title, no box).
+               The dialog's name on this step is "Payment: $6.99 a month". -->
 <div class="bd-sheet__summary">
-<p class="bd-sheet__summary-plan"><span data-bd-summary-plan="">Monthly membership</span> <span class="bd-sheet__summary-price" data-bd-summary-price="">$6.99 a month</span></p>
-<p class="bd-sheet__summary-for">For <strong data-bd-step-email=""></strong></p>
+<h2 class="bd-sheet__summary-head" data-bd-sheet-heading="" id="bd-sheet-pay-title" tabindex="-1"><span class="bd-sheet__kicker">Payment<span class="bd-sr-only">:</span></span> <span class="bd-sheet__summary-price" data-bd-summary-price="">$6.99 a month</span></h2>
 <button class="bd-link bd-sheet__summary-change" data-bd-sheet-goto="plans" type="button">Change<span class="bd-sr-only"> plan</span></button>
+<p class="bd-sheet__summary-for"><span class="bd-sheet__summary-plan" data-bd-summary-plan="">Monthly membership</span> for <strong data-bd-step-email=""></strong></p>
 </div>
 <form class="bd-gate__form" id="bd-gate-join" novalidate="">
 <div class="bd-gate__consent">
@@ -2158,7 +2159,7 @@ img:is([sizes=auto i],[sizes^="auto," i]){contain-intrinsic-size:3000px 1500px}
 <ul>
 <li><strong>Price.</strong> Before you pay, the checkout shows the price of each plan, and the sentence next to the agreement checkbox states the exact amount we will charge and how often. All prices are in US dollars.</li>
 <li><strong>First charge.</strong> We charge the first payment when you join. Your membership starts when that payment succeeds.</li>
-<li><strong>Renewal date.</strong> Your next renewal date and amount are shown on your account page at <a href="https://bushwickdaily.com/account/">bushwickdaily.com/account/</a> and in the confirmation email we send when you join.</li>
+<li><strong>Renewal date.</strong> Your next renewal date and amount are shown on your account page at <a href="https://bushwickdaily.com/account/" rel="noopener" target="_blank">bushwickdaily.com/account/<span class="bd-sr-only"> (opens in a new tab)</span><span aria-hidden="true" class="bd-ext">↗</span></a> and in the confirmation email we send when you join.</li>
 <li><strong>Price changes.</strong> The price can change only for future renewal periods, and only after the notice in section 5.3.</li>
 <li><strong>No minimum.</strong> There is no minimum term, no minimum purchase and no cancellation fee.</li>
 <li><strong>Cancellation policy.</strong> You can cancel at any time, as section 4 describes. Canceling stops all future charges. You keep access until the end of the period you have already paid for, and we do not refund that period except in the cases listed in section 4.4.</li>
@@ -2168,7 +2169,7 @@ img:is([sizes=auto i],[sizes^="auto," i]){contain-intrinsic-size:3000px 1500px}
 <h3 id="cancel-online">4.1 Online</h3>
 <p>You can cancel online at any time, the same way you joined:</p>
 <ul>
-<li>Go to <a href="https://bushwickdaily.com/account/">bushwickdaily.com/account/</a> and sign in with the email address on your membership. We email you a sign-in link and a 6-digit code.</li>
+<li>Go to <a href="https://bushwickdaily.com/account/" rel="noopener" target="_blank">bushwickdaily.com/account/<span class="bd-sr-only"> (opens in a new tab)</span><span aria-hidden="true" class="bd-ext">↗</span></a> and sign in with the email address on your membership. We email you a sign-in link and a 6-digit code.</li>
 <li>Choose <strong>Cancel membership</strong>, then <strong>Confirm cancel</strong>.</li>
 </ul>
 <p>You do not need to call us, write to us, or respond to any offer. We email you a confirmation of the cancellation. You can also cancel on Stripe’s billing page, which you open from your account page with <strong>Manage billing</strong>.</p>
@@ -2206,7 +2207,7 @@ img:is([sizes=auto i],[sizes^="auto," i]){contain-intrinsic-size:3000px 1500px}
 <p>If we make any other material change to how your membership renews, how much or how often we charge, or how you cancel, we email you at least 14 days and no more than 30 days before the change takes effect, with instructions on how to cancel.</p>
 <h3 id="payments">6. Payments</h3>
 <ul>
-<li>Stripe processes our payments. Card numbers and the details from Apple Pay, Google Pay or Link go directly to Stripe. We never receive or store your full card number. Stripe’s privacy policy (<a href="https://stripe.com/privacy">stripe.com/privacy</a>) covers the information Stripe processes.</li>
+<li>Stripe processes our payments. Card numbers and the details from Apple Pay, Google Pay or Link go directly to Stripe. We never receive or store your full card number. Stripe’s privacy policy (<a href="https://stripe.com/privacy" rel="noopener" target="_blank">stripe.com/privacy<span class="bd-sr-only"> (opens in a new tab)</span><span aria-hidden="true" class="bd-ext">↗</span></a>) covers the information Stripe processes.</li>
 <li>You authorize us, through Stripe, to charge your payment method the amounts described in sections 3, 5 and 7 until you cancel.</li>
 <li>You must have the right to use the payment method you give us, and you must keep it up to date. You can update your card and see your receipts from your account page with <strong>Manage billing</strong>, which opens Stripe’s billing page.</li>
 <li><strong>Failed payments.</strong> If a renewal charge fails, Stripe may try it again over the following days, and we or Stripe may email you. Your access continues for up to 14 days after the failed charge while those retries are pending. If the charge has not succeeded by then, your access stops; if it still fails after the retries, your membership ends. You can join again at any time.</li>
@@ -2309,7 +2310,7 @@ img:is([sizes=auto i],[sizes^="auto," i]){contain-intrinsic-size:3000px 1500px}
 <li>If you keep your membership after a change takes effect, the change applies to you from that date. If you do not agree to a change, you can cancel. If you cancel before the change takes effect, or within 14 days after it takes effect, we give you a pro rata refund for the unused part of your current period.</li>
 </ul>
 <h3 id="privacy">16. Privacy and membership data</h3>
-<p>Our <a href="/privacy-policy/">privacy policy</a> describes how we handle personal information on bushwickdaily.com. This section adds what we keep for memberships.</p>
+<p>Our <a href="/privacy-policy/" rel="noopener" target="_blank">privacy policy<span class="bd-sr-only"> (opens in a new tab)</span><span aria-hidden="true" class="bd-ext">↗</span></a> describes how we handle personal information on bushwickdaily.com. This section adds what we keep for memberships.</p>
 <h3 id="data-kept">16.1 What we keep</h3>
 <ul>
 <li>Your email address, and your name if you give it at checkout.</li>

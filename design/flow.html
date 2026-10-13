@@ -1,0 +1,272 @@
+<!doctype html><html lang=en><head><meta charset=utf-8><meta name=viewport content="width=device-width,initial-scale=1"><meta name="robots" content="noindex,nofollow"><title>Paywall reader flow</title><style>:root{--bg:#0a0a0a;--fg:#ededed;--muted:#a3a3a3;--y:#ffe135;--line:#2a2a2a;--card:#141414}
+*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--fg);font:16px/1.55 Inter,-apple-system,Helvetica,Arial,sans-serif}
+main{max-width:1240px;margin:0 auto;padding:24px 16px 64px}h1{font-size:28px;margin:0 0 6px}.lede{color:var(--muted);margin:0 0 18px;max-width:80ch}
+a{color:var(--y)}.map{font-size:18px;font-weight:600;margin:0 0 8px;line-height:1.9}.map a{text-decoration:none;border-bottom:2px solid var(--y);color:var(--fg)}
+.map .sep{color:var(--muted);margin:0 .35em}.paths{display:flex;flex-wrap:wrap;gap:8px;margin:12px 0 26px;padding:0;list-style:none}
+.paths a{display:block;border:1px solid var(--line);border-radius:4px;padding:6px 10px;color:var(--fg);text-decoration:none;font-size:14px}
+.paths a b{color:var(--y)}.path{border-top:1px solid var(--line);padding:22px 0 4px}h2{font-size:20px;margin:0 0 4px;color:var(--y)}
+.path>p{color:var(--muted);margin:0 0 10px}.step{display:grid;grid-template-columns:300px 260px minmax(0,1fr);gap:18px;align-items:start;
+padding:18px 0;border-top:1px dashed var(--line)}.step.noimg{grid-template-columns:minmax(0,1fr)}
+h3{font-size:17px;margin:0 0 10px}h3 .id{display:inline-block;min-width:2.6em;color:var(--y)}
+figure{margin:0}figure img{width:100%;display:block;border:1px solid var(--line);border-radius:6px}
+figcaption{font-size:12px;color:var(--muted);margin-top:4px}h4{font-size:12px;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);margin:14px 0 6px}
+h4:first-of-type{margin-top:0}.copy{margin:0;padding:10px 12px;background:var(--card);border-left:3px solid var(--y);border-radius:4px;font-size:14px}
+.copy p{margin:0 0 4px}.copy p:last-child{margin:0}ul{margin:0;padding-left:18px}li{margin:0 0 5px;font-size:15px}
+.leave,.note{font-size:15px;margin:0}.note{color:var(--muted);margin-top:8px}table{border-collapse:collapse;width:100%;font-size:14px}
+th,td{border:1px solid var(--line);padding:6px 8px;text-align:left;vertical-align:top}.tablewrap{overflow-x:auto;max-width:100%}th{color:var(--muted);font-weight:600}
+@media(max-width:1000px){.step{grid-template-columns:minmax(0,300px) minmax(0,260px)}.step .text{grid-column:1/-1}}
+@media(max-width:620px){.step{grid-template-columns:minmax(0,1fr)}table{font-size:13px}th,td{padding:5px 6px}.step figure.desk{max-width:260px}}</style></head><body><main>
+<h1>Paying for a story at Bushwick Daily: the whole flow</h1>
+<p class=lede>Design v2.1 mockups, 2026-10-13: phone (iPhone 13) first, then desktop (1440). Under each step: the words on screen, extracted from the mockup; what the reader can do and where it leads; how to leave. Nothing here is live; card forms are Stripe test mode. Spec: PROPOSAL.md V2 and V2.1; text twin: FLOW.md.</p>
+<p class=map><a href="#A1">Gate</a> <span class=sep>→</span> <a href="#A2">Email</a> <span class=sep>→</span> <a href="#B2">Code</a> <span class=sep>|</span> <a href="#A3">Plans</a> <span class=sep>→</span> <a href="#A4">Payment</a> <span class=sep>→</span> <a href="#A7">Success</a> <span class=sep>→</span> <a href="#A8">Story</a></p>
+<p class=lede>A member gets the code; everyone else gets the plans. The sheet opens only after the reader acts, always on Monthly.</p>
+<ul class=paths><li><a href="#path-A"><b>A</b> New reader</a></li><li><a href="#path-B"><b>B</b> Existing member</a></li><li><a href="#path-C"><b>C</b> Signed in, no membership</a></li><li><a href="#path-D"><b>D</b> Errors</a></li><li><a href="#path-E"><b>E</b> Exits and returns</a></li></ul>
+<section class=path id="path-A"><h2>A. New reader</h2><p>An address with no membership: land, email, plans (Monthly first), payment, success, story.</p>
+<div class="step" id="A1">
+<figure class=phone><a href="img/gate-arrive-proposed-iphone13.webp"><img loading=lazy src="img/gate-arrive-proposed-iphone13.webp" alt="Land on the story, iPhone 13, 390×664"></a><figcaption>iPhone 13, 390×664</figcaption></figure>
+<figure class=desk><a href="img/gate-arrive-proposed-desktop.webp"><img loading=lazy src="img/gate-arrive-proposed-desktop.webp" alt="Land on the story, Desktop, 1440×900"></a><figcaption>Desktop, 1440×900</figcaption></figure>
+<div class=text><h3><span class=id>A1</span>Land on the story</h3>
+<h4>On screen (verbatim)</h4><div class=copy><p>Subscribe to read the full story.</p><p>Bushwick Daily is paid for by its readers. Enter your email to continue.</p><p>[field: Email address, empty]</p><p>[x] Also send me the Bushwick Daily newsletter</p><p>Continue</p></div>
+<h4>What the reader can do → where it leads</h4><ul><li><b>Keep scrolling, or tap the address field</b> → <a href="#A2">A2 The email card (S1)</a></li></ul>
+<h4>How to leave</h4><p class=leave>Nothing to close: the reader is on the article. Nothing covers it on landing (owner rule).</p>
+<p class=note>Captured with the card at 62% of the screen, as a reader scrolling down meets it.</p>
+</div></div>
+<div class="step" id="A2">
+<figure class=phone><a href="img/gate-s1-proposed-iphone13.webp"><img loading=lazy src="img/gate-s1-proposed-iphone13.webp" alt="The email card (S1), iPhone 13, 390×664"></a><figcaption>iPhone 13, 390×664</figcaption></figure>
+<figure class=desk><a href="img/gate-s1-proposed-desktop.webp"><img loading=lazy src="img/gate-s1-proposed-desktop.webp" alt="The email card (S1), Desktop, 1440×900"></a><figcaption>Desktop, 1440×900</figcaption></figure>
+<div class=text><h3><span class=id>A2</span>The email card (S1)</h3>
+<h4>On screen (verbatim)</h4><div class=copy><p>Subscribe to read the full story.</p><p>Bushwick Daily is paid for by its readers. Enter your email to continue.</p><p>[field: Email address, empty]</p><p>[x] Also send me the Bushwick Daily newsletter</p><p>Continue</p></div>
+<h4>What the reader can do → where it leads</h4><ul><li><b>Uncheck “Also send me the Bushwick Daily newsletter” (checked by default)</b> → stays here; the address is not added to the newsletter, and the plan card does not list the newsletter</li><li><b>Continue with an address that is not valid</b> → <a href="#D1">D1 The address is not valid</a></li><li><b>Continue</b> → the button reads “Checking…” (membership.js:584) while gate/start answers, then the sheet opens: no membership → <a href="#A3">A3 Plans: the sheet opens on Monthly</a>; a membership → <a href="#B2">B2 Code</a> (a code is emailed). Network failure → <a href="#D2">D2 Network failure at the email step</a> (the sheet does not open).</li></ul>
+<h4>How to leave</h4><p class=leave>Nothing to close (the card is part of the article).</p>
+</div></div>
+<div class="step" id="A3">
+<figure class=phone><a href="img/sheet-plans-proposed-iphone13.webp"><img loading=lazy src="img/sheet-plans-proposed-iphone13.webp" alt="Plans: the sheet opens on Monthly, iPhone 13, 390×664"></a><figcaption>iPhone 13, 390×664</figcaption></figure>
+<figure class=desk><a href="img/sheet-plans-proposed-desktop.webp"><img loading=lazy src="img/sheet-plans-proposed-desktop.webp" alt="Plans: the sheet opens on Monthly, Desktop, 1440×900"></a><figcaption>Desktop, 1440×900</figcaption></figure>
+<div class=text><h3><span class=id>A3</span>Plans: the sheet opens on Monthly</h3>
+<h4>On screen (verbatim)</h4><div class=copy><p>You’re out of free articles.</p><p>A membership unlocks this story and every other one: $6.99 a month or $70 a year.</p><p>Monthly [selected]</p><p>Yearly</p><p>Save $13.88</p><p>Bushwick Daily membership</p><p>$6.99/month</p><p>Billed every month. Cancel anytime online.</p><p>Members are the reason a neighborhood paper like ours can keep reporting with no hedge fund behind it.</p><p>What a membership includes</p><p>Every members-only story on bushwickdaily.com, for as long as your membership is active</p><p>The Bushwick Daily newsletter</p><p>A direct line to the publisher for story tips, complaints and ideas</p><p>Continue</p><p>Already a member under a different email? Sign in</p></div>
+<h4>What the reader can do → where it leads</h4><ul><li><b>Tap Yearly</b> → <a href="#A3b">A3b Plans after the reader taps Yearly</a></li><li><b>Continue</b> → <a href="#A4">A4 Payment with Apple Pay on the device</a> when the device has Apple Pay, <a href="#A5">A5 Payment by card</a> when it has no wallet</li><li><b>“Already a member under a different email? Sign in”</b> → <a href="#B4">B4 A member who paid under another address: Sign in</a></li></ul>
+<h4>How to leave</h4><p class=leave>X (top right), Escape, or the phone's or browser's Back: the sheet closes and the reader is on the card (<a href="#E2">E2 The card after the sheet closes</a>) at the same scroll position, focus on the control that opened the sheet. One Back = one thing: the next Back leaves the article (PROPOSAL.md V2-2). No “← Back” here: plans is the first step.</p>
+<p class=note>Every opening of the sheet starts on Monthly (owner, 2026-10-13: “default should be monthly”; PROPOSAL.md V2.1-3).</p>
+<p class=note>The chosen option has a yellow outline; Continue is the only yellow button (V2.1-1). On phones Continue is pinned to the bottom of the screen (V2-2).</p>
+</div></div>
+<div class="step" id="A3b">
+<figure class=phone><a href="img/sheet-plans-yearly-proposed-iphone13.webp"><img loading=lazy src="img/sheet-plans-yearly-proposed-iphone13.webp" alt="Plans after the reader taps Yearly, iPhone 13, 390×664"></a><figcaption>iPhone 13, 390×664</figcaption></figure>
+<figure class=desk><a href="img/sheet-plans-yearly-proposed-desktop.webp"><img loading=lazy src="img/sheet-plans-yearly-proposed-desktop.webp" alt="Plans after the reader taps Yearly, Desktop, 1440×900"></a><figcaption>Desktop, 1440×900</figcaption></figure>
+<div class=text><h3><span class=id>A3b</span>Plans after the reader taps Yearly</h3>
+<h4>On screen (verbatim)</h4><div class=copy><p>You’re out of free articles.</p><p>A membership unlocks this story and every other one: $6.99 a month or $70 a year.</p><p>Monthly</p><p>Yearly [selected]</p><p>Save $13.88</p><p>Bushwick Daily membership</p><p>$70/year</p><p>Save $13.88 vs. 12 monthly payments. Cancel anytime online.</p><p>Members are the reason a neighborhood paper like ours can keep reporting with no hedge fund behind it.</p><p>What a membership includes</p><p>Every members-only story on bushwickdaily.com, for as long as your membership is active</p><p>The Bushwick Daily newsletter</p><p>A direct line to the publisher for story tips, complaints and ideas</p><p>Continue</p><p>Already a member under a different email? Sign in</p></div>
+<h4>What the reader can do → where it leads</h4><ul><li><b>Tap Monthly</b> → <a href="#A3">A3 Plans: the sheet opens on Monthly</a></li><li><b>Continue</b> → <a href="#A4">A4 Payment with Apple Pay on the device</a> / <a href="#A5">A5 Payment by card</a> at the yearly price ($70.00 now and every year, in the disclosure)</li></ul>
+<h4>How to leave</h4><p class=leave>X (top right), Escape, or the phone's or browser's Back: the sheet closes and the reader is on the card (<a href="#E2">E2 The card after the sheet closes</a>) at the same scroll position, focus on the control that opened the sheet. One Back = one thing: the next Back leaves the article (PROPOSAL.md V2-2).</p>
+<p class=note>Inside one opening the reader's choice is kept: “Change” and “← Back” on payment come back here with Yearly still chosen. Any new opening starts on Monthly again (V2.1-3).</p>
+</div></div>
+<div class="step" id="A4">
+<figure class=phone><a href="img/sheet-pay-proposed-iphone13.webp"><img loading=lazy src="img/sheet-pay-proposed-iphone13.webp" alt="Payment with Apple Pay on the device, iPhone 13, 390×664"></a><figcaption>iPhone 13, 390×664</figcaption></figure>
+<figure class=desk><a href="img/sheet-pay-proposed-desktop.webp"><img loading=lazy src="img/sheet-pay-proposed-desktop.webp" alt="Payment with Apple Pay on the device, Desktop, 1440×900"></a><figcaption>Desktop, 1440×900</figcaption></figure>
+<div class=text><h3><span class=id>A4</span>Payment with Apple Pay on the device</h3>
+<h4>On screen (verbatim)</h4><div class=copy><p>Payment</p><p>$6.99 a month</p><p>Change</p><p>Monthly membership for reader@example.com</p><p>[ ] By checking this box, you agree to the Bushwick Daily Membership Terms and authorize Bushwick Daily to charge $6.99 now and every month after that to your payment method. Your membership renews automatically every month until you cancel. To avoid the next charge, cancel before your next renewal date, anytime online at bushwickdaily.com/account/; you keep access until the end of the period you paid for. There is no minimum term or cancellation fee. The price may change for future renewals, only after at least 14 days&#x27; notice by email.</p><p>Membership terms · Privacy policy↗</p><p>[the black Apple Pay button]</p><p>Pay with card</p><p>Payments are processed by Stripe. Card numbers never reach Bushwick Daily’s servers.</p></div>
+<h4>What the reader can do → where it leads</h4><ul><li><b>Check the box</b> → the box must be checked before either pay button works</li><li><b>Tap the black Apple Pay button (box checked)</b> → Apple's payment sheet, then <a href="#A6">A6 Processing</a> and <a href="#A7">A7 Success</a></li><li><b>Tap Apple Pay with the box unchecked</b> → <a href="#D4">D4 Pay tapped without the box checked</a>: the wallet does not open (membership.js:982-989)</li><li><b>“Pay with card”</b> → the card form opens under the link (<a href="#A5">A5 Payment by card</a>)</li><li><b>“Change”</b> → plans with the reader's choice still selected (<a href="#A3">A3 Plans: the sheet opens on Monthly</a> / <a href="#A3b">A3b Plans after the reader taps Yearly</a>)</li><li><b>“Membership terms”</b> → <a href="#A5b">A5b Membership terms, read inside the sheet</a>, inside the sheet</li><li><b>“Privacy policy ↗”</b> → the privacy policy in a new tab; the only new tab on the payment step, and it says so to screen readers (V2-3)</li></ul>
+<h4>How to leave</h4><p class=leave>“← Back” (top left): plans. X (top right), Escape, or the phone's or browser's Back: the sheet closes and the reader is on the card (<a href="#E2">E2 The card after the sheet closes</a>) at the same scroll position, focus on the control that opened the sheet. One Back = one thing: the next Back leaves the article (PROPOSAL.md V2-2).</p>
+<p class=note>iPhone 13 (Chromium): the whole disclosure is on the first screen; Apple Pay is 76 px below it (WebKit 64). Was 171 / 159 before v2.1 (V2.1-2).</p>
+</div></div>
+<div class="step" id="A5">
+<figure class=phone><a href="img/sheet-pay-card-proposed-iphone13.webp"><img loading=lazy src="img/sheet-pay-card-proposed-iphone13.webp" alt="Payment by card, iPhone 13, 390×664"></a><figcaption>iPhone 13, 390×664</figcaption></figure>
+<figure class=desk><a href="img/sheet-pay-card-proposed-desktop.webp"><img loading=lazy src="img/sheet-pay-card-proposed-desktop.webp" alt="Payment by card, Desktop, 1440×900"></a><figcaption>Desktop, 1440×900</figcaption></figure>
+<div class=text><h3><span class=id>A5</span>Payment by card</h3>
+<h4>On screen (verbatim)</h4><div class=copy><p>Payment</p><p>$6.99 a month</p><p>Change</p><p>Monthly membership for reader@example.com</p><p>[ ] By checking this box, you agree to the Bushwick Daily Membership Terms and authorize Bushwick Daily to charge $6.99 now and every month after that to your payment method. Your membership renews automatically every month until you cancel. To avoid the next charge, cancel before your next renewal date, anytime online at bushwickdaily.com/account/; you keep access until the end of the period you paid for. There is no minimum term or cancellation fee. The price may change for future renewals, only after at least 14 days&#x27; notice by email.</p><p>Membership terms · Privacy policy↗</p><p>[Stripe card form, an iframe: Card number · Expiration date · Security code · Country · ZIP code; under it Stripe&#x27;s line “By subscribing, you authorize Brooklyn New Media, LLC to charge you according to the terms until you cancel.” (as rendered in Stripe test mode)]</p><p>Subscribe for $6.99 a month</p><p>Payments are processed by Stripe. Card numbers never reach Bushwick Daily’s servers.</p></div>
+<h4>What the reader can do → where it leads</h4><ul><li><b>Fill the card form</b> → Stripe's fields check themselves as the reader types</li><li><b>“Subscribe for $6.99 a month”</b> → box unchecked → <a href="#D4">D4 Pay tapped without the box checked</a>; fields incomplete → <a href="#D5">D5 Card form incomplete</a>; otherwise <a href="#A6">A6 Processing</a> → <a href="#A7">A7 Success</a>, or <a href="#D6">D6 Card declined</a> (declined) / <a href="#D7">D7 Network failure at payment</a> (network)</li><li><b>“Change”, “Membership terms”, “Privacy policy ↗”</b> → as on <a href="#A4">A4 Payment with Apple Pay on the device</a></li></ul>
+<h4>How to leave</h4><p class=leave>“← Back” (top left): plans. X (top right), Escape, or the phone's or browser's Back: the sheet closes and the reader is on the card (<a href="#E2">E2 The card after the sheet closes</a>) at the same scroll position, focus on the control that opened the sheet. One Back = one thing: the next Back leaves the article (PROPOSAL.md V2-2).</p>
+<p class=note>No wallet in the browser: the card form is open at once and “Pay with card” is hidden (V2-3). With a wallet, the same form opens under “Pay with card”.</p>
+<p class=note>iPhone 13 (Chromium): Subscribe is 505 px below the first screen (WebKit 491); was 600 / 584. Desktop 1440×900: 39 px; was 109 (V2.1-2).</p>
+</div></div>
+<div class="step" id="A5b">
+<figure class=phone><a href="img/sheet-terms-proposed-iphone13.webp"><img loading=lazy src="img/sheet-terms-proposed-iphone13.webp" alt="Membership terms, read inside the sheet, iPhone 13, 390×664"></a><figcaption>iPhone 13, 390×664</figcaption></figure>
+<figure class=desk><a href="img/sheet-terms-proposed-desktop.webp"><img loading=lazy src="img/sheet-terms-proposed-desktop.webp" alt="Membership terms, read inside the sheet, Desktop, 1440×900"></a><figcaption>Desktop, 1440×900</figcaption></figure>
+<div class=text><h3><span class=id>A5b</span>Membership terms, read inside the sheet</h3>
+<h4>On screen (verbatim)</h4><div class=copy><p>Membership terms</p><p>Bushwick Daily</p><p>Version 2026-10-12. Effective October 12, 2026.</p><p>These membership terms are a contract between you and Brooklyn New Media, LLC, a New York limited liability company that publishes Bushwick Daily at bushwickdaily.com (“Bushwick Daily”, “we”, “us”). They apply to paid Bushwick Daily memberships and to your use of members-only stories.</p><p>Important: section 13 says that you and we will resolve most disputes by individual arbitration, not in court, and that neither of us may bring a class action. You can opt out of arbitration within 30 days, as section 13.7 explains.</p><p>1. Who we are and how you agree</p><p>[… 175 more lines: the full Membership Terms, partials/terms-body.html]</p></div>
+<h4>What the reader can do → where it leads</h4><ul><li><b>Read; links to /account/, the privacy policy and stripe.com/privacy</b> → open in a new tab and say so (v2.1: they replaced the article mid-payment in v2); e-mail links open the mail app</li></ul>
+<h4>How to leave</h4><p class=leave>“← Back”: payment (<a href="#A4">A4 Payment with Apple Pay on the device</a> / <a href="#A5">A5 Payment by card</a>), box and fields as the reader left them. X (top right), Escape, or the phone's or browser's Back: the sheet closes and the reader is on the card (<a href="#E2">E2 The card after the sheet closes</a>) at the same scroll position, focus on the control that opened the sheet. One Back = one thing: the next Back leaves the article (PROPOSAL.md V2-2).</p>
+</div></div>
+<div class="step" id="A6">
+<figure class=phone><a href="img/sheet-pay-processing-proposed-iphone13.webp"><img loading=lazy src="img/sheet-pay-processing-proposed-iphone13.webp" alt="Processing, iPhone 13, 390×664"></a><figcaption>iPhone 13, 390×664</figcaption></figure>
+<figure class=desk><a href="img/sheet-pay-processing-proposed-desktop.webp"><img loading=lazy src="img/sheet-pay-processing-proposed-desktop.webp" alt="Processing, Desktop, 1440×900"></a><figcaption>Desktop, 1440×900</figcaption></figure>
+<div class=text><h3><span class=id>A6</span>Processing</h3>
+<h4>On screen (verbatim)</h4><div class=copy><p>Payment</p><p>$6.99 a month</p><p>Change</p><p>Monthly membership for reader@example.com</p><p>[x] By checking this box, you agree to the Bushwick Daily Membership Terms and authorize Bushwick Daily to charge $6.99 now and every month after that to your payment method. Your membership renews automatically every month until you cancel. To avoid the next charge, cancel before your next renewal date, anytime online at bushwickdaily.com/account/; you keep access until the end of the period you paid for. There is no minimum term or cancellation fee. The price may change for future renewals, only after at least 14 days&#x27; notice by email.</p><p>Membership terms · Privacy policy↗</p><p>[Stripe card form, an iframe: Card number · Expiration date · Security code · Country · ZIP code; under it Stripe&#x27;s line “By subscribing, you authorize Brooklyn New Media, LLC to charge you according to the terms until you cancel.” (as rendered in Stripe test mode)]</p><p>Processing…</p><p>Starting your membership…</p><p>Payments are processed by Stripe. Card numbers never reach Bushwick Daily’s servers.</p></div>
+<h4>What the reader can do → where it leads</h4><ul><li><b>Wait</b> → the button reads “Processing…”; the line under the form reads “Starting your membership…”, then in the build “Confirming payment…”, “Payment received. Setting up your membership…”, “You’re a member. Opening the story…” (membership.js:1089-1090, :1132, :1148, :1156); then <a href="#A7">A7 Success</a></li></ul>
+<h4>How to leave</h4><p class=leave>X, Escape, “← Back” and “Change” wait (dimmed) until the payment answers (V2-2; “← Back” and “Change”: v2.1). The phone's Back still closes the sheet: see <a href="#E3">E3 Back during “Processing…”</a>.</p>
+</div></div>
+<div class="step" id="A7">
+<figure class=phone><a href="img/sheet-success-proposed-iphone13.webp"><img loading=lazy src="img/sheet-success-proposed-iphone13.webp" alt="Success, iPhone 13, 390×664"></a><figcaption>iPhone 13, 390×664</figcaption></figure>
+<figure class=desk><a href="img/sheet-success-proposed-desktop.webp"><img loading=lazy src="img/sheet-success-proposed-desktop.webp" alt="Success, Desktop, 1440×900"></a><figcaption>Desktop, 1440×900</figcaption></figure>
+<div class=text><h3><span class=id>A7</span>Success</h3>
+<h4>On screen (verbatim)</h4><div class=copy><p>You’re a member.</p><p>Enjoy the story.</p><p>Your confirmation email is on its way to reader@example.com.</p><p>Read the story</p></div>
+<h4>What the reader can do → where it leads</h4><ul><li><b>“Read the story”</b> → <a href="#A8">A8 The story, unlocked in place</a></li><li><b>Do nothing for 2 seconds</b> → the sheet closes by itself: <a href="#A8">A8 The story, unlocked in place</a></li></ul>
+<h4>How to leave</h4><p class=leave>X, Escape or Back do what “Read the story” does: <a href="#A8">A8 The story, unlocked in place</a> (v2.1; in v2 an X here left the story locked).</p>
+</div></div>
+<div class="step" id="A8">
+<figure class=phone><a href="img/gate-unlocked-proposed-iphone13.webp"><img loading=lazy src="img/gate-unlocked-proposed-iphone13.webp" alt="The story, unlocked in place, iPhone 13, 390×664"></a><figcaption>iPhone 13, 390×664</figcaption></figure>
+<figure class=desk><a href="img/gate-unlocked-proposed-desktop.webp"><img loading=lazy src="img/gate-unlocked-proposed-desktop.webp" alt="The story, unlocked in place, Desktop, 1440×900"></a><figcaption>Desktop, 1440×900</figcaption></figure>
+<div class=text><h3><span class=id>A8</span>The story, unlocked in place</h3>
+<h4>On screen (verbatim)</h4><div class=copy><p>Membership active. Your confirmation email is on its way to reader@example.com.</p><p>[the rest of the story, in place]</p></div>
+<h4>What the reader can do → where it leads</h4><ul><li><b>Read on</b> → the members-only text is where the card was; the page did not move</li></ul>
+<h4>How to leave</h4><p class=leave>The article as usual; Back leaves it (the sheet's history entry was used up when it closed).</p>
+<p class=note>The receipt line appears after a payment only (G-11), because the success screen closes by itself.</p>
+</div></div>
+</section>
+<section class=path id="path-B"><h2>B. Existing member</h2><p>An address with a membership: land, email, code, story. Includes the wrong-code branch and a member who paid under another address.</p>
+<div class="step noimg" id="B1">
+<div class=text><h3><span class=id>B1</span>Land and type the address</h3>
+<h4>What the reader can do → where it leads</h4><ul><li><b>Same screens as A1 and A2</b> → <a href="#A1">A1 Land on the story</a>, <a href="#A2">A2 The email card (S1)</a></li><li><b>Continue with the address the membership is under</b> → gate/start emails a 6-digit code and a sign-in link; the sheet opens on <a href="#B2">B2 Code</a></li></ul>
+<h4>How to leave</h4><p class=leave>Nothing to close.</p>
+</div></div>
+<div class="step" id="B2">
+<figure class=phone><a href="img/sheet-code-proposed-iphone13.webp"><img loading=lazy src="img/sheet-code-proposed-iphone13.webp" alt="Code, iPhone 13, 390×664"></a><figcaption>iPhone 13, 390×664</figcaption></figure>
+<figure class=desk><a href="img/sheet-code-proposed-desktop.webp"><img loading=lazy src="img/sheet-code-proposed-desktop.webp" alt="Code, Desktop, 1440×900"></a><figcaption>Desktop, 1440×900</figcaption></figure>
+<div class=text><h3><span class=id>B2</span>Code</h3>
+<h4>On screen (verbatim)</h4><div class=copy><p>Welcome back. We emailed a 6-digit code to member@example.com.</p><p>[field: 6-digit code, empty]</p><p>Continue</p><p>Resend code · Use a different email</p><p>You can resend the code after 30 seconds.</p></div>
+<h4>What the reader can do → where it leads</h4><ul><li><b>Type the 6 digits, Continue</b> → right → the sheet closes and the story opens (<a href="#B3">B3 The story, unlocked (no receipt line)</a>); wrong → <a href="#B2b">B2b Wrong code</a></li><li><b>“Resend code” (after 30 seconds)</b> → a new code is emailed: “A new code is on its way.” (membership.js:611)</li><li><b>“Use a different email”</b> → the sheet closes; the card with the address selected (<a href="#E5">E5 “Use a different email” (code step)</a>)</li></ul>
+<h4>How to leave</h4><p class=leave>X (top right), Escape, or the phone's or browser's Back: the sheet closes and the reader is on the card (<a href="#E2">E2 The card after the sheet closes</a>) at the same scroll position, focus on the control that opened the sheet. One Back = one thing: the next Back leaves the article (PROPOSAL.md V2-2). No “← Back”: code is the first step on this path.</p>
+<p class=note>The email also holds a sign-in link that does the same (GATE-FUNNEL-SPEC, S2a).</p>
+<p class=note>A member who reaches payment anyway is not charged: “You already have a membership, so nothing was charged.” and this step (membership.js:1197-1201).</p>
+</div></div>
+<div class="step" id="B2b">
+<figure class=phone><a href="img/sheet-code-wrong-proposed-iphone13.webp"><img loading=lazy src="img/sheet-code-wrong-proposed-iphone13.webp" alt="Wrong code, iPhone 13, 390×664"></a><figcaption>iPhone 13, 390×664</figcaption></figure>
+<figure class=desk><a href="img/sheet-code-wrong-proposed-desktop.webp"><img loading=lazy src="img/sheet-code-wrong-proposed-desktop.webp" alt="Wrong code, Desktop, 1440×900"></a><figcaption>Desktop, 1440×900</figcaption></figure>
+<div class=text><h3><span class=id>B2b</span>Wrong code</h3>
+<h4>On screen (verbatim)</h4><div class=copy><p>Welcome back. We emailed a 6-digit code to member@example.com.</p><p>[field: 6-digit code = 123465]</p><p>Continue</p><p>Error: That code is wrong or has expired.</p><p>Resend code · Use a different email</p><p>You can resend the code after 30 seconds.</p></div>
+<h4>What the reader can do → where it leads</h4><ul><li><b>Retype the code</b> → <a href="#B3">B3 The story, unlocked (no receipt line)</a></li><li><b>“Resend code”, “Use a different email”</b> → as on <a href="#B2">B2 Code</a></li></ul>
+<h4>How to leave</h4><p class=leave>X (top right), Escape, or the phone's or browser's Back: the sheet closes and the reader is on the card (<a href="#E2">E2 The card after the sheet closes</a>) at the same scroll position, focus on the control that opened the sheet. One Back = one thing: the next Back leaves the article (PROPOSAL.md V2-2).</p>
+</div></div>
+<div class="step" id="B3">
+<figure class=phone><a href="img/gate-unlocked-member-proposed-iphone13.webp"><img loading=lazy src="img/gate-unlocked-member-proposed-iphone13.webp" alt="The story, unlocked (no receipt line), iPhone 13, 390×664"></a><figcaption>iPhone 13, 390×664</figcaption></figure>
+<figure class=desk><a href="img/gate-unlocked-member-proposed-desktop.webp"><img loading=lazy src="img/gate-unlocked-member-proposed-desktop.webp" alt="The story, unlocked (no receipt line), Desktop, 1440×900"></a><figcaption>Desktop, 1440×900</figcaption></figure>
+<div class=text><h3><span class=id>B3</span>The story, unlocked (no receipt line)</h3>
+<h4>On screen (verbatim)</h4><div class=copy><p>[the rest of the story, in place]</p></div>
+<h4>What the reader can do → where it leads</h4><ul><li><b>Read on</b> → the members-only text is where the card was</li></ul>
+<h4>How to leave</h4><p class=leave>The article as usual.</p>
+<p class=note>No “Membership active” line: a returning member is not thanked for paying again (G-11).</p>
+</div></div>
+<div class="step" id="B4">
+<figure class=phone><a href="img/sheet-signin-proposed-iphone13.webp"><img loading=lazy src="img/sheet-signin-proposed-iphone13.webp" alt="A member who paid under another address: Sign in, iPhone 13, 390×664"></a><figcaption>iPhone 13, 390×664</figcaption></figure>
+<figure class=desk><a href="img/sheet-signin-proposed-desktop.webp"><img loading=lazy src="img/sheet-signin-proposed-desktop.webp" alt="A member who paid under another address: Sign in, Desktop, 1440×900"></a><figcaption>Desktop, 1440×900</figcaption></figure>
+<div class=text><h3><span class=id>B4</span>A member who paid under another address: Sign in</h3>
+<h4>On screen (verbatim)</h4><div class=copy><p>Sign in</p><p>Email address</p><p>Use the address your membership is under. We email you a sign-in link and a 6-digit code.</p><p>[field: Email address, empty]</p><p>Email me a sign-in link</p></div>
+<h4>What the reader can do → where it leads</h4><ul><li><b>Type that address, “Email me a sign-in link”</b> → the same step shows “Check your email…” and a 6-digit code field (the shared sign-in partial)</li><li><b>Type the code, “Sign in”</b> → the story opens in place (<a href="#B3">B3 The story, unlocked (no receipt line)</a>)</li></ul>
+<h4>How to leave</h4><p class=leave>“← Back”: plans (<a href="#A3">A3 Plans: the sheet opens on Monthly</a>). X (top right), Escape, or the phone's or browser's Back: the sheet closes and the reader is on the card (<a href="#E2">E2 The card after the sheet closes</a>) at the same scroll position, focus on the control that opened the sheet. One Back = one thing: the next Back leaves the article (PROPOSAL.md V2-2).</p>
+</div></div>
+</section>
+<section class=path id="path-C"><h2>C. Signed in, no membership</h2><p>The card says “You’re out of free articles.” and offers See plans; the sheet opens only when the reader taps it.</p>
+<div class="step" id="C1">
+<figure class=phone><a href="img/gate-signed-in-proposed-iphone13.webp"><img loading=lazy src="img/gate-signed-in-proposed-iphone13.webp" alt="The card for a signed-in reader without a membership, iPhone 13, 390×664"></a><figcaption>iPhone 13, 390×664</figcaption></figure>
+<figure class=desk><a href="img/gate-signed-in-proposed-desktop.webp"><img loading=lazy src="img/gate-signed-in-proposed-desktop.webp" alt="The card for a signed-in reader without a membership, Desktop, 1440×900"></a><figcaption>Desktop, 1440×900</figcaption></figure>
+<div class=text><h3><span class=id>C1</span>The card for a signed-in reader without a membership</h3>
+<h4>On screen (verbatim)</h4><div class=copy><p>You’re out of free articles.</p><p>You’re signed in as reader@example.com. A membership unlocks this story and every other one: $6.99 a month or $70 a year.</p><p>See plans</p><p>Not you? Sign out</p></div>
+<h4>What the reader can do → where it leads</h4><ul><li><b>“See plans”</b> → <a href="#C2">C2 Plans, signed in</a></li><li><b>“Not you? Sign out”</b> → “Signing out…”, then the email card (<a href="#A2">A2 The email card (S1)</a>) with focus in the address field (membership.js:1360-1369; not wired in the mockup)</li></ul>
+<h4>How to leave</h4><p class=leave>Nothing to close. The sheet does not open by itself (owner, 2026-10-13).</p>
+<p class=note>Replaces today's automatic jump to the plans (membership.js:505-521).</p>
+</div></div>
+<div class="step" id="C2">
+<figure class=phone><a href="img/sheet-plans-signed-in-proposed-iphone13.webp"><img loading=lazy src="img/sheet-plans-signed-in-proposed-iphone13.webp" alt="Plans, signed in, iPhone 13, 390×664"></a><figcaption>iPhone 13, 390×664</figcaption></figure>
+<figure class=desk><a href="img/sheet-plans-signed-in-proposed-desktop.webp"><img loading=lazy src="img/sheet-plans-signed-in-proposed-desktop.webp" alt="Plans, signed in, Desktop, 1440×900"></a><figcaption>Desktop, 1440×900</figcaption></figure>
+<div class=text><h3><span class=id>C2</span>Plans, signed in</h3>
+<h4>On screen (verbatim)</h4><div class=copy><p>You’re out of free articles.</p><p>You’re signed in as reader@example.com. A membership unlocks this story and every other one: $6.99 a month or $70 a year.</p><p>Monthly [selected]</p><p>Yearly</p><p>Save $13.88</p><p>Bushwick Daily membership</p><p>$6.99/month</p><p>Billed every month. Cancel anytime online.</p><p>Members are the reason a neighborhood paper like ours can keep reporting with no hedge fund behind it.</p><p>What a membership includes</p><p>Every members-only story on bushwickdaily.com, for as long as your membership is active</p><p>A direct line to the publisher for story tips, complaints and ideas</p><p>Continue</p><p>Paid with a different email? Sign out, then sign in with that one.</p></div>
+<h4>What the reader can do → where it leads</h4><ul><li><b>Tap Yearly / Monthly</b> → as on <a href="#A3">A3 Plans: the sheet opens on Monthly</a>; Monthly is selected when the sheet opens</li><li><b>Continue</b> → payment for the signed-in address (<a href="#C3">C3 Payment, signed in</a>)</li><li><b>“Paid with a different email? Sign out, then sign in with that one.”</b> → signs out; the line becomes “Already a member under a different email? Sign in” (membership.js:1356-1369)</li></ul>
+<h4>How to leave</h4><p class=leave>X (top right), Escape, or the phone's or browser's Back: the sheet closes and the reader is on the card (<a href="#E2">E2 The card after the sheet closes</a>) at the same scroll position, focus on the control that opened the sheet. One Back = one thing: the next Back leaves the article (PROPOSAL.md V2-2). The card shows <a href="#C1">C1 The card for a signed-in reader without a membership</a> again.</p>
+</div></div>
+<div class="step noimg" id="C3">
+<div class=text><h3><span class=id>C3</span>Payment, signed in</h3>
+<h4>What the reader can do → where it leads</h4><ul><li><b>Same as A4 / A5; the line under the price names the signed-in address</b> → <a href="#A4">A4 Payment with Apple Pay on the device</a>, <a href="#A5">A5 Payment by card</a> → <a href="#A6">A6 Processing</a> → <a href="#A7">A7 Success</a> → <a href="#A8">A8 The story, unlocked in place</a></li></ul>
+<h4>How to leave</h4><p class=leave>As on <a href="#A4">A4 Payment with Apple Pay on the device</a>.</p>
+</div></div>
+</section>
+<section class=path id="path-D"><h2>D. Errors</h2><p>Invalid address, network failures, unchecked consent, incomplete card, declined card.</p>
+<div class="step" id="D1">
+<figure class=phone><a href="img/gate-s1-invalid-proposed-iphone13.webp"><img loading=lazy src="img/gate-s1-invalid-proposed-iphone13.webp" alt="The address is not valid, iPhone 13, 390×664"></a><figcaption>iPhone 13, 390×664</figcaption></figure>
+<figure class=desk><a href="img/gate-s1-invalid-proposed-desktop.webp"><img loading=lazy src="img/gate-s1-invalid-proposed-desktop.webp" alt="The address is not valid, Desktop, 1440×900"></a><figcaption>Desktop, 1440×900</figcaption></figure>
+<div class=text><h3><span class=id>D1</span>The address is not valid</h3>
+<h4>On screen (verbatim)</h4><div class=copy><p>Subscribe to read the full story.</p><p>Bushwick Daily is paid for by its readers. Enter your email to continue.</p><p>[field: Email address = reader@example]</p><p>Error: Enter an email address, like name@example.com.</p><p>[x] Also send me the Bushwick Daily newsletter</p><p>Continue</p></div>
+<h4>What the reader can do → where it leads</h4><ul><li><b>Fix the address, Continue</b> → <a href="#A2">A2 The email card (S1)</a></li></ul>
+<h4>How to leave</h4><p class=leave>Nothing to close.</p>
+</div></div>
+<div class="step" id="D2">
+<figure class=phone><a href="img/gate-s1-network-proposed-iphone13.webp"><img loading=lazy src="img/gate-s1-network-proposed-iphone13.webp" alt="Network failure at the email step, iPhone 13, 390×664"></a><figcaption>iPhone 13, 390×664</figcaption></figure>
+<figure class=desk><a href="img/gate-s1-network-proposed-desktop.webp"><img loading=lazy src="img/gate-s1-network-proposed-desktop.webp" alt="Network failure at the email step, Desktop, 1440×900"></a><figcaption>Desktop, 1440×900</figcaption></figure>
+<div class=text><h3><span class=id>D2</span>Network failure at the email step</h3>
+<h4>On screen (verbatim)</h4><div class=copy><p>Subscribe to read the full story.</p><p>Bushwick Daily is paid for by its readers. Enter your email to continue.</p><p>[field: Email address = reader@example.com]</p><p>Error: We could not reach Bushwick Daily. Check your connection and try again.</p><p>[x] Also send me the Bushwick Daily newsletter</p><p>Continue</p></div>
+<h4>What the reader can do → where it leads</h4><ul><li><b>Continue again</b> → <a href="#A3">A3 Plans: the sheet opens on Monthly</a> or <a href="#B2">B2 Code</a> once the network answers</li></ul>
+<h4>How to leave</h4><p class=leave>Nothing to close; the sheet never opened (it opens only with an answer: V2-1).</p>
+<p class=note>Decision (V2.1-5): the address field is NOT marked invalid, because the address is not wrong. Today membership.js:600 marks it invalid (red border) for every gate/start failure.</p>
+</div></div>
+<div class="step noimg" id="D3">
+<div class=text><h3><span class=id>D3</span>Wrong code</h3>
+<h4>What the reader can do → where it leads</h4><ul><li><b>See B2b</b> → <a href="#B2b">B2b Wrong code</a></li></ul>
+<h4>How to leave</h4><p class=leave>As on B2b.</p>
+</div></div>
+<div class="step" id="D4">
+<figure class=phone><a href="img/sheet-pay-consent-error-proposed-iphone13.webp"><img loading=lazy src="img/sheet-pay-consent-error-proposed-iphone13.webp" alt="Pay tapped without the box checked, iPhone 13, 390×664"></a><figcaption>iPhone 13, 390×664</figcaption></figure>
+<figure class=desk><a href="img/sheet-pay-consent-error-proposed-desktop.webp"><img loading=lazy src="img/sheet-pay-consent-error-proposed-desktop.webp" alt="Pay tapped without the box checked, Desktop, 1440×900"></a><figcaption>Desktop, 1440×900</figcaption></figure>
+<div class=text><h3><span class=id>D4</span>Pay tapped without the box checked</h3>
+<h4>On screen (verbatim)</h4><div class=copy><p>Payment</p><p>$6.99 a month</p><p>Change</p><p>Monthly membership for reader@example.com</p><p>[ ] By checking this box, you agree to the Bushwick Daily Membership Terms and authorize Bushwick Daily to charge $6.99 now and every month after that to your payment method. Your membership renews automatically every month until you cancel. To avoid the next charge, cancel before your next renewal date, anytime online at bushwickdaily.com/account/; you keep access until the end of the period you paid for. There is no minimum term or cancellation fee. The price may change for future renewals, only after at least 14 days&#x27; notice by email.</p><p>Error: Check the box to agree to the membership terms before paying.</p><p>Membership terms · Privacy policy↗</p><p>[Stripe card form, an iframe: Card number · Expiration date · Security code · Country · ZIP code; under it Stripe&#x27;s line “By subscribing, you authorize Brooklyn New Media, LLC to charge you according to the terms until you cancel.” (as rendered in Stripe test mode)]</p><p>Subscribe for $6.99 a month</p><p>Payments are processed by Stripe. Card numbers never reach Bushwick Daily’s servers.</p></div>
+<h4>What the reader can do → where it leads</h4><ul><li><b>Check the box</b> → the error clears; pay again</li><li><b>(Apple Pay tapped unchecked)</b> → the same error; focus moves to the box; the wallet does not open (membership.js:982-989)</li></ul>
+<h4>How to leave</h4><p class=leave>As on <a href="#A4">A4 Payment with Apple Pay on the device</a>.</p>
+</div></div>
+<div class="step" id="D5">
+<figure class=phone><a href="img/sheet-pay-card-errors-proposed-iphone13.webp"><img loading=lazy src="img/sheet-pay-card-errors-proposed-iphone13.webp" alt="Card form incomplete, iPhone 13, 390×664"></a><figcaption>iPhone 13, 390×664</figcaption></figure>
+<figure class=desk><a href="img/sheet-pay-card-errors-proposed-desktop.webp"><img loading=lazy src="img/sheet-pay-card-errors-proposed-desktop.webp" alt="Card form incomplete, Desktop, 1440×900"></a><figcaption>Desktop, 1440×900</figcaption></figure>
+<div class=text><h3><span class=id>D5</span>Card form incomplete</h3>
+<h4>On screen (verbatim)</h4><div class=copy><p>Payment</p><p>$6.99 a month</p><p>Change</p><p>Monthly membership for reader@example.com</p><p>[x] By checking this box, you agree to the Bushwick Daily Membership Terms and authorize Bushwick Daily to charge $6.99 now and every month after that to your payment method. Your membership renews automatically every month until you cancel. To avoid the next charge, cancel before your next renewal date, anytime online at bushwickdaily.com/account/; you keep access until the end of the period you paid for. There is no minimum term or cancellation fee. The price may change for future renewals, only after at least 14 days&#x27; notice by email.</p><p>Membership terms · Privacy policy↗</p><p>[Stripe card form, an iframe: Card number · Expiration date · Security code · Country · ZIP code; under it Stripe&#x27;s line “By subscribing, you authorize Brooklyn New Media, LLC to charge you according to the terms until you cancel.” (as rendered in Stripe test mode)]</p><p>Subscribe for $6.99 a month</p><p>Payments are processed by Stripe. Card numbers never reach Bushwick Daily’s servers.</p></div>
+<h4>What the reader can do → where it leads</h4><ul><li><b>Complete the fields, Subscribe</b> → <a href="#A6">A6 Processing</a></li></ul>
+<h4>How to leave</h4><p class=leave>As on <a href="#A5">A5 Payment by card</a>.</p>
+<p class=note>Stripe's own messages under the fields, as rendered in test mode: “Your card number is incomplete.”, “Your expiration date is incomplete.”, “Your security code is incomplete.”, “Your ZIP code is invalid.”</p>
+</div></div>
+<div class="step" id="D6">
+<figure class=phone><a href="img/sheet-pay-declined-proposed-iphone13.webp"><img loading=lazy src="img/sheet-pay-declined-proposed-iphone13.webp" alt="Card declined, iPhone 13, 390×664"></a><figcaption>iPhone 13, 390×664</figcaption></figure>
+<figure class=desk><a href="img/sheet-pay-declined-proposed-desktop.webp"><img loading=lazy src="img/sheet-pay-declined-proposed-desktop.webp" alt="Card declined, Desktop, 1440×900"></a><figcaption>Desktop, 1440×900</figcaption></figure>
+<div class=text><h3><span class=id>D6</span>Card declined</h3>
+<h4>On screen (verbatim)</h4><div class=copy><p>Payment</p><p>$6.99 a month</p><p>Change</p><p>Monthly membership for reader@example.com</p><p>[x] By checking this box, you agree to the Bushwick Daily Membership Terms and authorize Bushwick Daily to charge $6.99 now and every month after that to your payment method. Your membership renews automatically every month until you cancel. To avoid the next charge, cancel before your next renewal date, anytime online at bushwickdaily.com/account/; you keep access until the end of the period you paid for. There is no minimum term or cancellation fee. The price may change for future renewals, only after at least 14 days&#x27; notice by email.</p><p>Membership terms · Privacy policy↗</p><p>[Stripe card form, an iframe: Card number · Expiration date · Security code · Country · ZIP code; under it Stripe&#x27;s line “By subscribing, you authorize Brooklyn New Media, LLC to charge you according to the terms until you cancel.” (as rendered in Stripe test mode)]</p><p>Subscribe for $6.99 a month</p><p>Error: Your card was declined.</p><p>Payments are processed by Stripe. Card numbers never reach Bushwick Daily’s servers.</p></div>
+<h4>What the reader can do → where it leads</h4><ul><li><b>Change the card details or use Apple Pay, Subscribe again</b> → <a href="#A6">A6 Processing</a></li></ul>
+<h4>How to leave</h4><p class=leave>As on <a href="#A5">A5 Payment by card</a>.</p>
+<p class=note>The message sits directly under Subscribe (D-1545) and focus moves to Subscribe (membership.js:1142). “Your card was declined.” is the mockup's stand-in for Stripe's text; Stripe's exact wording for a generic decline is UNVERIFIED (needs a test PaymentIntent).</p>
+</div></div>
+<div class="step" id="D7">
+<figure class=phone><a href="img/sheet-pay-network-proposed-iphone13.webp"><img loading=lazy src="img/sheet-pay-network-proposed-iphone13.webp" alt="Network failure at payment, iPhone 13, 390×664"></a><figcaption>iPhone 13, 390×664</figcaption></figure>
+<figure class=desk><a href="img/sheet-pay-network-proposed-desktop.webp"><img loading=lazy src="img/sheet-pay-network-proposed-desktop.webp" alt="Network failure at payment, Desktop, 1440×900"></a><figcaption>Desktop, 1440×900</figcaption></figure>
+<div class=text><h3><span class=id>D7</span>Network failure at payment</h3>
+<h4>On screen (verbatim)</h4><div class=copy><p>Payment</p><p>$6.99 a month</p><p>Change</p><p>Monthly membership for reader@example.com</p><p>[x] By checking this box, you agree to the Bushwick Daily Membership Terms and authorize Bushwick Daily to charge $6.99 now and every month after that to your payment method. Your membership renews automatically every month until you cancel. To avoid the next charge, cancel before your next renewal date, anytime online at bushwickdaily.com/account/; you keep access until the end of the period you paid for. There is no minimum term or cancellation fee. The price may change for future renewals, only after at least 14 days&#x27; notice by email.</p><p>Membership terms · Privacy policy↗</p><p>[Stripe card form, an iframe: Card number · Expiration date · Security code · Country · ZIP code; under it Stripe&#x27;s line “By subscribing, you authorize Brooklyn New Media, LLC to charge you according to the terms until you cancel.” (as rendered in Stripe test mode)]</p><p>Subscribe for $6.99 a month</p><p>Error: We could not reach Bushwick Daily. Check your connection and try again.</p><p>Payments are processed by Stripe. Card numbers never reach Bushwick Daily’s servers.</p></div>
+<h4>What the reader can do → where it leads</h4><ul><li><b>Subscribe again</b> → <a href="#A6">A6 Processing</a></li></ul>
+<h4>How to leave</h4><p class=leave>As on <a href="#A5">A5 Payment by card</a>.</p>
+<p class=note>Text: MSG_NETWORK (membership.js:40). With Apple Pay, the same text appears under the Apple Pay button (its own error line, G-10).</p>
+</div></div>
+<div class="step noimg" id="D8">
+<div class=text><h3><span class=id>D8</span>Rarer messages (no render)</h3>
+<h4>What the reader can do → where it leads</h4><ul><li><b>“Your payment went through, but we could not finish setting up your membership. Reload this page in a minute. If the story is still locked after that, email alec@bushwickdaily.com.”</b> → membership.js:1150-1152</li><li><b>“Your membership is active, but the story didn’t load. Reload the page to read it.”</b> → membership.js:1159</li><li><b>“The payment form didn’t load. Check your connection or content blocker, then reload the page.”</b> → membership.js:927, in the Apple Pay slot</li><li><b>“The card form didn’t load. Check your connection or content blocker, then reload the page.”</b> → membership.js:1035</li><li><b>“Apple Pay and Google Pay aren’t available in this browser. Pay with card below.”</b> → membership.js:976 (in v2 the card form opens at once instead, V2-3)</li><li><b>“The payment was not completed. Enter your email to try again.”</b> → membership.js:1180, after a redirect-based payment fails</li></ul>
+</div></div>
+</section>
+<section class=path id="path-E"><h2>E. Exits and returns</h2><p>Closing the sheet at every step, and coming back.</p>
+<div class="step noimg" id="E1">
+<div class=text><h3><span class=id>E1</span>Every exit, every step</h3>
+<div class=tablewrap><table><tr><th>Step</th><th>X</th><th>Escape</th><th>Phone / browser Back</th><th>“← Back” (top left)</th></tr><tr><td>Code (B2)</td><td>closes → card</td><td>closes → card</td><td>closes → card</td><td>not shown</td></tr><tr><td>Plans (A3, C2)</td><td>closes → card</td><td>closes → card</td><td>closes → card</td><td>not shown</td></tr><tr><td>Sign in (B4)</td><td>closes → card</td><td>closes → card</td><td>closes → card</td><td>→ plans</td></tr><tr><td>Payment (A4, A5, D4-D7)</td><td>closes → card</td><td>closes → card</td><td>closes → card</td><td>→ plans (so does “Change”)</td></tr><tr><td>Terms (A5b)</td><td>closes → card</td><td>closes → card</td><td>closes → card</td><td>→ payment</td></tr><tr><td>Processing (A6)</td><td>waits (dimmed)</td><td>waits</td><td>closes; payment continues (E3)</td><td>waits (dimmed)</td></tr><tr><td>Success (A7)</td><td>= Read the story</td><td>= Read the story</td><td>= Read the story</td><td>not shown</td></tr></table></div><p class=note>“→ card”: the sheet closes, the card is where the reader left it, focus returns to the control that opened the sheet, the page has not moved (verify_sheet.py, three browser set-ups).</p></div></div>
+<div class="step" id="E2">
+<figure class=phone><a href="img/gate-returned-proposed-iphone13.webp"><img loading=lazy src="img/gate-returned-proposed-iphone13.webp" alt="The card after the sheet closes, iPhone 13, 390×664"></a><figcaption>iPhone 13, 390×664</figcaption></figure>
+<figure class=desk><a href="img/gate-returned-proposed-desktop.webp"><img loading=lazy src="img/gate-returned-proposed-desktop.webp" alt="The card after the sheet closes, Desktop, 1440×900"></a><figcaption>Desktop, 1440×900</figcaption></figure>
+<div class=text><h3><span class=id>E2</span>The card after the sheet closes</h3>
+<h4>On screen (verbatim)</h4><div class=copy><p>Subscribe to read the full story.</p><p>Bushwick Daily is paid for by its readers. Enter your email to continue.</p><p>[field: Email address = reader@example.com]</p><p>[x] Also send me the Bushwick Daily newsletter</p><p>Continue</p></div>
+<h4>What the reader can do → where it leads</h4><ul><li><b>Continue again</b> → “Checking…”, then the sheet opens again: plans on Monthly (<a href="#A3">A3 Plans: the sheet opens on Monthly</a>), or code (<a href="#B2">B2 Code</a>; gate/start runs again and emails a new code, membership.js:562-564)</li><li><b>Scroll, read the free opening, leave</b> → the article as usual</li></ul>
+<h4>How to leave</h4><p class=leave>Nothing to close. The address the reader typed is still there; focus is on Continue (the ring shows for keyboard users).</p>
+</div></div>
+<div class="step noimg" id="E3">
+<div class=text><h3><span class=id>E3</span>Back during “Processing…”</h3>
+<h4>What the reader can do → where it leads</h4><ul><li><b>The phone's Back during processing</b> → the sheet closes (a browser cannot stop Back without trapping the reader, V2-2); the payment continues</li><li><b>…the payment succeeds</b> → the story unlocks in place with the receipt line (<a href="#A8">A8 The story, unlocked in place</a>)</li><li><b>…the payment fails</b> → Decision (V2.1-6): the sheet does not reopen by itself. The card shows the failure text in its error line under the address (field not marked invalid); Continue reopens the sheet on Monthly (<a href="#A3">A3 Plans: the sheet opens on Monthly</a>).</li></ul>
+</div></div>
+<div class="step noimg" id="E4">
+<div class=text><h3><span class=id>E4</span>Closing the success screen</h3>
+<h4>What the reader can do → where it leads</h4><ul><li><b>X, Escape, Back, “Read the story”, or 2 seconds</b> → <a href="#A8">A8 The story, unlocked in place</a>: the story unlocked, focus in the story, the page where it was (v2.1; checked by verify_sheet.py)</li></ul>
+</div></div>
+<div class="step noimg" id="E5">
+<div class=text><h3><span class=id>E5</span>“Use a different email” (code step)</h3>
+<h4>What the reader can do → where it leads</h4><ul><li><b>Tap it</b> → the sheet closes; the card (<a href="#E2">E2 The card after the sheet closes</a>) with the address selected, ready to retype</li></ul>
+</div></div>
+<div class="step noimg" id="E6">
+<div class=text><h3><span class=id>E6</span>Coming back on another visit</h3>
+<h4>What the reader can do → where it leads</h4><ul><li><b>A signed-in member</b> → the story opens on load (membership.js:505-508)</li><li><b>A signed-in reader without a membership</b> → <a href="#C1">C1 The card for a signed-in reader without a membership</a></li><li><b>Anyone else</b> → <a href="#A1">A1 Land on the story</a> → <a href="#A2">A2 The email card (S1)</a>; the sheet opens on Monthly whatever was chosen before (V2.1-3: a browser can restore an old radio choice; the opening resets it)</li></ul>
+</div></div>
+</section>
+</main></body></html>
