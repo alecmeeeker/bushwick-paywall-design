@@ -1,0 +1,129 @@
+<!DOCTYPE html>
+<html lang="en-US">
+<head><meta name="robots" content="noindex,nofollow">
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1" name="viewport"/>
+<link href="https://fonts.googleapis.com" rel="preconnect"/>
+<link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,600;1,400&amp;family=Source+Serif+4:opsz,wght@8..60,400;8..60,600&amp;family=Space+Grotesk:wght@400;500;600;700&amp;display=swap" rel="stylesheet"/>
+
+<meta content="noindex, nofollow" name="robots"/>
+<title>Your membership | Bushwick Daily</title>
+
+<link href="current/membership.css" rel="stylesheet"/></head>
+<body class="bd-membership-page bd-account-page">
+<header class="bd-min-header"><a href="/">Bushwick Daily</a></header>
+<main aria-labelledby="bd-account-title" class="bd-account" data-bd-account="" id="bd-account">
+
+<p class="bd-account__eyebrow">Members</p>
+<h1 class="bd-account__title" id="bd-account-title">Your membership</h1>
+<p class="bd-account__mode" data-bd-mode-badge="" hidden=""><strong>Stripe test mode.</strong> No real money moves on this site right now.</p>
+<p class="bd-account__status" data-bd-loading="" id="bd-account-status" role="status">Loading your membership…</p>
+
+<section aria-labelledby="bd-account-signin-title" class="bd-account__view" data-bd-view="signed-out" hidden="">
+<h2 id="bd-account-signin-title">Sign in</h2>
+<p>Members sign in with their email address. There is no password.</p>
+<div class="bd-signin" data-bd-signin="">
+<form class="bd-signin__step" data-bd-signin-request="" novalidate="">
+<div class="bd-field">
+<label class="bd-field__label" for="bd-account-signin-email">Email address</label>
+<p class="bd-field__hint" id="bd-account-signin-email-hint">Use the address your membership is under. We email you a sign-in link and a 6-digit code.</p>
+<input aria-describedby="bd-account-signin-email-hint bd-account-signin-email-error" autocapitalize="off" autocomplete="email" class="bd-field__input" data-bd-email="" id="bd-account-signin-email" name="email" required="" spellcheck="false" type="email"/>
+<p class="bd-error" data-bd-error="" id="bd-account-signin-email-error"></p>
+</div>
+<button class="bd-btn bd-btn--secondary" data-bd-submit="" type="submit">Email me a sign-in link</button>
+</form>
+<form class="bd-signin__step" data-bd-signin-verify="" hidden="" novalidate="">
+<p class="bd-signin__notice" data-bd-signin-notice=""></p>
+<p class="bd-signin__sent" id="bd-account-signin-sent">
+			Check your email. We sent a sign-in link and a 6-digit code to <strong data-bd-sent-to=""></strong>.
+			Open the link, or enter the code here.
+		</p>
+<div class="bd-field">
+<label class="bd-field__label" for="bd-account-signin-code">6-digit code</label>
+<p class="bd-field__hint" id="bd-account-signin-code-hint">The code and the link work for 20 minutes, once.</p>
+<input aria-describedby="bd-account-signin-sent bd-account-signin-code-hint bd-account-signin-code-error" autocomplete="one-time-code" class="bd-field__input bd-field__input--code" data-bd-code="" id="bd-account-signin-code" inputmode="numeric" maxlength="6" name="code" pattern="[0-9]{6}" type="text"/>
+<p class="bd-error" data-bd-error="" id="bd-account-signin-code-error"></p>
+</div>
+<button class="bd-btn bd-btn--secondary" data-bd-submit="" type="submit">Sign in</button>
+<p class="bd-signin__more">
+<span data-bd-resend-wait="">Didn’t get it? You can send a new email after 30 seconds.</span>
+<button class="bd-link" data-bd-resend="" disabled="" type="button">Send a new email</button>
+<button class="bd-link" data-bd-change-email="" type="button">Use a different email</button>
+</p>
+</form>
+</div>
+</section>
+<section aria-labelledby="bd-account-free-title" class="bd-account__view" data-bd-view="free" hidden="">
+<h2 id="bd-account-free-title">No membership on this email</h2>
+<p>You’re signed in as <strong data-bd-email-masked=""></strong>. This address doesn’t have a paid membership. If you paid with a different address, sign out and sign in with that one.</p>
+<ul aria-label="Membership prices" class="bd-account__plans">
+<li>
+<span>Monthly</span>
+<span>
+							$6.99 a month
+							
+						</span>
+</li>
+<li>
+<span>Yearly</span>
+<span>
+							$70.00 a year
+							
+								<br/>saves $13.88 compared with paying monthly
+							
+						</span>
+</li>
+</ul>
+<a class="bd-btn bd-btn--primary" data-bd-join="" hidden="" href="/">Become a member</a>
+<p data-bd-join-none="" hidden="">Memberships are offered on our members-only stories: open one and choose a plan where the story pauses.</p>
+<p class="bd-account__signout"><button class="bd-link" data-bd-signout="" type="button">Sign out</button></p>
+</section>
+<section aria-labelledby="bd-account-paid-title" class="bd-account__view" data-bd-view="paid" hidden="">
+<div class="bd-account__card">
+<h2 id="bd-account-paid-title">Membership active</h2>
+<dl class="bd-account__facts">
+<dt>Email</dt>
+<dd data-bd-email-masked=""></dd>
+<dt>Plan</dt>
+<dd data-bd-plan-name=""></dd>
+<dt>Price</dt>
+<dd data-bd-plan-amount=""></dd>
+<dt data-bd-renew-label="">Renews on</dt>
+<dd data-bd-renew-date=""></dd>
+</dl>
+<p data-bd-canceling-note="" hidden="">Your membership is canceled and will not renew. You keep access until <strong data-bd-access-until=""></strong>.</p>
+<div class="bd-account__actions">
+<button class="bd-btn bd-btn--secondary" data-bd-portal="" type="button">Update card or view receipts</button>
+<button aria-controls="bd-account-cancel" aria-expanded="false" class="bd-btn bd-btn--secondary" data-bd-cancel-start="" type="button">Cancel membership</button>
+<button class="bd-btn bd-btn--primary" data-bd-resume="" hidden="" type="button">Resume membership</button>
+</div>
+<div aria-labelledby="bd-account-cancel-q" class="bd-account__confirm" data-bd-cancel-confirm="" hidden="" id="bd-account-cancel" role="group">
+<p data-bd-cancel-question="" id="bd-account-cancel-q" tabindex="-1">Cancel? You keep access until <strong data-bd-period-end=""></strong>.</p>
+<div class="bd-account__actions">
+<button class="bd-btn bd-btn--secondary" data-bd-cancel-do="" type="button">Confirm cancel</button>
+<button class="bd-btn bd-btn--secondary" data-bd-cancel-keep="" type="button">Keep membership</button>
+</div>
+</div>
+<p class="bd-error" data-bd-account-error="" role="alert"></p>
+</div>
+<p class="bd-account__signout"><button class="bd-link" data-bd-signout="" type="button">Sign out</button></p>
+</section>
+<section aria-labelledby="bd-account-comp-title" class="bd-account__view" data-bd-view="comp" hidden="">
+<div class="bd-account__card">
+<h2 id="bd-account-comp-title">Complimentary membership</h2>
+<p>You’re signed in as <strong data-bd-email-masked=""></strong>. Bushwick Daily gave you this membership, so there is nothing to pay and nothing to cancel.</p>
+<p data-bd-comp-line="" hidden="">It runs until <strong data-bd-comp-until=""></strong>.</p>
+</div>
+<p class="bd-account__signout"><button class="bd-link" data-bd-signout="" type="button">Sign out</button></p>
+</section>
+<p class="bd-account__help" id="bd-account-billing">
+		Manage billing directly on Stripe (update a card, see receipts or cancel any Bushwick Daily subscription): <a href="https://billing.stripe.com/p/login/eVq5kE3S53IweAP0CngYU00" rel="noopener">Manage billing</a>.
+	</p>
+<p class="bd-account__help">
+		Questions about your membership or a charge? Email <a href="mailto:alec@bushwickdaily.com">alec@bushwickdaily.com</a>.
+		Read the <a href="https://bushwickdaily.com/membership-terms/">membership terms</a>.
+	</p>
+</main>
+<script src="states.js"></script></body>
+</html>

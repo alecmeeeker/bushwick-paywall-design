@@ -1,0 +1,11 @@
+<meta name="robots" content="noindex,nofollow">{% extends "_layout.html" %}
+{% block kicker %}<tr><td style="padding:0 48px 20px"><span style="display:inline-block;background:#ffe135;padding:3px 7px;font-family:'Helvetica Neue', Helvetica, Arial, sans-serif;font-size:11px;font-weight:600;letter-spacing:0.22em;text-transform:uppercase;color:#0a0a0a">Sign in</span></td></tr>{% endblock %}
+{% block heading %}Sign in to Bushwick Daily{% endblock %}
+{% block body %}
+<p style="margin:0 0 18px;font-family:'Helvetica Neue', Helvetica, Arial, sans-serif;font-size:16px;line-height:1.65;color:#0a0a0a;">Use this button to sign in on the device where you asked for it:</p>
+<p style="margin:0 0 26px;"><a href="{{ link }}" style="display:inline-block;border:1px solid #0a0a0a;padding:14px 28px;font-family:'Helvetica Neue', Helvetica, Arial, sans-serif;font-size:12px;font-weight:600;letter-spacing:0.22em;text-transform:uppercase;color:#0a0a0a;text-decoration:none">Sign in to Bushwick Daily</a></p>
+<p style="margin:0 0 8px;font-family:'Helvetica Neue', Helvetica, Arial, sans-serif;font-size:11px;font-weight:600;letter-spacing:0.22em;text-transform:uppercase;color:#6b6b66;">Or enter this code on the sign-in page</p>
+<p style="margin:0 0 26px;font-family:'Helvetica Neue', Helvetica, Arial, sans-serif;font-size:30px;font-weight:600;letter-spacing:.2em;color:#0a0a0a;">{{ code }}</p>
+<p style="margin:0 0 18px;font-family:'Helvetica Neue', Helvetica, Arial, sans-serif;font-size:16px;line-height:1.65;color:#0a0a0a;">The button and the code expire in {{ minutes }} minutes and work only once.</p>
+<p style="margin:0;font-family:'Helvetica Neue', Helvetica, Arial, sans-serif;font-size:16px;line-height:1.65;color:#0a0a0a;">If you did not ask to sign in, ignore this email. Nothing changes on your account.</p>
+{% endblock %}

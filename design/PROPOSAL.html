@@ -1,0 +1,1019 @@
+<!doctype html><html lang=en><head><meta name="robots" content="noindex,nofollow"><meta charset=utf-8><meta name=viewport content='width=device-width,initial-scale=1'><title>Paywall design proposal — Bushwick Daily</title><style>body{background:#0a0a0a;color:#e8e8e8;font:16px/1.6 -apple-system,Inter,Helvetica,Arial,sans-serif;max-width:900px;margin:0 auto;padding:24px 16px}a{color:#ffe135}code{background:#1c1c1c;padding:1px 4px;border-radius:3px}table{border-collapse:collapse;width:100%;font-size:14px;display:block;overflow-x:auto}td,th{border:1px solid #333;padding:6px;vertical-align:top}h1,h2,h3{color:#fff;line-height:1.25}pre{background:#1c1c1c;padding:12px;overflow-x:auto}</style></head><body><h1>Paywall design proposal: every reader-facing step in the site's own design (2026-10-13)</h1>
+<p>Status: <strong>proposal with mockups. Nothing here is deployed and no production file was changed.</strong> Branch
+<code>design/paywall-site-aligned</code>. This is step 4 ("Design pass") of <code>docs/paywall/ROLLOUT-PLAN.md</code>.</p>
+<p><strong>Why (the owner, 2026-10-13):</strong> "the UX needs to be updated to reflect the site as a whole not the anthony dimieri
+article. the rest of the website uses different design and even logo is not correct in dimieri." And: "the design of
+the paywall (graphic design) still needs fixed before full rollout."</p>
+<p><strong>Owner decision received during this work (2026-10-13, verbatim):</strong> "the sticky newsletter bar will be removed when
+the paywall goes live. entering the email address becmoes the first step to viewing the article which is where it
+should also be collected for newsletter subscription signup". Built in: no sticky bar in any proposed screen; S1 is
+the newsletter signup point; the end-of-article ask on free articles is the same S1 component (coordinator's
+recommendation; the owner may overrule).</p>
+<p><strong>Journalism purpose.</strong> The paywall is rolled out to regular articles the owner picks one at a time. A reader must meet
+it as part of the Bushwick Daily they are reading: the same headline face, the same yellow, the same buttons, the same
+logo. Today the gate, <code>/account/</code>, <code>/membership-terms/</code> and the member emails each look like a different publication
+(the DiMieri page's gold-and-Playfair palette, a text "BUSHWICK DAILY" instead of the wordmark, a Georgia-and-blue-link
+email). A reader asked for money by a page that does not look like the paper they trust has a reason to hesitate; one
+look, one email step that is also the newsletter signup, and one price per page keep the relationship simple.</p>
+<p>How to look at it:
+- <code>compare.html</code>: every step, current (left) and proposed (right), desktop 1440 and iPhone 13.
+- <code>mockups/*.html</code>: the proposed screens, live HTML of a real news article as the frame; open with <code>#&lt;state&gt;</code>.
+- <code>mockups/proposed.css</code>: the proposed stylesheet (a drop-in candidate for <code>membership.css</code>, same hooks).
+- <code>DEBT-site-design-tokens.md</code>: the technical-debt report (CLAUDE.md Principle 1/2) this proposal depends on.</p>
+<hr />
+<h2>0. Decisions in one list (each made; the owner may overrule any)</h2>
+<table>
+<thead>
+<tr>
+<th>#</th>
+<th>Decision</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>G-1</td>
+<td>The gate, <code>/account/</code>, <code>/membership-terms/</code> and the DiMieri page's gate use the <strong>regular article's design system</strong> (<code>single.php</code>): Satoshi headlines, Inter UI, <code>#ffe135</code> yellow on <code>#0a0a0a</code>, the membership band's button and card. The DiMieri gate is the same gate (this overrides the last bullet of DEBT D7, which keeps DiMieri's own palette; reason: the owner's instruction above).</td>
+</tr>
+<tr>
+<td>G-2</td>
+<td><strong>One membership offer per page.</strong> Gated article: the gate only (the mid-article "$15/mo" band, the sidebar rail and the floating "Support Us" button are not printed). Free article: one S1 ask after the last paragraph replaces the band and the rail; "Support Us" stays.</td>
+</tr>
+<tr>
+<td>G-3</td>
+<td><strong>No sticky newsletter bar</strong> (owner decision). <code>bd_forms_footer_banner()</code> (<code>wordpress/mu-plugins/bd-forms.php:130-182</code>, hooked at <code>:182</code>) is removed at paywall go-live.</td>
+</tr>
+<tr>
+<td>G-4</td>
+<td><code>overflow-fix.css</code> stops loading on <code>single.php</code> before the gate build (DEBT D2/D3). Otherwise every gate heading is forced to Raleway (not loaded, so the system font) on phones.</td>
+</tr>
+<tr>
+<td>G-5</td>
+<td>On a gated post, <code>single.php</code> lays out ads on the <strong>public lead only</strong> and appends the gate after it. Measured: today's layout pass counts the gate's 26 <code>&lt;/p&gt;</code> as story paragraphs and puts the "$15/mo" band <strong>directly above the gate</strong> whenever the lead has 3 or more paragraphs, and right after the gate when it has 1 or 2 (<code>probe_band_placement.php</code>, which runs the real <code>bd_ads_layout_article()</code> on the rendered gate; ads off). Severity of today's behaviour: <strong>high</strong> for the rollout (two prices for "membership" on one screen at the moment of payment).</td>
+</tr>
+<tr>
+<td>G-6</td>
+<td>The gate is a component the article's prose rules cannot restyle: the build uses DEBT D8's <code>not-prose</code> opt-out; the mockup CSS scopes every gate rule under <code>.bd-gate</code> (specificity 0,2,0).</td>
+</tr>
+<tr>
+<td>G-7</td>
+<td><strong>S1 order: address, newsletter box, Continue.</strong> The box (text and checked default unchanged) moves from after the button to before it, inside one group with the address.</td>
+</tr>
+<tr>
+<td>G-8</td>
+<td>No "Members only" eyebrow. The title carries the message, in the site's membership headline voice.</td>
+</tr>
+<tr>
+<td>G-9</td>
+<td>D-1544 copy fix: the free-account note names the control that is on screen ("Sign out").</td>
+</tr>
+<tr>
+<td>G-10</td>
+<td>D-1545: the alert line sits directly under the control that failed (one slot under Subscribe, one under the wallet button), with one line of space reserved while the card panel is open.</td>
+</tr>
+<tr>
+<td>G-11</td>
+<td>After a <strong>payment</strong> (not after a sign-in), one confirmation line where the gate was: "Membership active. Your confirmation email is on its way to r…@example.com."</td>
+</tr>
+<tr>
+<td>G-12</td>
+<td>Apple Pay stays <strong>one black button</strong> (owner rule) directly on the card surface.</td>
+</tr>
+<tr>
+<td>G-13</td>
+<td>Stripe Payment Element: the Appearance values in section 4, all site tokens; the card form's font becomes Inter (the site's UI font), requested from the same Google Fonts URL <code>single.php:176</code> uses.</td>
+</tr>
+<tr>
+<td>G-14</td>
+<td>Member emails adopt the site's owner-directed email register (white, Helvetica Neue, Didone headline, one yellow label, outlined black button), with a fluid 600px container. Every sentence unchanged.</td>
+</tr>
+<tr>
+<td>G-15</td>
+<td><code>/account/</code> and <code>/membership-terms/</code> get the site frame: the SVG wordmark header, breadcrumbs, the site footer, the favicon, Satoshi + Inter.</td>
+</tr>
+<tr>
+<td>G-16</td>
+<td>DiMieri page: the site header (wordmark) above the hero, the wordmark in the scroll bar and the footer, the lead's two links in the site's link style, its JSON-LD publisher logo pointed at the URL <code>bd-seo.php:35</code> uses.</td>
+</tr>
+<tr>
+<td>G-17</td>
+<td>One wordmark source (DEBT D9), which the membership service also ships (as it already ships <code>terms-body.html</code>).</td>
+</tr>
+</tbody>
+</table>
+<p>Three-axis rationale for each is in section 7.</p>
+<hr />
+<h2>1. The site's design system (step 1)</h2>
+<h3>1.1 Method (read-only)</h3>
+<ul>
+<li><code>capture_site.py</code> loaded, in headless Chromium with an ordinary desktop Chrome user agent and Playwright's "iPhone
+  13" profile: the homepage, a news article
+  (<code>/news/mta-will-change-j-and-m-service-in-october-and-november-to-replace-29-year-old-marcy-avenue-switches/</code>), a
+  feature (<code>/arts-culture/love-new-york-its-all-wooing-and-warring-among-millennials/</code>, Brenda Cullerton's column),
+  <code>/subscribe/</code>, <code>/account/</code>, <code>/membership-terms/</code> and <code>/dimieri-interview/</code>, on 2026-10-13 (00:00 UTC).</li>
+<li>It aborted every non-GET request and every analytics/ad-measurement request (<code>/bd-ev</code>, GA4, Meta Pixel, Cloudflare
+  Insights, DoubleClick), so no production metric was touched (research 07 line 10 documents that a render otherwise
+  writes <code>sales.ad_events</code> rows). Nothing was clicked or typed.</li>
+<li>Output: <code>img/site-*.webp</code> (14 page captures + element captures of the band, rail, newsletter bar and ad unit) and
+  <code>evidence/computed-styles.json</code> (computed styles of up to 96 selectors per page and device, with box positions).</li>
+<li>Side effect of the blocking, stated so it is not misread: the live <code>/account/</code> capture shows "We could not reach
+  Bushwick Daily…" because its <code>POST /members/api/me</code> was aborted by the capture, not because the page is broken.</li>
+</ul>
+<h3>1.2 Token table</h3>
+<p>"Live" = computed style on the news article (<code>evidence/computed-styles.json</code>, key <code>news-desktop</code> unless noted).</p>
+<table>
+<thead>
+<tr>
+<th>Token (proposal name)</th>
+<th>Value</th>
+<th>Source in the repo</th>
+<th>Live computed</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>page <code>--bdm-bg</code></td>
+<td><code>#0a0a0a</code></td>
+<td><code>single.php:183</code> <code>--bg-primary</code></td>
+<td><code>body</code> background rgb(10,10,10)</td>
+</tr>
+<tr>
+<td>surface <code>--bdm-surface</code></td>
+<td><code>#141414</code></td>
+<td><code>single.php:184</code> <code>--bg-secondary</code></td>
+<td><code>.trending</code>, <code>.footer</code> rgb(20,20,20)</td>
+</tr>
+<tr>
+<td>field <code>--bdm-field</code></td>
+<td><code>#1a1a1a</code></td>
+<td><code>single.php:185</code> <code>--bg-tertiary</code></td>
+<td><code>.bd-newsletter__input</code> rgb(26,26,26)</td>
+</tr>
+<tr>
+<td>text <code>--bdm-text</code></td>
+<td><code>#ffffff</code></td>
+<td><code>single.php:186</code></td>
+<td><code>body</code> rgb(255,255,255)</td>
+</tr>
+<tr>
+<td>secondary text <code>--bdm-soft</code></td>
+<td><code>#a0a0a0</code></td>
+<td><code>single.php:187</code></td>
+<td><code>.article__subtitle</code> rgb(160,160,160)</td>
+</tr>
+<tr>
+<td>accent <code>--bdm-accent</code></td>
+<td><code>#ffe135</code></td>
+<td><code>single.php:189</code>; <code>bd-forms.css:788-796</code> ("retire amber (#f5ab07)")</td>
+<td><code>.article__body p a</code> rgb(255,225,53)</td>
+</tr>
+<tr>
+<td>accent hover</td>
+<td><code>#ffd700</code></td>
+<td><code>single.php:190</code></td>
+<td>—</td>
+</tr>
+<tr>
+<td>rule <code>--bdm-rule</code></td>
+<td><code>#2a2a2a</code></td>
+<td><code>single.php:191</code></td>
+<td><code>header.header</code> border-bottom rgb(42,42,42)</td>
+</tr>
+<tr>
+<td>field / tile boundary <code>--bdm-line</code></td>
+<td><code>#707070</code></td>
+<td><code>overflow-fix.css:28</code> (<code>--bd-gray-500</code>)</td>
+<td><code>.bd-newsletter__input</code> border on iPhone (<code>news-iphone13</code>) rgb(112,112,112). The only site input border that passes WCAG 1.4.11; <code>#2a2a2a</code> on <code>#1a1a1a</code> is 1.21:1</td>
+</tr>
+<tr>
+<td>on-accent text</td>
+<td><code>#0a0a0a</code></td>
+<td><code>single.php:680</code></td>
+<td><code>.bd-member-band__btn</code> rgb(10,10,10)</td>
+</tr>
+<tr>
+<td>error text <code>--bdm-danger</code></td>
+<td><code>#ffb3ac</code></td>
+<td><code>bd-forms.css:806</code></td>
+<td>not rendered in the capture (needs an error)</td>
+</tr>
+<tr>
+<td>invalid border <code>--bdm-danger-line</code></td>
+<td><code>#e0564d</code></td>
+<td><code>bd-forms.css:830</code></td>
+<td>not rendered in the capture</td>
+</tr>
+<tr>
+<td>headline face</td>
+<td><code>Satoshi</code> (Fontshare), 700 and 900</td>
+<td><code>single.php:192</code>, request <code>:174</code></td>
+<td><code>.article__title</code> Satoshi 48px/700, line-height 55.2px, −0.96px</td>
+</tr>
+<tr>
+<td>UI / body-copy face</td>
+<td><code>Inter</code> (Google Fonts) 400–700</td>
+<td><code>single.php:193</code>, request <code>:176</code></td>
+<td><code>body</code> Inter 16px/25.6px</td>
+</tr>
+<tr>
+<td>article text</td>
+<td>Satoshi 1.2rem / 1.8</td>
+<td><code>single.php:577-581</code></td>
+<td><code>.article__body &gt; p</code> 19.2px / 34.56px</td>
+</tr>
+<tr>
+<td>article h2 / h3</td>
+<td>Satoshi 700, 1.75rem / 1.5rem, line-height 1.3</td>
+<td><code>single.php:588-603</code></td>
+<td><code>.article__body h2</code></td>
+</tr>
+<tr>
+<td>membership headline voice</td>
+<td>Satoshi 900 italic uppercase, <code>clamp(2.1rem,5.2vw,3.4rem)</code>, line-height .92, −.03em; rail 1.7rem/.95/−.02em</td>
+<td><code>single.php:668-670</code> (band), <code>:1025-1027</code> (rail)</td>
+<td><code>.bd-member-band__title</code> 54.4px/900/italic. The site loads no Satoshi italic file (<code>fonts_loaded</code> lists Satoshi 400/700/900 normal only): the italic is browser-synthesized, today and in the proposal</td>
+</tr>
+<tr>
+<td>eyebrow</td>
+<td>Inter 800 .72rem, .2em, uppercase, accent, 7px dot</td>
+<td><code>single.php:665-667</code></td>
+<td><code>.bd-member-band__eyebrow</code> 11.52px/800</td>
+</tr>
+<tr>
+<td>primary button</td>
+<td>Inter 800 .92rem, .04em, uppercase, <code>#0a0a0a</code> on <code>#ffe135</code>, radius 2px, padding 1rem 1.7rem; hover <code>#ffd700</code>; focus 3px white ring offset 3px</td>
+<td><code>single.php:679-685</code></td>
+<td><code>.bd-member-band__btn</code> 14.72px/800, radius 2px</td>
+</tr>
+<tr>
+<td>phone button metrics</td>
+<td>.82rem, padding .85rem 1rem</td>
+<td><code>single.php:1029-1031</code> (rail button)</td>
+<td><code>.bd-member-rail__btn</code> 13.12px</td>
+</tr>
+<tr>
+<td>outlined control</td>
+<td>1px <code>#ffe135</code> border, <code>#ffe135</code> text, Inter 700 uppercase</td>
+<td><code>bd-support-cta.php:27</code> (<code>.bd-nav-support</code>)</td>
+<td><code>.bd-nav-support</code> 11.2px/700, border rgb(255,225,53)</td>
+</tr>
+<tr>
+<td>text link</td>
+<td>accent, underline, offset 2px</td>
+<td><code>single.php:605-613</code></td>
+<td><code>.article__body p a</code></td>
+</tr>
+<tr>
+<td>quiet link</td>
+<td><code>#a0a0a0</code>, Inter 500, underline offset 3px</td>
+<td><code>single.php:687-688</code></td>
+<td><code>.bd-member-band__secondary</code></td>
+</tr>
+<tr>
+<td>link focus</td>
+<td>2px accent ring, offset 3px</td>
+<td><code>single.php:690</code></td>
+<td>—</td>
+</tr>
+<tr>
+<td>card</td>
+<td>1px <code>#2a2a2a</code>, radius 8px, 3px yellow rule, padding <code>clamp(1.7rem,4vw,2.75rem) clamp(1.4rem,4vw,2.75rem)</code>, margin 2.75rem 0</td>
+<td><code>single.php:654-664</code></td>
+<td><code>.bd-member-band</code> radius 8px, 768×523</td>
+</tr>
+<tr>
+<td>tile radius</td>
+<td>4px</td>
+<td><code>single.php:935</code> (<code>.trending</code>), <code>:881</code> (<code>.post-nav__link</code>)</td>
+<td><code>.trending</code> radius 4px</td>
+</tr>
+<tr>
+<td>kicker</td>
+<td>Inter 600 .7rem, .1em, uppercase, 2px yellow underline offset 3px</td>
+<td><code>single.php:428-440</code></td>
+<td><code>.article__category</code> 11.2px/600</td>
+</tr>
+<tr>
+<td>article column</td>
+<td>768px (desktop), 342px (iPhone 13)</td>
+<td><code>single.php:387-402</code> (<code>minmax(0,1fr) 320px</code>, gap 4rem, in <code>.main</code> 1200px)</td>
+<td><code>.article-layout &gt; article</code> 768 wide at 1440; <code>.article__body</code> 342 wide on iPhone 13</td>
+</tr>
+<tr>
+<td>sticky header height</td>
+<td>135px desktop / 85px iPhone</td>
+<td><code>single.php:258-284</code></td>
+<td><code>header.header</code> 135 / 85 (used for focus <code>scroll-margin-top</code>)</td>
+</tr>
+<tr>
+<td>email register</td>
+<td>white; ink <code>#0a0a0a</code>; muted <code>#6b6b66</code>; hairline <code>#d6d5cf</code>; label <code>#ffe135</code>; Helvetica Neue; Didot/Bodoni headline 44px</td>
+<td><code>scripts/build_onboarding_emails.py:31-37, 62-114</code>; <code>wordpress/mailchimp/welcome-email-refined.html</code> (commit d10e96271, "owner direction 2026-09-20")</td>
+<td>n/a (email)</td>
+</tr>
+</tbody>
+</table>
+<h3>1.3 The logo (finding)</h3>
+<ul>
+<li><strong>The site's logo is an inline SVG wordmark</strong>, not an image file: <code>viewBox="0 0 443 65"</code>, white letter paths with a
+  0.5px black stroke and a solid <code>#ffe135</code> drop shadow offset 4,5 (<code>feDropShadow dx="4" dy="5" stdDeviation="0"</code>).
+  Regular articles: <code>wordpress/themes/Newspaper-child/single.php:1505-1528</code> (link <code>class="logo"</code> at :1505, filter
+  :1509, letter style :1512). The same markup is pasted in 11 deployable files, 20 copies (DEBT D9). Live:
+  642×94 at 1440 (<code>single.php:274-277</code>, <code>max-width:642px</code>), 270×40 on iPhone 13; <code>page.php</code> pages (e.g.
+  <code>/subscribe/</code>) 400×59 (<code>page.php:145</code>).</li>
+<li><strong>Image file</strong> of the same wordmark (structured data only): <code>https://cdn.bushwickdaily.com/wp-content/uploads/2026/02/bushwick-daily-logo-600x60.png</code>
+  (<code>wordpress/mu-plugins/bd-seo.php:35</code>; GET 200, image/png, 15,579 bytes; black shadow, for light backgrounds).</li>
+<li><strong>Where the DiMieri page differs</strong> (deployed copy <code>docs/paywall/pilot/dimieri/static/index.public.LIVE.html</code>;
+  source <code>wordpress/pages/dimieri-interview/index.html</code>):</li>
+<li><strong>No wordmark anywhere.</strong> Top bar: <code>&lt;div class="nav-logo"&gt;Bushwick Daily&lt;/div&gt;</code> — LIVE <code>:1326</code>, source <code>:1310</code>
+    — Space Grotesk 12px/600, uppercase, <code>#8a8580</code> (live computed). The bar is hidden at load
+    (<code>transform: translateY(-100%)</code>, LIVE <code>:283</code>) and appears only after the reader scrolls past the full-screen hero
+    (LIVE <code>:1648-1657</code>). <strong>At load the page shows no Bushwick Daily identity at all.</strong></li>
+<li>Footer: <code>&lt;div class="footer__logo"&gt;BUSHWICK&lt;span&gt;DAILY&lt;/span&gt;&lt;/div&gt;</code> — LIVE <code>:1568</code>, source <code>:2084</code> — Space
+    Grotesk 24px/700 with "DAILY" in <code>#f5ab07</code> (the retired amber).</li>
+<li>JSON-LD publisher logo <code>https://bushwickdaily.com/wp-content/uploads/bushwick-daily-logo.png</code> (LIVE <code>:105</code>) returns
+    <strong>404</strong> (GET through Chromium, 2026-10-13). The site's own <code>bd-seo.php:35</code> URL above returns 200.</li>
+<li>No favicon <code>&lt;link&gt;</code> on the DiMieri page, <code>/account/</code> or <code>/membership-terms/</code> (<code>git grep -c</code> for <code>rel="icon"</code> /
+    <code>apple-touch-icon</code> over <code>docs/paywall/pilot/dimieri/static/index.public.LIVE.html</code> and <code>membership/templates/</code>,
+    tracked files only: 0 hits; live <code>inventory.icons</code> empty for those three pages).</li>
+<li><code>/account/</code> and <code>/membership-terms/</code>: <code>&lt;header class="bd-min-header"&gt;&lt;a href="/"&gt;Bushwick Daily&lt;/a&gt;&lt;/header&gt;</code>
+  (<code>membership/templates/account.html:16</code>, <code>terms.html:12</code>), Space Grotesk 17px/700 uppercase text. An earlier harness
+  (<code>docs/paywall/pilot/harness/account.html:20</code>) had the real wordmark; the service port dropped it.</li>
+</ul>
+<h3>1.4 In-article boxes on a regular article today (live)</h3>
+<table>
+<thead>
+<tr>
+<th>Box</th>
+<th>What it is</th>
+<th>Style</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Mid-article band</td>
+<td>"Become a member." $15/mo, tote, link to <code>/subscribe/</code> (<code>single.php:36-74</code>), at ~70% of the story (<code>bd-ads.php</code> <code>bd_ads_plan</code>)</td>
+<td>card above; <code>img/site-news-desktop-member-band.webp</code></td>
+</tr>
+<tr>
+<td>Sidebar rail</td>
+<td>same offer (CSS <code>single.php:1014-1039</code>)</td>
+<td><code>img/site-news-desktop-member-rail.webp</code></td>
+</tr>
+<tr>
+<td>Sticky newsletter bar</td>
+<td>"Stay in the Loop" + email + Subscribe, fixed bottom after 600px scroll (<code>bd-forms.php:130-182</code>, <code>bd-forms.js:418-431</code>)</td>
+<td><code>#0f0f0f</code>, 2px yellow top border; button Space Grotesk 600 uppercase on <code>#ffe135</code>, radius 4px (live); phones: input + arrow</td>
+</tr>
+<tr>
+<td>"Support Us" button</td>
+<td>fixed pill, <code>/subscribe/</code> (<code>bd-support-cta.php:20-25</code>)</td>
+<td><code>#ffe135</code>, radius 999px</td>
+</tr>
+<tr>
+<td>Ad unit</td>
+<td>"Advertisements" / "From Bushwick Daily" labels (<code>bd-ads.php:174-175</code>)</td>
+<td><code>#141414</code> card, radius 4px, label Inter 500 .7rem .1em uppercase <code>#a0a0a0</code></td>
+</tr>
+</tbody>
+</table>
+<h3>1.5 Site-level inconsistencies found on the way (not paywall code; each rated)</h3>
+<table>
+<thead>
+<tr>
+<th>Finding</th>
+<th>Evidence</th>
+<th>Severity</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Four token sets disagree: <code>single.php</code> (<code>#ffe135</code>, Satoshi/Inter), <code>critical.css:8</code> (<code>#f5ab07</code>, Playfair/Space Grotesk/Source Serif), <code>overflow-fix.css:20-56</code> (<code>#f5ab07</code>, Raleway), the DiMieri page (<code>#f5ab07</code>, Playfair/Source Serif/Space Grotesk)</td>
+<td>files cited</td>
+<td><strong>high</strong> for the rollout (DEBT report: the gate inherits the wrong faces; S2/S3 become blocking for rollout step 7 if unfixed)</td>
+</tr>
+<tr>
+<td>On phones every article heading declares Raleway, which articles never load, so it renders in the system font</td>
+<td>live <code>news-iphone13</code> <code>.article__title</code> "Raleway, -apple-system"; <code>fonts_loaded</code> has no Raleway; <code>overflow-fix.css:92-99</code> (<code>!important</code>)</td>
+<td><strong>medium</strong> (visible brand inconsistency on most traffic; nothing broken)</td>
+</tr>
+<tr>
+<td>The current gate placed in a regular article renders as a hybrid: title in Satoshi 700 28px (the article h2 rule wins), lede in Source Serif (desktop) or the system font (phone), buttons in the retired amber</td>
+<td><code>evidence/mockup-measurements.json</code> <code>gate-s1-current-*</code>; cause <code>single.php:588-603</code> (0,1,1) printed after <code>wp_head()</code> vs <code>.bd-gate__title</code> (0,1,0)</td>
+<td><strong>high</strong> for rollout (it is what readers would see today)</td>
+</tr>
+<tr>
+<td>The site's date/breadcrumb grey <code>#666666</code> on <code>#0a0a0a</code> is 3.45:1 (WCAG AA needs 4.5:1 at 12.8px)</td>
+<td><code>contrast.py</code>; <code>single.php:188</code></td>
+<td><strong>low</strong> (secondary metadata; not adopted in the proposal)</td>
+</tr>
+<tr>
+<td>DiMieri lead links are browser-default blue rgb(0,0,238) on <code>#0a0a0a</code> (2.11:1)</td>
+<td>live computed <code>.intro-text a</code>; no rule in the page</td>
+<td><strong>medium</strong> (two links in the public lead fail WCAG 1.4.3 and are off-brand)</td>
+</tr>
+<tr>
+<td><code>bushwickdaily.com</code> sends <code>Cross-Origin-Resource-Policy: same-origin</code> (stylesheets refused to another origin)</td>
+<td><code>net::ERR_BLOCKED_BY_RESPONSE.NotSameOrigin</code> in the mockup harness</td>
+<td><strong>low</strong> for readers (none); it matters to any tool that renders the site's CSS off-origin</td>
+</tr>
+<tr>
+<td>Playwright's default <code>HeadlessChrome</code> user agent is refused the site's stylesheets by Cloudflare</td>
+<td>desktop probe: <code>--font-body</code> unset with that UA, set with a Chrome UA</td>
+<td><strong>low</strong> (tooling); every script here sends an ordinary browser UA</td>
+</tr>
+<tr>
+<td>The site footer's "Featured" label uses a third amber, <code>#e8a33d</code>, inline</td>
+<td><code>single.php:1855</code></td>
+<td><strong>low</strong></td>
+</tr>
+<tr>
+<td>The live article shifts on load on desktop: CLS 0.0454 / 0.0382 (two cold runs), 0.0347 of it a shift of <code>main</code></td>
+<td><code>measure_live_cls.py</code></td>
+<td><strong>low</strong> for readers (under 0.1); it alone breaks a "&lt; 0.01 top-to-gate" target</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2>2. Step-by-step review: current, proposed, reason</h2>
+<p>Images: <code>compare.html</code> shows every pair. "Current" is the deployed code rendered <strong>inside the regular article</strong> where
+that render exists (<code>img/gate-*-current-*</code>), else the deck's DiMieri render (<code>../presentation/img/</code>).</p>
+<table>
+<thead>
+<tr>
+<th>Step</th>
+<th>Current (what differs from the site)</th>
+<th>Proposed</th>
+<th>Reason</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>1 Lead to gate</td>
+<td>Gold radial glow and gold rules from the DiMieri page; inside a regular article the title falls back to the article h2 style; sticky newsletter bar and "Support Us" over the gate (<code>img/gate-arrive-current-*</code>)</td>
+<td>The lead fades into a site card (band family: 8px radius, 3px yellow rule, <code>#141414</code>), left-aligned in the 768/342px column; no sticky bar; no second offer</td>
+<td>G-1, G-2, G-3. Left alignment follows the band and the column the reader is reading</td>
+</tr>
+<tr>
+<td>2 S1</td>
+<td>30 words; "Members only" eyebrow; Playfair (designed) / Satoshi or system (actual) title; amber button; the newsletter box after Continue in grey</td>
+<td>Title "Subscribe to read the full story." in the band's voice; lede unchanged; one group: address, then "Also send me the Bushwick Daily newsletter" (checked, white, body size), then Continue (28 words)</td>
+<td>G-7, G-8. Owner: S1 is the newsletter signup point. <code>gate.php:148-161</code> prints the box after the button, so keyboard and screen-reader users reach it after the action; moving it before the button makes the choice part of the step. Box text and default kept (no source for a change). Hell Gate's paid gate is 21 words (research 12 line 73-75); its free gate pairs the email ask with the newsletter (line 77)</td>
+</tr>
+<tr>
+<td>2b Invalid address</td>
+<td>Space Grotesk error in <code>#ff8a7a</code></td>
+<td>Inter .9rem <code>#ffb3ac</code> (site error text), field border <code>#e0564d</code> + 1px ring</td>
+<td>site tokens <code>bd-forms.css:806, 830</code></td>
+</tr>
+<tr>
+<td>3 S2a code</td>
+<td>Source Serif step line, gold address</td>
+<td>Satoshi 700 1.25rem step line (author-card voice), yellow address; code field site style</td>
+<td>G-1</td>
+</tr>
+<tr>
+<td>3b Wrong code</td>
+<td>as above</td>
+<td>same error tokens</td>
+<td>G-1</td>
+</tr>
+<tr>
+<td>4 S2b plans</td>
+<td>Playfair prices in gold-tinted tiles; email "r…" and "@example.com" split on phones</td>
+<td>Tiles <code>#1a1a1a</code>, 4px radius, <code>#707070</code> boundary (3.72:1), yellow 2px selected state; price in the band's price voice (Satoshi 900 italic); on phones the price spans the tile; the masked address wraps as one piece</td>
+<td>G-1; the earlier mockup overflowed at 342px, fixed with <code>minmax(0,1fr)</code> columns</td>
+</tr>
+<tr>
+<td>4b Yearly selected</td>
+<td>disclosure and button rewritten (membership.js)</td>
+<td>same behaviour; same text</td>
+<td>unchanged logic</td>
+</tr>
+<tr>
+<td>4c Wallet</td>
+<td>one black button + "Pay with card instead" link (not renderable headless)</td>
+<td>same rule; stand-in drawn on the card surface; the boundary of a black button on <code>#141414</code> is 1.14:1, the white Apple Pay mark identifies it</td>
+<td>G-12 (owner rule). Apple's guidance on black buttons over dark backgrounds: UNVERIFIED (the HIG page is script-rendered; WebFetch returned no body)</td>
+</tr>
+<tr>
+<td>4d Card form</td>
+<td>Stripe "night" with Space Grotesk, <code>#6f6a64</code> borders</td>
+<td>Stripe test-mode render with the section 4 Appearance: Inter, <code>#707070</code> borders, yellow focus, <code>#ffb3ac</code> errors</td>
+<td>G-13</td>
+</tr>
+<tr>
+<td>4e Consent</td>
+<td>Source Serif disclosure 16px in a faint box</td>
+<td>Disclosure word for word, <strong>white Inter 16px/1.6</strong> on <code>#0a0a0a</code>, checkbox 24px; error border <code>#e0564d</code></td>
+<td>527-a needs the disclosure "clear and conspicuous"; white body-size text, not fine print</td>
+</tr>
+<tr>
+<td>4f Card errors</td>
+<td>Stripe's own messages</td>
+<td>Stripe's own messages in <code>#ffb3ac</code></td>
+<td>—</td>
+</tr>
+<tr>
+<td>4g Declined (D-1545)</td>
+<td>alert 165px (desktop) / 206px (iPhone) below Subscribe, off screen on iPhone (deck slide 14)</td>
+<td>alert directly under Subscribe (<code>img/gate-s2b-declined-proposed-*</code>), a second slot under the wallet button</td>
+<td>G-10</td>
+</tr>
+<tr>
+<td>5 Unlocked</td>
+<td>gate replaced by the text, no visible confirmation</td>
+<td>after a payment only, one confirmation line (eyebrow dot) above the text; after a sign-in, nothing</td>
+<td>G-11: a reader who just paid sees that it worked; a returning member is not thanked for paying again</td>
+</tr>
+<tr>
+<td>6 Free account (D-1544)</td>
+<td>"Paid under a different email? Sign in with that one below." while only "Sign out" is shown</td>
+<td>"This email has no membership yet. Subscribe below to keep reading. Paid with a different email? Sign out below, then sign in with that one." Blockquote-style yellow rule</td>
+<td>G-9</td>
+</tr>
+<tr>
+<td>7 Section link</td>
+<td>gold note in the head</td>
+<td>yellow note, Inter 600 .9rem, same text</td>
+<td>G-1 (regular articles rarely have in-page section links; DiMieri does)</td>
+</tr>
+<tr>
+<td>8 <code>/account/</code> (8 states)</td>
+<td>text header, Playfair title, gold eyebrow, Space Grotesk; no favicon</td>
+<td>site header (wordmark), breadcrumbs "Home / Your membership", kicker "Membership", Satoshi title (article headline style), the band card for "Membership active", outlined yellow secondary buttons, the sign-in submit buttons primary (yellow: signing in is this page's main action), site footer; copy unchanged</td>
+<td>G-15</td>
+</tr>
+<tr>
+<td>9 Emails (6)</td>
+<td>Georgia, Arial, blue <code>#0b57d0</code> links, text masthead</td>
+<td>the site's email register: masthead "Bushwick Daily · Membership", yellow label ("Sign in", "Membership", "Renewal notice", "Yearly reminder", "Price notice"), Didone headline, Helvetica body, outlined black button, ink links with a 1px underline; container fluid to 600px; <strong>every sentence unchanged</strong> (templates take the same variables under StrictUndefined)</td>
+<td>G-14</td>
+</tr>
+<tr>
+<td>10 <code>/membership-terms/</code></td>
+<td>text header, Source Serif on <code>#0a0a0a</code>, grey text</td>
+<td>site frame; the article body voice (Satoshi 1.2rem/1.8, white), article h2 for sections</td>
+<td>G-15; terms read like an article page</td>
+</tr>
+<tr>
+<td>11 DiMieri header</td>
+<td>no identity at load; text logo in the scroll bar; amber footer text logo</td>
+<td>site header with the wordmark above the hero; wordmark (150px) in the scroll bar; wordmark (180px, 60% opacity, like <code>single.php:1223-1232</code>) in the footer; lead links yellow; the gate is the site gate</td>
+<td>G-16</td>
+</tr>
+<tr>
+<td>12 Free article end</td>
+<td>"$15/mo" band at ~70%, rail, sticky bar, Support button</td>
+<td>S1 ask after the last paragraph: "Become a member." / "Bushwick Daily is paid for by its readers. Enter your email to become a member." / address + newsletter box / Continue → S2a (member: code; on success "You're signed in.", nothing to unlock) or S2b (plans; on payment the confirmation line)</td>
+<td>coordinator recommendation built in; G-2</td>
+</tr>
+</tbody>
+</table>
+<p>Copy problems besides D-1544/D-1545:
+- "Choose a plan, r…@example.com (change)": the masked address split mid-token on phones (fixed by layout, copy kept).
+- Fine print "Card payments are processed by Stripe. Card numbers go to Stripe directly and never reach Bushwick
+  Daily's servers." (19 words) → "Payments are processed by Stripe. Card numbers never reach Bushwick Daily's servers."
+  (13 words), same two facts.
+- No other copy is changed. The 527-a disclosure is untouched (<code>build_mockups.py</code> replaces markup only by exact,
+  single-match strings; the disclosure strings are not among them).</p>
+<hr />
+<h2>3. Hard constraints, kept</h2>
+<table>
+<thead>
+<tr>
+<th>Constraint</th>
+<th>How</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Gate HTML identical for every visitor (Cloudflare-cached)</td>
+<td>All changes are static markup or CSS; per-reader states stay in <code>membership.js</code> (address, steps, wallets, alert slot)</td>
+</tr>
+<tr>
+<td>CLS &lt; 0.01 top of page to gate</td>
+<td>The gate adds no layout shift and no font request (measured, section 6.4). The live article page itself shifts 0.038-0.045 on desktop before the gate (site-level, not the gate; section 6.4)</td>
+</tr>
+<tr>
+<td>527-a disclosure word for word</td>
+<td>unchanged strings; style only (white, body size)</td>
+</tr>
+<tr>
+<td>Stripe styling only via the Appearance API</td>
+<td>section 4</td>
+</tr>
+<tr>
+<td>Apple Pay black button only</td>
+<td><code>buttonTheme: { applePay: 'black' }</code> unchanged (<code>membership.js:883</code>)</td>
+</tr>
+<tr>
+<td>Funnel S1 → S2a or S2b unchanged</td>
+<td>same steps, hooks and API calls; only the order of S1's controls and where the alert prints</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2>4. Stripe Payment Element: the exact Appearance (<code>membership.js</code> <code>Gate.prototype.appearance</code>)</h2>
+<p>Variable names verified against Stripe's Appearance API page (<code>docs.stripe.com/elements/appearance-api</code>, Payment
+Intents variant, read 2026-10-13). Stripe documents that <code>colorPrimary</code>, <code>colorBackground</code>, <code>colorText</code>,
+<code>colorDanger</code> take literal colours, not <code>rgba()</code> or <code>var()</code>; all values below are literal.</p>
+<pre><code class="language-js">appearance: {
+  theme: 'night', labels: 'above',
+  variables: {
+    colorPrimary: '#ffe135',            // single.php:189
+    colorBackground: '#1a1a1a',         // single.php:185
+    colorText: '#ffffff',               // single.php:186
+    colorTextSecondary: '#a0a0a0',      // single.php:187
+    colorTextPlaceholder: '#a0a0a0',    // 6.66:1 on #1a1a1a
+    colorDanger: '#ffb3ac',             // bd-forms.css:806
+    fontFamily: 'Inter, -apple-system, BlinkMacSystemFont, sans-serif',   // single.php:193
+    fontSizeBase: '16px', fontWeightNormal: '400', spacingUnit: '4px',
+    borderRadius: '2px',                // single.php:681
+    buttonExpressCheckoutBorderRadius: '2px',
+    focusBoxShadow: '0 0 0 2px #ffe135', focusOutline: 'none'
+  },
+  rules: {
+    '.Input': { border: '1px solid #707070', boxShadow: 'none' },
+    '.Input:focus': { borderColor: '#ffe135' },
+    '.Input--invalid': { borderColor: '#e0564d', boxShadow: '0 0 0 1px #e0564d' },
+    '.Label': { fontWeight: '600', color: '#ffffff' },
+    '.Error': { color: '#ffb3ac' },
+    '.Tab': { border: '1px solid #707070' }
+  }
+},
+fonts: [{ cssSrc: 'https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&amp;display=swap' }]
+</code></pre>
+<p>Rendered in Stripe <strong>test mode</strong> (publishable test key already committed in <code>docs/paywall/pilot/harness/ctx.json</code>;
+no PaymentIntent is created): <code>img/gate-s2b-card-*</code>, <code>gate-s2b-card-errors-*</code> (Stripe's own empty-field errors after
+<code>elements.submit()</code>), <code>gate-s2b-declined-*</code> (the decline text is the mock's stand-in; a real decline needs a PaymentIntent).
+The card form's reserved heights (<code>membership.css:646-651</code>, measured with Space Grotesk) must be re-measured with
+Inter before the build (<code>run_t3.py</code>); until then they are UNVERIFIED for the new font.</p>
+<hr />
+<h2>5. Files a build would change (none changed here)</h2>
+<table>
+<thead>
+<tr>
+<th>File</th>
+<th>Change</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>wordpress/mu-plugins/bd-membership/assets/membership.css</code></td>
+<td>replaced by <code>mockups/proposed.css</code>, ported to the <code>--brand-*</code> tokens of DEBT D1/D6 (no fallbacks) and to D8's <code>not-prose</code> (the <code>.bd-gate</code> specificity prefixes then go)</td>
+</tr>
+<tr>
+<td><code>wordpress/mu-plugins/bd-membership/templates/gate.php</code></td>
+<td>P-1 eyebrow removed (<code>:138</code>); P-2 note copy (<code>:194</code>); P-3 alert slots under Subscribe and under the wallet slot (<code>:269</code> moves); P-4 fine print (<code>:264</code>); P-5 S1 group: address, error, newsletter box, then Continue (<code>:148-161</code>); <code>class="… not-prose"</code> on the section; an <code>ask</code> variant (title "Become a member.", lede, no fade, no aliases) for free articles</td>
+</tr>
+<tr>
+<td><code>wordpress/mu-plugins/bd-membership/assets/membership.js</code></td>
+<td><code>appearance()</code> and <code>fonts</code> (section 4); <code>fail(text, source)</code> writes to the slot of the control that failed; confirmation line after a completed payment; on the free-article ask, sign-in success shows "You're signed in." instead of unlocking</td>
+</tr>
+<tr>
+<td><code>wordpress/mu-plugins/bd-membership/templates/partials/signin.php</code>, <code>membership/templates/_signin.html</code></td>
+<td>a <code>variant</code> parameter for the two submit buttons: primary on <code>/account/</code>, secondary inside the gate (today both are secondary everywhere, <code>_signin.html:15, 33</code>)</td>
+</tr>
+<tr>
+<td><code>wordpress/themes/Newspaper-child/single.php</code></td>
+<td>gated post: lay out ads on the lead only, append the gate, pass no band, print no rail; free post: the S1 ask after the last paragraph instead of the band, no rail; header/footer wordmark from the partial (DEBT D9)</td>
+</tr>
+<tr>
+<td><code>wordpress/mu-plugins/bd-ads.php</code></td>
+<td><code>bd_ads_layout_article()</code> accepts the end-of-article ask as the block after the last paragraph (today it places the band at ~70%, an owner-approved rule from <code>docs/research/ad-inventory-2026-10-01</code>: this decision changes it, flagged for the owner)</td>
+</tr>
+<tr>
+<td><code>wordpress/mu-plugins/bd-forms.php</code></td>
+<td>remove <code>bd_forms_footer_banner()</code> and its hook (<code>:130-182</code>) at go-live (owner decision)</td>
+</tr>
+<tr>
+<td><code>wordpress/mu-plugins/bd-support-cta.php</code></td>
+<td>no floating button on a gated post (the nav "support us" link stays)</td>
+</tr>
+<tr>
+<td><code>wordpress/themes/Newspaper-child/functions.php</code></td>
+<td>stop enqueueing <code>overflow-fix.css</code> on child templates (DEBT D3)</td>
+</tr>
+<tr>
+<td><code>wordpress/themes/Newspaper-child/template-parts/wordmark.php</code> (new)</td>
+<td>the one wordmark (DEBT D9)</td>
+</tr>
+<tr>
+<td><code>membership/templates/_page_head.html</code></td>
+<td>Satoshi (Fontshare) + Inter (Google) instead of Playfair/Source Serif/Space Grotesk; favicon links (the site's <code>bd-favicon-*</code> URLs)</td>
+</tr>
+<tr>
+<td><code>membership/templates/account.html</code>, <code>terms.html</code></td>
+<td>site header (wordmark), breadcrumbs, site footer, eyebrow "Membership"</td>
+</tr>
+<tr>
+<td><code>membership/deploy.sh</code></td>
+<td>ship the wordmark partial with the release, as it ships <code>terms-body.html</code></td>
+</tr>
+<tr>
+<td><code>membership/templates/email/*.html</code></td>
+<td>replaced by <code>mockups/email-templates/*.html</code> (same variables and blocks, plus an optional <code>kicker</code> block); <code>.txt</code> versions unchanged</td>
+</tr>
+<tr>
+<td><code>wordpress/pages/dimieri-interview/index.html</code> (+ rebuilt <code>docs/paywall/pilot/dimieri/static/*</code>)</td>
+<td>site header above the hero, wordmark in the bar and footer, <code>.intro-text a</code> link rule, JSON-LD logo URL; gate re-rendered from the new <code>gate.php</code></td>
+</tr>
+<tr>
+<td>tests</td>
+<td><code>verify_static.py</code> J (S1 order), a computed-style test per gate role on iPhone 13 equal to desktop (DEBT V1/V4), the band-placement probe (<code>probe_band_placement.php</code>) as a test: no band in a gated post</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2>6. Accessibility (WCAG 2.2 AA)</h2>
+<h3>6.1 Contrast (computed by <code>contrast.py</code>)</h3>
+<table>
+<thead>
+<tr>
+<th>Use</th>
+<th>Ratio</th>
+<th>Needed</th>
+<th>Result</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Gate title / body text #ffffff on card #141414</td>
+<td>18.42:1</td>
+<td>4.5:1</td>
+<td>pass</td>
+</tr>
+<tr>
+<td>Secondary text #a0a0a0 on card #141414</td>
+<td>7.04:1</td>
+<td>4.5:1</td>
+<td>pass</td>
+</tr>
+<tr>
+<td>Secondary text #a0a0a0 on page #0a0a0a</td>
+<td>7.57:1</td>
+<td>4.5:1</td>
+<td>pass</td>
+</tr>
+<tr>
+<td>Accent links/eyebrow #ffe135 on card #141414</td>
+<td>14.10:1</td>
+<td>4.5:1</td>
+<td>pass</td>
+</tr>
+<tr>
+<td>Accent #ffe135 on page #0a0a0a</td>
+<td>15.15:1</td>
+<td>4.5:1</td>
+<td>pass</td>
+</tr>
+<tr>
+<td>Button label #0a0a0a on #ffe135</td>
+<td>15.15:1</td>
+<td>4.5:1</td>
+<td>pass</td>
+</tr>
+<tr>
+<td>Button label #0a0a0a on hover #ffd700</td>
+<td>14.12:1</td>
+<td>4.5:1</td>
+<td>pass</td>
+</tr>
+<tr>
+<td>Input text #ffffff on field #1a1a1a</td>
+<td>17.40:1</td>
+<td>4.5:1</td>
+<td>pass</td>
+</tr>
+<tr>
+<td>Placeholder #a0a0a0 on field #1a1a1a</td>
+<td>6.66:1</td>
+<td>4.5:1</td>
+<td>pass</td>
+</tr>
+<tr>
+<td>Field boundary #707070 vs field #1a1a1a</td>
+<td>3.51:1</td>
+<td>3.0:1</td>
+<td>pass</td>
+</tr>
+<tr>
+<td>Field boundary #707070 vs card #141414</td>
+<td>3.72:1</td>
+<td>3.0:1</td>
+<td>pass</td>
+</tr>
+<tr>
+<td>Unselected plan boundary #707070 vs card #141414</td>
+<td>3.72:1</td>
+<td>3.0:1</td>
+<td>pass</td>
+</tr>
+<tr>
+<td>Selected plan boundary #ffe135 vs card #141414</td>
+<td>14.10:1</td>
+<td>3.0:1</td>
+<td>pass</td>
+</tr>
+<tr>
+<td>Error text #ffb3ac on card #141414</td>
+<td>10.79:1</td>
+<td>4.5:1</td>
+<td>pass</td>
+</tr>
+<tr>
+<td>Error text #ffb3ac on field #1a1a1a</td>
+<td>10.19:1</td>
+<td>4.5:1</td>
+<td>pass</td>
+</tr>
+<tr>
+<td>Invalid field boundary #e0564d vs card #141414</td>
+<td>4.92:1</td>
+<td>3.0:1</td>
+<td>pass</td>
+</tr>
+<tr>
+<td>Focus ring #ffe135 vs card #141414</td>
+<td>14.10:1</td>
+<td>3.0:1</td>
+<td>pass</td>
+</tr>
+<tr>
+<td>Focus ring #ffffff vs #ffe135 button (not adjacent: 3px offset)</td>
+<td>1.31:1</td>
+<td>—</td>
+<td>decorative (no requirement)</td>
+</tr>
+<tr>
+<td>Focus ring #ffffff vs card #141414 (yellow button ring sits on the card)</td>
+<td>18.42:1</td>
+<td>3.0:1</td>
+<td>pass</td>
+</tr>
+<tr>
+<td>Card top rule #ffe135 vs page #0a0a0a (decorative)</td>
+<td>15.15:1</td>
+<td>—</td>
+<td>decorative (no requirement)</td>
+</tr>
+<tr>
+<td>Apple Pay black button #000000 vs card #141414 (boundary)</td>
+<td>1.14:1</td>
+<td>—</td>
+<td>decorative (no requirement)</td>
+</tr>
+<tr>
+<td>Site muted #666666 on page #0a0a0a (site date lines; not adopted)</td>
+<td>3.45:1</td>
+<td>4.5:1</td>
+<td>FAIL</td>
+</tr>
+<tr>
+<td>Current gate muted #aaa49d on #0a0a0a (current, for reference)</td>
+<td>8.02:1</td>
+<td>4.5:1</td>
+<td>pass</td>
+</tr>
+<tr>
+<td>DiMieri lead links rgb(0,0,238) on #0a0a0a (live; finding)</td>
+<td>2.11:1</td>
+<td>4.5:1</td>
+<td>FAIL</td>
+</tr>
+<tr>
+<td>Email ink #0a0a0a on #ffffff</td>
+<td>19.80:1</td>
+<td>4.5:1</td>
+<td>pass</td>
+</tr>
+<tr>
+<td>Email muted #6b6b66 on #ffffff</td>
+<td>5.36:1</td>
+<td>4.5:1</td>
+<td>pass</td>
+</tr>
+<tr>
+<td>Email kicker #0a0a0a on #ffe135</td>
+<td>15.15:1</td>
+<td>4.5:1</td>
+<td>pass</td>
+</tr>
+<tr>
+<td>Email button border #0a0a0a vs #ffffff</td>
+<td>19.80:1</td>
+<td>3.0:1</td>
+<td>pass</td>
+</tr>
+<tr>
+<td>Email hairline #d6d5cf vs #ffffff (decorative)</td>
+<td>1.47:1</td>
+<td>—</td>
+<td>decorative (no requirement)</td>
+</tr>
+</tbody>
+</table>
+<p>Every text and boundary pair the proposal uses passes. The two FAIL rows are the site's own <code>#666666</code> (not adopted)
+and the DiMieri page's default-blue links (fixed by G-16).</p>
+<h3>6.2 Focus visible</h3>
+<p>Every interactive element keeps a visible focus indicator (section 1.2 "link focus" / "primary button"): 2px
+<code>#ffe135</code> ring offset 3px (14.10:1 against the card), 3px white ring offset 3px on yellow buttons (18.42:1 against the
+card; the ring is not adjacent to the yellow). Plan tiles carry the ring (the radio inside is visually part of the
+tile). The wallet slot gets the ring from <code>membership.js</code> <code>.has-focus</code> (unchanged). Focus Not Obscured (2.4.11):
+<code>scroll-margin-top: 160px</code> clears the 135px sticky header (live) instead of today's 112px.</p>
+<h3>6.3 Target size (2.5.8, 24×24 CSS px)</h3>
+<p>Measured in every rendered gate state (<code>render_mockups.py</code> MEASURE, <code>evidence/mockup-measurements.json</code>, 49
+measurements: 15 proposed states x 2 devices, the current states, the free-article ask and the DiMieri gate): <strong>no
+visible button, link, input or plan tile is smaller than 24x24 CSS px.</strong> Buttons and fields are 48px tall (Subscribe
+52px); the checkbox and radios are 24px; <code>.bd-link</code> buttons keep <code>min-height: 24px</code>; the legal links keep
+<code>min-height: 24px</code>. The site's 44px phone rule for every link (<code>overflow-fix.css:432-436</code>) goes with G-4; DEBT D5
+re-homes 44px targets to standalone controls only.</p>
+<h3>6.4 Layout shift</h3>
+<ul>
+<li><strong>The gate adds no layout shift.</strong> In every harness render (both devices, all states), no layout-shift entry has a
+  gate element as its source. The gate is in the cached HTML, adds no font request (Satoshi and Inter are the
+  article's own) and nothing above it arrives late. Wallet slot, card form and alert slot keep the current
+  reservation mechanics (48px slot; card min-heights; one reserved alert line inside the opened panel).</li>
+<li><strong>The page above the gate already shifts, with or without the gate.</strong> Harness (scripts stripped, cold cache,
+  desktop): one entry of 0.0098-0.0109, sources <code>.article__hero</code>, <code>.article__subtitle</code>, <code>.article__meta</code> (the
+  article header moving as its web fonts swap), for the current and the proposed gate alike. <strong>Live article</strong>
+  (<code>measure_live_cls.py</code>, 2 cold runs, analytics blocked): desktop <strong>0.0454 and 0.0382</strong>, of which 0.0347 is a shift of
+  <code>main</code> (cause UNVERIFIED; the direct-sold billboard rotation above the breadcrumbs is the likely source, not
+  measured) and 0.0035-0.0107 the header; iPhone 13: 0.0000 counted.</li>
+<li>Severity of the site-level shift: <strong>low</strong> for readers (Google's "good" threshold is 0.1) but it means the brief's
+  "CLS under 0.01 from the top of the page to the gate" is <strong>not met by the article page today on desktop</strong>,
+  independent of the gate. The gate cannot fix shifts above it; the fix belongs to the header font loading and the
+  billboard slot (reserve its height). Flagged for the owner; not part of this build.</li>
+</ul>
+<hr />
+<h2>7. Rationale on the three axes (code quality · architecture by external standards · journalism)</h2>
+<ul>
+<li><strong>G-1 Site design system.</strong> Code: one token set instead of the DiMieri page's. Architecture: a component takes its
+  look from the design system of the page it serves (the DEBT report's three-tier token model). Journalism: the
+  reader is asked to pay by the paper they are reading.</li>
+<li><strong>G-2 One offer per page.</strong> Code: the layout pass stops placing a second offer. Architecture: one call to action per
+  view is the standard conversion pattern; two prices for "membership" on one screen is a contradiction. Journalism:
+  a reader is never shown "$15/mo" and "$6.99/month" for the same word at the same moment. (The $15 tote tiers remain
+  on <code>/subscribe/</code>, the nav and the footer; grandfathered supporters are entitled at the gate, GATE-FUNNEL-SPEC S2a.)</li>
+<li><strong>G-3 No sticky bar.</strong> Owner decision; it also removes a second email field on screen while S1 asks for one.</li>
+<li><strong>G-4 Legacy sheet off.</strong> Code: removes <code>!important</code> overrides the gate cannot beat. Architecture: a template that
+  owns its CSS does not load a sheet written for another theme. Journalism: phone readers (the larger share is
+  UNVERIFIED) see the same paper as desktop readers.</li>
+<li><strong>G-5 Lead-only layout.</strong> Code: the planner stops counting UI markup as story paragraphs (measured defect).
+  Architecture: layout passes operate on content, components are appended. Journalism: no ad or band between the
+  last public paragraph and the gate.</li>
+<li><strong>G-6 Component isolation.</strong> DEBT D8 (<code>not-prose</code>, the Tailwind Typography convention); cascade layers rejected
+  there with the MDN reason. Journalism: the gate renders as designed on every article.</li>
+<li><strong>G-7 S1 order.</strong> Code: DOM order = visual order = tab order. Architecture: options before the submit action is the
+  standard form order. Journalism: the email step is the newsletter signup (owner); the newsletter is offered as part
+  of the step, not after it.</li>
+<li><strong>G-8 No eyebrow.</strong> Hell Gate weight (21 words at the gate). Fewer words before the field.</li>
+<li><strong>G-9/G-10 Copy and alert.</strong> The screen says what is on it; an error appears where the reader is looking.</li>
+<li><strong>G-11 Confirmation after payment.</strong> A payment needs an on-screen receipt; a sign-in does not.</li>
+<li><strong>G-12 Black wallet button.</strong> Owner rule kept; the stand-in is labelled as such.</li>
+<li><strong>G-13 Appearance.</strong> Only documented variables; Stripe's iframe gets the site's UI font.</li>
+<li><strong>G-14 Emails.</strong> The register the owner directed for the newsletter; one inbox look for everything Bushwick Daily
+  sends. Fluid container: the register's fixed <code>width="600"</code> table makes Chromium lay a 390px phone out at 600px and
+  scale it to 65% (measured: <code>scrollWidth</code> 600 for <code>welcome-email-refined.html</code> and <code>onboarding-e1-tote.html</code> on the
+  iPhone 13 profile); the proposed <code>width="100%"</code> + <code>max-width:600px</code> lays out at 390. Mail-client behaviour:
+  UNVERIFIED (no client test).</li>
+<li><strong>G-15/G-16/G-17 Frame and logo.</strong> One wordmark source; the account, terms and DiMieri pages carry the paper's
+  mark at load.</li>
+</ul>
+<hr />
+<h2>8. UNVERIFIED (each with what would verify it)</h2>
+<ul>
+<li>Real iOS Safari and real email clients: every phone render is Chromium with the iPhone 13 profile; emails rendered
+  in Chromium only. Verify on a device and in Gmail/iOS Mail.</li>
+<li>The Apple Pay button's real look on the card surface and Apple's guidance for black buttons on dark backgrounds
+  (HIG page not readable by the tools). Verify on an iPhone with a wallet in Stripe test mode.</li>
+<li>A real card decline in the alert slot (needs a PaymentIntent). The mock's text "Your card was declined." stands in
+  for Stripe's message; that it is Stripe's exact wording for a generic decline is UNVERIFIED.</li>
+<li>The card form's reserved heights with Inter (re-run <code>run_t3.py</code>).</li>
+<li>Live CLS of the proposed gate (the mockup measures an uncached page in a local harness).</li>
+<li>That the end-of-article ask on free articles converts at least as well as the band (no data; owner may overrule).</li>
+<li>Whether Gmail and other clients render the Didone headline (falls back to Georgia where Didot/Bodoni are absent).</li>
+<li>Share of phone traffic (DEBT report lists the same gap).</li>
+</ul>
+<h2>9. What I could not reach</h2>
+<ul>
+<li>The live server and Stripe/Mailchimp dashboards: not accessed (out of bounds by the brief). The <code>/account/</code>
+  live capture's error line is the capture's own blocking of <code>POST /members/api/me</code>.</li>
+<li>Apple's Human Interface Guidelines (script-rendered; WebFetch returned only the title).</li>
+<li>A wallet-enabled browser (headless Chromium has no Apple Pay or Google Pay).</li>
+<li>The live <code>/account/</code> signed-in states: rendered from the service's own HTML (<code>Site.account()</code>) with
+  <code>mockups/states.js</code>, not with a real session.</li>
+<li>Byte-for-byte comparison of the live CSS with the repo copies: equal in every ASCII byte; the fetched copies encode
+  the non-ASCII comment characters differently, cause UNVERIFIED (server bytes vs. the fetch).</li>
+</ul>
+<hr />
+<h2>Reproduce</h2>
+<pre><code>venv/bin/python docs/paywall/design/capture_site.py        # live captures + computed styles (read-only, GET only)
+php docs/paywall/pilot/harness/render.php gate docs/paywall/design/evidence/ctx-regular-post.json &gt; docs/paywall/design/evidence/current-gate-regular-post.html
+venv/bin/python docs/paywall/design/build_mockups.py       # mockups/*.html
+venv/bin/python docs/paywall/design/render_mockups.py      # img/*.webp + evidence/mockup-measurements.json
+venv/bin/python docs/paywall/design/build_compare.py       # compare.html
+venv/bin/python docs/paywall/design/contrast.py            # section 6.1 table
+venv/bin/python docs/paywall/design/measure_live_cls.py    # section 6.4 live CLS (read-only)
+php docs/paywall/design/probe_band_placement.php docs/paywall/design/evidence/current-gate-regular-post.html 4
+</code></pre></body></html>

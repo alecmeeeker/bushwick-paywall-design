@@ -1,0 +1,566 @@
+/*
+ * PROPOSED bd-membership front end (design proposal, docs/paywall/design/PROPOSAL.md). NOT deployed.
+ * A candidate replacement for wordpress/mu-plugins/bd-membership/assets/membership.css: the same class names and
+ * data-* hooks that membership.js binds, restyled in the design system of a regular Bushwick Daily article.
+ *
+ * Journalism purpose: the gate is rolled out to regular articles one at a time; a reader must meet it as part of
+ * the site they are reading (same type, same yellow, same buttons as the article and its membership band), not as
+ * a page from another publication.
+ *
+ * TOKENS. Each one names its source: single.php = wordpress/themes/Newspaper-child/single.php (the template every
+ * regular article uses); "live" = computed style read with Playwright from
+ * https://bushwickdaily.com/news/mta-will-change-j-and-m-service-in-october-and-november-to-replace-29-year-old-marcy-avenue-switches/
+ * on 2026-10-13 (docs/paywall/design/evidence/computed-styles.json). The gate reads the article's own custom
+ * properties first (so a future shared token file changes the gate too) and falls back to the literal site values
+ * on pages that do not define them (/account/, /membership-terms/, the static DiMieri page).
+ * It no longer reads the DiMieri page's --color-* / --font-* tokens.
+ *
+ * SCOPING. single.php prints its inline prose rules (.article__body h2/h3/p, specificity 0,1,1) after wp_head(), so
+ * single-class gate rules lose to them (measured: the current gate's title renders as an article h2 in a regular
+ * article). Every gate rule here is therefore scoped under .bd-gate (0,2,0). The build replaces this with the
+ * `not-prose` opt-out and the --brand-* tokens of docs/paywall/design/DEBT-site-design-tokens.md (D6, D8), and lands
+ * after that report's Steps 1-3 (D10). overflow-fix.css's !important heading rule (phones) is NOT beaten by any
+ * specificity: decision G-4 (stop loading it on single.php) is a precondition.
+ */
+.bd-gate,
+.bd-membership-page,
+.bd-unlock-note {
+  --bdm-bg: var(--bg-primary, #0a0a0a);          /* single.php:183; live body background rgb(10,10,10) */
+  --bdm-surface: var(--bg-secondary, #141414);   /* single.php:184; live .trending / .footer background rgb(20,20,20) */
+  --bdm-field: var(--bg-tertiary, #1a1a1a);      /* single.php:185; live .bd-newsletter__input background rgb(26,26,26) */
+  --bdm-text: var(--text-primary, #ffffff);      /* single.php:186; live body colour */
+  --bdm-soft: var(--text-secondary, #a0a0a0);    /* single.php:187; live .article__subtitle colour rgb(160,160,160) */
+  --bdm-accent: var(--accent, #ffe135);          /* single.php:189; live .article__body a colour rgb(255,225,53) */
+  --bdm-accent-hover: var(--accent-hover, #ffd700); /* single.php:190 */
+  --bdm-rule: var(--border, #2a2a2a);            /* single.php:191; live header border-bottom rgb(42,42,42) */
+  --bdm-line: #707070;                           /* overflow-fix.css:28 (--bd-gray-500); live iPhone .bd-newsletter__input
+                                                    border rgb(112,112,112). The site's only input border that meets
+                                                    WCAG 1.4.11 (3.51:1 on #1a1a1a); #2a2a2a is 1.21:1. */
+  --bdm-on-accent: #0a0a0a;                      /* single.php:680 (.bd-member-band__btn colour) */
+  --bdm-danger: #ffb3ac;                         /* wordpress/mu-plugins/bd-forms/assets/bd-forms.css:806 (error text) */
+  --bdm-danger-line: #e0564d;                    /* bd-forms.css:830 (invalid field border) */
+  --bdm-font-head: var(--font-headline, 'Satoshi', system-ui, -apple-system, sans-serif); /* single.php:192 */
+  --bdm-font-ui: var(--font-sans, 'Inter', -apple-system, BlinkMacSystemFont, sans-serif); /* single.php:193 */
+  --bdm-radius-btn: 2px;                         /* single.php:681 (.bd-member-band__btn border-radius) */
+  --bdm-radius-card: 8px;                        /* single.php:654 (.bd-member-band border-radius) */
+  --bdm-radius-tile: 4px;                        /* single.php:935 (.trending) and :881 (.post-nav__link) */
+  --bdm-gate-fade: 4.5rem;                       /* membership.css:55 (unchanged) */
+  --bdm-pe-min: 296px;                           /* membership.css:56; RE-MEASURE with Inter (PROPOSAL.md, CLS) */
+  color-scheme: dark;
+}
+
+/* ───────────────────────── shared primitives ───────────────────────── */
+.bd-gate [hidden],
+.bd-membership-page [hidden] { display: none !important; }
+
+.bd-sr-only {
+  position: absolute !important;
+  width: 1px; height: 1px; padding: 0; margin: -1px;
+  overflow: hidden; clip: rect(0 0 0 0); clip-path: inset(50%); white-space: nowrap; border: 0;
+}
+
+/* Primary button = the article's membership button (.bd-member-band__btn, single.php:679-685): Inter 800,
+   .92rem, .04em, uppercase, #0a0a0a on #ffe135, radius 2px; hover #ffd700; focus 3px white ring offset 3px. */
+:is(.bd-gate, .bd-membership-page) .bd-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: .6rem;
+  width: 100%;
+  min-height: 48px;
+  padding: 0 1.7rem;
+  font-family: var(--bdm-font-ui);
+  font-size: .92rem;
+  font-weight: 800;
+  letter-spacing: .04em;
+  text-transform: uppercase;
+  line-height: 1.2;
+  text-align: center;
+  text-decoration: none;
+  border-radius: var(--bdm-radius-btn);
+  border: 1px solid transparent;
+  cursor: pointer;
+  transition: background-color .15s ease, color .15s ease, border-color .15s ease;
+  -webkit-appearance: none;
+  appearance: none;
+}
+:is(.bd-gate, .bd-membership-page) .bd-btn--primary { background: var(--bdm-accent); border-color: var(--bdm-accent); color: var(--bdm-on-accent); }
+:is(.bd-gate, .bd-membership-page) .bd-btn--primary:hover { background: var(--bdm-accent-hover); border-color: var(--bdm-accent-hover); }
+/* Secondary = the site's outlined control (.bd-nav-support, bd-support-cta.php:27: 1px #ffe135 border, #ffe135
+   text, Inter 700 uppercase), at the primary button's height and radius. */
+:is(.bd-gate, .bd-membership-page) .bd-btn--secondary { background: transparent; border-color: var(--bdm-accent); color: var(--bdm-accent); font-weight: 700; }
+:is(.bd-gate, .bd-membership-page) .bd-btn--secondary:hover { background: var(--bdm-accent); color: var(--bdm-on-accent); }
+:is(.bd-gate, .bd-membership-page) .bd-btn[aria-busy='true'] { cursor: progress; opacity: .75; }
+:is(.bd-gate, .bd-membership-page) .bd-btn[disabled] { cursor: not-allowed; opacity: .55; }
+
+/* Text links: the article's in-body link (single.php:605-613: accent, underline, offset 2px). */
+:is(.bd-gate, .bd-membership-page) .bd-link {
+  display: inline-flex;
+  align-items: center;
+  min-height: 24px;                 /* WCAG 2.5.8 target size (24px); inline text links are exempt, buttons are not */
+  padding: 0 .15rem;
+  margin: 0;
+  background: none;
+  border: 0;
+  font: inherit;
+  font-weight: 600;
+  color: var(--bdm-accent);
+  text-decoration: underline;
+  text-underline-offset: 2px;
+  cursor: pointer;
+}
+:is(.bd-gate, .bd-membership-page) .bd-link:hover { color: var(--bdm-accent-hover); }
+:is(.bd-gate, .bd-membership-page) .bd-link[disabled] { color: var(--bdm-soft); text-decoration: none; cursor: default; font-weight: 400; }
+/* Quiet link = .bd-member-band__secondary (single.php:687-688): #a0a0a0, Inter 500, underline offset 3px. */
+:is(.bd-gate, .bd-membership-page) .bd-link--quiet { color: var(--bdm-soft); font-weight: 500; text-underline-offset: 3px; }
+:is(.bd-gate, .bd-membership-page) .bd-link--quiet:hover { color: var(--bdm-accent); }
+
+.bd-gate a:not(.bd-btn),
+.bd-membership-page main a:not(.bd-btn) { color: var(--bdm-accent); text-decoration: underline; text-underline-offset: 2px; }
+
+/* Focus: the site's two rings. Yellow-filled buttons: 3px white, offset 3px (single.php:685). Everything else:
+   2px accent, offset 3px (single.php:690). Never removed. */
+.bd-gate :focus-visible,
+.bd-membership-page :focus-visible { outline: 2px solid var(--bdm-accent); outline-offset: 3px; }
+:is(.bd-gate, .bd-membership-page) .bd-btn--primary:focus-visible,
+.bd-gate[data-bd-wallets='none'] .bd-gate__card-toggle[aria-expanded='false']:focus-visible { outline: 3px solid #fff; outline-offset: 3px; }
+.bd-gate [tabindex='-1']:focus,
+.bd-membership-page [tabindex='-1']:focus { outline: none; }
+.bd-gate [tabindex='-1']:focus-visible,
+.bd-membership-page [tabindex='-1']:focus-visible { outline: 2px dashed var(--bdm-accent); outline-offset: 6px; }
+
+/* Focus Not Obscured (2.4.11): single.php's sticky header is 135px (live, 1440) / 85px (live, iPhone 13). */
+.bd-gate input, .bd-gate button, .bd-gate a, .bd-gate iframe, .bd-gate [tabindex],
+.bd-membership-page main input, .bd-membership-page main button, .bd-membership-page main a {
+  scroll-margin-top: 160px; scroll-margin-bottom: 24px;
+}
+
+:is(.bd-gate, .bd-membership-page) .bd-field { display: grid; gap: .35rem; margin: 0 0 1rem; }
+:is(.bd-gate, .bd-membership-page) .bd-field__label { font-family: var(--bdm-font-ui); font-size: .85rem; font-weight: 600; color: var(--bdm-text); }
+:is(.bd-gate, .bd-membership-page) .bd-field__hint { margin: 0; font-family: var(--bdm-font-ui); font-size: .85rem; line-height: 1.5; color: var(--bdm-soft); }
+/* Field = the site's email input (.bd-newsletter__input / .newsletter-popup__input, single.php:1353-1372) with the
+   WCAG border (#707070) and 16px text (no iOS zoom; live iPhone computed 16px). */
+:is(.bd-gate, .bd-membership-page) .bd-field__input {
+  width: 100%;
+  min-height: 48px;
+  padding: .75rem 1rem;
+  font-family: var(--bdm-font-ui);
+  font-size: 1rem;
+  color: var(--bdm-text);
+  background: var(--bdm-field);
+  border: 1px solid var(--bdm-line);
+  border-radius: var(--bdm-radius-btn);
+  -webkit-appearance: none;
+  appearance: none;
+}
+:is(.bd-gate, .bd-membership-page) .bd-field__input::placeholder { color: var(--bdm-soft); }
+:is(.bd-gate, .bd-membership-page) .bd-field__input:focus-visible { border-color: var(--bdm-accent); }
+:is(.bd-gate, .bd-membership-page) .bd-field__input[aria-invalid='true'] { border-color: var(--bdm-danger-line); box-shadow: 0 0 0 1px var(--bdm-danger-line); }
+:is(.bd-gate, .bd-membership-page) .bd-field__input--code { max-width: 12rem; font-size: 1.375rem; letter-spacing: .3em; font-variant-numeric: tabular-nums; }
+
+:is(.bd-gate, .bd-membership-page) .bd-error {
+  margin: 0;
+  font-family: var(--bdm-font-ui);
+  font-size: .9rem;
+  line-height: 1.45;
+  font-weight: 500;
+  color: var(--bdm-danger);
+}
+:is(.bd-gate, .bd-membership-page) .bd-error:empty { display: none; }
+:is(.bd-gate, .bd-membership-page) .bd-error:not(:empty)::before { content: 'Error: '; font-weight: 700; }
+
+:is(.bd-gate, .bd-membership-page) .bd-check { width: 1.5rem; height: 1.5rem; margin: .1rem 0 0; accent-color: var(--bdm-accent); cursor: pointer; flex: none; }
+
+/* ───────────────────────── the gate: an in-article card ───────────────────────── */
+/* The card is the membership band's family (single.php:654-664: 1px #2a2a2a border, 8px radius, 3px yellow rule,
+   band padding), on the site's surface colour, left-aligned like the band and the article column. */
+.bd-gate {
+  position: relative;
+  margin: 2.75rem 0;                                 /* single.php:654 (.bd-member-band margin) */
+  padding: clamp(1.7rem, 4vw, 2.75rem) clamp(1.4rem, 4vw, 2.75rem); /* single.php:664 (.bd-member-band__inner) */
+  background: linear-gradient(var(--bdm-accent), var(--bdm-accent)) top / 100% 3px no-repeat, var(--bdm-surface);
+  border: 1px solid var(--bdm-rule);
+  border-radius: var(--bdm-radius-card);
+  color: var(--bdm-text);
+  font-family: var(--bdm-font-ui);
+  font-size: 1rem;
+  line-height: 1.55;
+  text-align: left;
+  scroll-margin-top: 160px;
+}
+/* The public lead fades into the gate (decoration over public text, absolutely positioned: no layout space). */
+.bd-gate::before {
+  content: '';
+  position: absolute;
+  left: 0; right: 0; bottom: calc(100% + 1px);
+  height: var(--bdm-gate-fade);
+  background: linear-gradient(to bottom, rgba(10, 10, 10, 0) 0%, var(--bdm-bg) 100%);
+  pointer-events: none;
+}
+.bd-gate .bd-gate__head { position: relative; max-width: 36rem; scroll-margin-top: 160px; }
+.bd-gate .bd-gate__alias { display: block; height: 0; overflow: hidden; scroll-margin-top: 160px; }
+
+/* Title = the site's membership headline voice (.bd-member-band__title / .bd-member-rail__title, single.php:668-670
+   and :1025-1027): Satoshi 900 italic uppercase, the second half in yellow. Sizes: the rail's 1.7rem on phones,
+   the band's minimum 2.1rem from 600px. */
+.bd-gate .bd-gate__title {
+  margin: 0 0 .85rem;
+  font-family: var(--bdm-font-head);
+  font-size: 1.7rem;
+  font-weight: 900;
+  font-style: italic;
+  text-transform: uppercase;
+  line-height: .95;
+  letter-spacing: -.02em;
+  color: var(--bdm-text);
+}
+.bd-gate .bd-gate__title em { font-style: italic; color: var(--bdm-accent); }
+@media (min-width: 600px) { .bd-gate .bd-gate__title { font-size: 2.1rem; line-height: .92; letter-spacing: -.03em; } }
+
+/* The "section is in the members-only part" note: the band eyebrow's type (single.php:665-666). */
+.bd-gate .bd-gate__jump {
+  margin: 0 0 1rem;
+  font-family: var(--bdm-font-ui);
+  font-size: .9rem;
+  font-weight: 600;
+  color: var(--bdm-accent);
+}
+.bd-gate .bd-gate__jump:empty { display: none; }
+
+.bd-gate .bd-gate__body { max-width: 36rem; }
+.bd-gate .bd-gate__form { margin: 0; }
+.bd-gate .bd-gate__step { display: flow-root; }   /* CLS arithmetic of membership.js reserveFor() relies on it (unchanged) */
+.bd-gate .bd-gate__step .bd-gate__mode { margin: 0 0 1.25rem; }
+
+/* Lede = .bd-member-band__sub (single.php:671-672). */
+.bd-gate .bd-gate__lede {
+  margin: 0 0 1.25rem;
+  max-width: 46ch;
+  font-size: clamp(.96rem, 1.2vw, 1.08rem);
+  line-height: 1.55;
+  color: var(--bdm-soft);
+}
+
+.bd-gate .bd-gate__row { display: flex; flex-wrap: wrap; gap: .5rem; }
+.bd-gate .bd-gate__row > .bd-field__input { flex: 999 1 14rem; width: auto; min-width: 0; }
+.bd-gate .bd-gate__row > .bd-field__input--code { flex-basis: 9rem; }
+.bd-gate .bd-gate__row > .bd-btn { flex: 1 0 auto; width: auto; min-width: 10.5rem; }
+.bd-gate .bd-gate__row + .bd-error { margin-top: .5rem; }
+
+/* S1 = the site's newsletter signup point (owner decision 2026-10-13). The address and the newsletter box are one
+   group, in reading and tab order before Continue; the box's label is body-size white text, not fine print. */
+.bd-gate .bd-gate__signup { display: grid; gap: .75rem; max-width: 30rem; }
+.bd-gate .bd-gate__signup .bd-error { margin: -.25rem 0 0; }
+.bd-gate .bd-gate__start > .bd-btn { width: auto; min-width: 10.5rem; margin-top: 1.25rem; }
+@media (max-width: 480px) {
+  .bd-gate .bd-gate__start > .bd-btn { width: 100%; }
+  /* the rail button's metrics (single.php:1029-1031: .82rem, padding .85rem 1rem), so "Subscribe for $6.99 a month" is one line */
+  :is(.bd-gate, .bd-membership-page) .bd-btn { font-size: .82rem; padding-left: 1rem; padding-right: 1rem; }
+}
+.bd-gate .bd-gate__optin {
+  display: flex;
+  align-items: flex-start;
+  gap: .65rem;
+  margin: 0;
+  font-size: 1rem;
+  line-height: 1.5;
+  color: var(--bdm-text);
+}
+.bd-gate .bd-gate__optin label { padding-top: .1rem; cursor: pointer; }
+/* The same component at the end of a free article: no fade (nothing is withheld). */
+.bd-gate--ask::before { display: none; }
+
+/* Step lines (S2a "We emailed a code…", S2b "Choose a plan, …"): the author-card name voice (single.php:833-836). */
+.bd-gate .bd-gate__step-head { display: flex; flex-wrap: wrap; align-items: baseline; column-gap: .5rem; margin: 0 0 1.25rem; }
+.bd-gate .bd-gate__step-title {
+  margin: 0 0 1rem;
+  font-family: var(--bdm-font-head);
+  font-size: 1.25rem;
+  font-weight: 700;
+  line-height: 1.35;
+  color: var(--bdm-text);
+}
+.bd-gate .bd-gate__step-head .bd-gate__step-title { margin: 0; }
+/* The masked address (r…@example.com) wraps as one piece; only an address longer than the line breaks inside. */
+.bd-gate .bd-gate__step-title strong { display: inline-block; max-width: 100%; font-weight: 700; color: var(--bdm-accent); overflow-wrap: anywhere; }
+.bd-gate .bd-gate__change { font-family: var(--bdm-font-ui); font-size: .9rem; }
+
+/* A signed-in reader without a membership: the article blockquote's yellow rule (single.php:615-617). */
+.bd-gate .bd-gate__no-membership {
+  margin: 0 0 1.25rem;
+  padding: .75rem 1rem;
+  border-left: 3px solid var(--bdm-accent);
+  background: var(--bdm-field);
+  font-size: .95rem;
+  line-height: 1.5;
+  color: var(--bdm-text);
+}
+.bd-gate .bd-gate__no-membership strong { font-weight: 600; }
+
+.bd-gate .bd-nowrap { white-space: nowrap; }
+.bd-gate .bd-gate__code-more { display: flex; flex-wrap: wrap; align-items: center; gap: 0 .75rem; margin: .75rem 0 0; font-size: .85rem; color: var(--bdm-soft); }
+.bd-gate .bd-gate__code-wait { margin: 0; font-size: .85rem; line-height: 1.45; color: var(--bdm-soft); }
+
+/* plans: two tiles in the site's tile vocabulary (single.php .trending / .post-nav__link: 4px radius) */
+.bd-gate .bd-gate__plans { margin: 0; padding: 0; border: 0; min-width: 0; }
+.bd-gate .bd-gate__plan-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: .75rem; }
+.bd-gate .bd-plan {
+  position: relative;
+  display: grid;
+  grid-template-columns: auto 1fr;
+  grid-template-areas: 'radio name' '. price';
+  align-content: start;
+  column-gap: .6rem;
+  row-gap: .35rem;
+  align-items: center;
+  min-height: 7.25rem;
+  padding: 1rem;
+  background: var(--bdm-field);
+  border: 1px solid var(--bdm-line);
+  border-radius: var(--bdm-radius-tile);
+  cursor: pointer;
+  transition: border-color .15s ease, box-shadow .15s ease;
+}
+.bd-gate .bd-plan:hover { border-color: var(--bdm-soft); }
+.bd-gate .bd-plan.is-selected,
+.bd-gate .bd-plan:has(.bd-plan__input:checked) { border-color: var(--bdm-accent); box-shadow: inset 0 0 0 1px var(--bdm-accent); }
+.bd-gate .bd-plan.is-focused,
+.bd-gate .bd-plan:has(.bd-plan__input:focus-visible) { outline: 2px solid var(--bdm-accent); outline-offset: 3px; }
+.bd-gate .bd-plan__input { grid-area: radio; width: 1.5rem; height: 1.5rem; margin: 0; accent-color: var(--bdm-accent); cursor: pointer; }
+.bd-gate .bd-plan__input:focus-visible { outline: none; }
+/* Plan name = the article kicker (.article__category, single.php:428-434: Inter 600 .7rem .1em uppercase), .75rem. */
+.bd-gate .bd-plan__name { grid-area: name; font-size: .75rem; font-weight: 600; letter-spacing: .1em; text-transform: uppercase; color: var(--bdm-text); }
+.bd-gate .bd-plan__price { grid-area: price; display: block; }
+/* Price = the band's price voice (.bd-member-band__price, single.php:686: Satoshi 900 italic) at the article h2
+   size (single.php:598, 1.75rem). */
+.bd-gate .bd-plan__amount { font-family: var(--bdm-font-head); font-size: 1.75rem; font-weight: 900; font-style: italic; line-height: 1.1; color: var(--bdm-text); font-variant-numeric: lining-nums; }
+.bd-gate .bd-plan__per { margin-left: .15rem; font-size: .85rem; color: var(--bdm-soft); }
+.bd-gate .bd-plan__save, .bd-gate .bd-plan__note { display: block; margin-top: .35rem; font-size: .8rem; line-height: 1.35; font-weight: 600; color: var(--bdm-accent); }
+.bd-gate .bd-plan__save--plain, .bd-gate .bd-plan__note, .bd-gate .bd-plan__basis { font-weight: 400; color: var(--bdm-soft); }
+.bd-gate .bd-plan__basis { display: block; margin-top: .1rem; font-size: .8rem; line-height: 1.35; }
+
+/* consent: the 527-a disclosure, word for word, white Inter 1rem (clear and conspicuous next to the box) */
+.bd-gate .bd-gate__consent {
+  display: grid;
+  grid-template-columns: auto 1fr;
+  column-gap: .85rem;
+  row-gap: .5rem;
+  align-items: start;
+  margin-top: 1.25rem;
+  padding: 1rem;
+  border: 1px solid var(--bdm-rule);
+  background: var(--bdm-bg);
+  border-radius: var(--bdm-radius-tile);
+}
+.bd-gate .bd-gate__consent.has-error { border-color: var(--bdm-danger-line); }
+.bd-gate .bd-gate__disclosure { font-size: 1rem; line-height: 1.6; color: var(--bdm-text); cursor: pointer; min-width: 0; overflow-wrap: anywhere; }
+.bd-gate .bd-gate__consent-error { grid-column: 2; }
+.bd-gate .bd-gate__legal { margin: .6rem 0 0; font-size: .8rem; color: var(--bdm-soft); }
+.bd-gate .bd-gate__legal a { display: inline-flex; align-items: center; min-height: 24px; color: var(--bdm-soft); }
+
+/* pay area */
+.bd-gate .bd-gate__pay { display: grid; gap: .75rem; margin-top: 1.25rem; }
+.bd-gate .bd-gate__express { position: relative; min-height: 48px; border-radius: var(--bdm-radius-btn); }
+.bd-gate .bd-gate__express.has-focus,
+.bd-gate .bd-gate__express:focus-within { outline: 2px solid var(--bdm-accent); outline-offset: 3px; }
+.bd-gate .bd-gate__express[data-state='loading'] {
+  background: linear-gradient(90deg, var(--bdm-field) 0%, #222 50%, var(--bdm-field) 100%);
+  background-size: 200% 100%;
+  animation: bdm-shimmer 1.6s ease-in-out infinite;
+}
+.bd-gate .bd-gate__express-note {
+  position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; margin: 0; padding: 0 .75rem;
+  font-size: .85rem; line-height: 1.3; text-align: center; color: var(--bdm-soft);
+  opacity: 0; pointer-events: none; transition: opacity .25s ease;
+}
+.bd-gate .bd-gate__express[data-state='none-visible'],
+.bd-gate .bd-gate__express[data-state='error'] { border: 1px dashed var(--bdm-line); }
+.bd-gate .bd-gate__express[data-state='none-visible'] .bd-gate__express-note,
+.bd-gate .bd-gate__express[data-state='error'] .bd-gate__express-note { opacity: 1; pointer-events: auto; }
+.bd-gate .bd-gate__express[data-state='error'] .bd-gate__express-note { color: var(--bdm-danger); }
+.bd-gate .bd-gate__express[data-state='none'] { display: none; }
+.bd-gate .bd-gate__express[data-state='none-visible'] .bd-gate__express-mount,
+.bd-gate .bd-gate__express[data-state='error'] .bd-gate__express-mount { display: none; }
+
+/* No wallet: "Pay with card" is the primary yellow button. A wallet on screen: the quiet link (owner rule 2026-10-12). */
+.bd-gate .bd-gate__card-toggle { border-color: var(--bdm-accent); color: var(--bdm-accent); }
+.bd-gate[data-bd-wallets='none'] .bd-gate__card-toggle[aria-expanded='false'] {
+  background: var(--bdm-accent); color: var(--bdm-on-accent); border-color: var(--bdm-accent); font-weight: 800;
+}
+.bd-gate[data-bd-wallets~='applePay'] .bd-gate__card-toggle[aria-expanded='false'],
+.bd-gate[data-bd-wallets~='googlePay'] .bd-gate__card-toggle[aria-expanded='false'] {
+  background: transparent; border-color: transparent; color: var(--bdm-soft);
+  font-weight: 500; letter-spacing: normal; text-transform: none; font-size: .9rem;
+  text-decoration: underline; text-underline-offset: 3px;
+}
+.bd-gate[data-bd-wallets~='applePay'] .bd-gate__card-toggle[aria-expanded='false']:hover,
+.bd-gate[data-bd-wallets~='googlePay'] .bd-gate__card-toggle[aria-expanded='false']:hover { color: var(--bdm-accent); }
+
+.bd-gate .bd-gate__card { padding-top: 1rem; border-top: 1px solid var(--bdm-rule); container-type: inline-size; container-name: bdm-card; }
+.bd-gate .bd-gate__card[hidden] { display: none; }
+.bd-gate .bd-gate__payment-mount { min-height: var(--bdm-pe-min); margin: .25rem 0 1rem; }
+@container bdm-card (max-width: 449px) { .bd-gate .bd-gate__payment-mount { min-height: 372px; } }
+@container bdm-card (max-width: 399px) { .bd-gate .bd-gate__payment-mount { min-height: 392px; } }
+@container bdm-card (max-width: 279px) { .bd-gate .bd-gate__payment-mount { min-height: 492px; } }
+.bd-gate .bd-gate__payment-mount[data-state='loading'] {
+  background: linear-gradient(90deg, var(--bdm-field) 0%, #222 50%, var(--bdm-field) 100%);
+  background-size: 200% 100%;
+  animation: bdm-shimmer 1.6s ease-in-out infinite;
+}
+.bd-gate .bd-gate__submit { min-height: 52px; }
+
+/* D-1545: the alert line now sits directly under the button that failed (one slot per action, in the markup), and
+   keeps one line of space while its panel is open, so a one-line decline message moves nothing below it. */
+.bd-gate .bd-gate__alert { margin-top: .6rem; }
+.bd-gate .bd-gate__card .bd-gate__alert:empty { display: block; min-height: 1.45em; margin-top: .6rem; }
+.bd-gate .bd-gate__progress:not(:empty) { margin-top: .6rem; }
+.bd-gate .bd-gate__progress { margin: 0; font-size: .9rem; color: var(--bdm-soft); }
+.bd-gate .bd-gate__progress:empty { display: none; }
+.bd-gate .bd-gate__closed { margin: 0; padding: 1rem; font-size: .95rem; line-height: 1.5; color: var(--bdm-text); border: 1px solid var(--bdm-rule); }
+
+/* member line + sign-in */
+.bd-gate .bd-gate__member { margin-top: 1.5rem; padding-top: 1.25rem; border-top: 1px solid var(--bdm-rule); }
+.bd-gate .bd-gate__member-line { margin: 0; font-size: .9rem; line-height: 1.5; color: var(--bdm-soft); }
+.bd-gate .bd-gate__member-line strong { color: var(--bdm-text); font-weight: 600; }
+.bd-gate .bd-gate__member-line[hidden] { display: none; }
+.bd-gate .bd-gate__signed-in { margin-top: 1rem; }
+.bd-gate .bd-gate__note { margin: .75rem 0 0; font-size: .85rem; line-height: 1.5; color: var(--bdm-soft); }
+.bd-gate .bd-gate__note:empty { display: none; }
+.bd-gate .bd-gate__signin { margin-top: 1rem; }
+.bd-gate .bd-gate__signin[hidden] { display: none; }
+.bd-gate .bd-signin__step[hidden] { display: none; }
+.bd-gate .bd-signin__sent { margin: 0 0 1rem; font-size: 1rem; line-height: 1.55; color: var(--bdm-text); }
+.bd-gate .bd-signin__sent strong { color: var(--bdm-accent); font-weight: 600; overflow-wrap: anywhere; }
+.bd-gate .bd-signin__more { display: flex; flex-wrap: wrap; align-items: center; gap: 0 .75rem; margin: .75rem 0 0; font-size: .85rem; color: var(--bdm-soft); }
+.bd-gate .bd-signin__notice { margin: 0 0 .75rem; font-size: .95rem; font-weight: 600; color: var(--bdm-accent); }
+.bd-gate .bd-signin__notice:empty { display: none; }
+
+/* fine print = the footer text size (single.php:1235, .8rem), in #a0a0a0 (the site's #666 is 3.45:1, under AA) */
+.bd-gate .bd-gate__fine { margin: 1.25rem 0 0; font-size: .8rem; line-height: 1.5; color: var(--bdm-soft); }
+.bd-gate .bd-gate__noscript { margin: 1rem 0 0; font-size: .9rem; color: var(--bdm-text); }
+
+.bd-gate[data-bd-state='checking'] .bd-gate__start,
+.bd-gate[data-bd-state='checking'] .bd-gate__form,
+.bd-gate[data-bd-state='processing'] .bd-gate__plans,
+.bd-gate[data-bd-state='processing'] .bd-gate__consent { opacity: .6; pointer-events: none; }
+
+/* Unlocked text (B1's .bd-paywalled wrapper; the article body's own styles apply to it). */
+.bd-paywalled { display: contents; }
+.bd-paywalled.bd-just-unlocked > * { animation: bdm-arrive .5s ease-out both; }
+/* After a payment only: one confirmation line where the gate was (eyebrow dot: single.php:667). */
+.bd-unlock-note {
+  display: flex; align-items: center; gap: .55rem;
+  margin: 0 0 1.5rem; padding: .75rem 1rem;
+  border: 1px solid var(--bdm-rule); border-radius: var(--bdm-radius-tile); background: var(--bdm-surface);
+  font-family: var(--bdm-font-ui); font-size: .9rem; line-height: 1.45; color: var(--bdm-text);
+}
+.bd-unlock-note::before { content: ''; flex: none; width: 7px; height: 7px; border-radius: 50%; background: var(--bdm-accent); box-shadow: 0 0 0 3px rgba(255, 225, 53, .18); }
+
+@media (max-width: 480px) {
+  .bd-gate .bd-gate__plan-grid { gap: .5rem; }
+  .bd-gate .bd-plan { grid-template-areas: 'radio name' 'price price'; }   /* the price gets the tile's full width */
+  .bd-gate .bd-plan { padding: .85rem .75rem; column-gap: .5rem; min-height: 8rem; }
+  .bd-gate .bd-plan__amount { font-size: 1.5rem; }        /* single.php:602 (h3 1.5rem) */
+  .bd-gate .bd-plan__name { letter-spacing: .08em; }
+  .bd-gate .bd-gate__consent { padding: .85rem .8rem; }
+}
+
+@keyframes bdm-shimmer { 0% { background-position: 100% 0; } 100% { background-position: -100% 0; } }
+@keyframes bdm-arrive { from { opacity: 0; } to { opacity: 1; } }
+@media (prefers-reduced-motion: reduce) {
+  .bd-gate *, .bd-membership-page * { transition: none !important; animation: none !important; }
+}
+@media (forced-colors: active) {
+  .bd-gate .bd-plan.is-selected, .bd-gate .bd-plan:has(.bd-plan__input:checked) { outline: 3px solid Highlight; }
+  :is(.bd-gate, .bd-membership-page) .bd-btn { border: 1px solid ButtonText; }
+}
+
+/* ───────────────────────── /account/ and /membership-terms/ in the site's page frame ───────────────────────── */
+body.bd-membership-page {
+  margin: 0;
+  min-height: 100vh;
+  background: var(--bdm-bg);
+  color: var(--bdm-text);
+  font-family: var(--bdm-font-ui);              /* single.php:211 (body: Inter) */
+  font-size: 1rem;
+  line-height: 1.6;                              /* single.php:212 */
+  -webkit-font-smoothing: antialiased;
+}
+body.bd-membership-page *, body.bd-membership-page *::before, body.bd-membership-page *::after { box-sizing: border-box; }
+/* Site header: the page.php header (live /subscribe/: logo 400x59 at 1440, 270x40 on iPhone 13, header 100/85px). */
+.bd-membership-page .header { position: relative; background: var(--bdm-bg); border-bottom: 1px solid var(--bdm-rule); }
+.bd-membership-page .header-main { display: flex; justify-content: center; align-items: center; padding: 1.25rem 1.5rem; }
+.bd-membership-page .header .logo { display: block; width: 100%; max-width: 400px; }
+.bd-membership-page .header .logo svg { display: block; width: 100%; height: auto; }
+.bd-membership-page .breadcrumbs { max-width: 40rem; margin: 0 auto; padding: 1.5rem 1.5rem 0; font-size: .8rem; color: var(--bdm-soft); }
+.bd-membership-page .breadcrumbs a { color: var(--bdm-soft); text-decoration: none; }
+.bd-membership-page .breadcrumbs__separator { margin: 0 .5rem; }
+.bd-membership-page .footer { margin-top: 5rem; padding: 3rem 1.5rem; background: var(--bdm-surface); border-top: 1px solid var(--bdm-rule); text-align: center; }
+.bd-membership-page .footer-logo { width: 180px; margin: 0 auto 1.5rem; }       /* single.php:1223-1232 */
+.bd-membership-page .footer-logo svg { width: 100%; height: auto; opacity: .6; }
+.bd-membership-page .footer-text { margin: 0; font-size: .8rem; color: var(--bdm-soft); }
+.bd-membership-page .footer-links { display: flex; flex-wrap: wrap; justify-content: center; gap: 0 2rem; margin-top: 1rem; }
+.bd-membership-page .footer-links a { display: inline-flex; align-items: center; min-height: 44px; font-size: .8rem; color: var(--bdm-soft); text-decoration: none; }
+.bd-membership-page .footer-links a:hover { color: var(--bdm-accent); }
+.bd-membership-page .footer-text a { color: var(--bdm-soft); text-decoration: underline; text-underline-offset: 2px; }
+/* the footer's social row (single.php:1440-1444; that template's inline CSS is not on the service's pages) */
+.bd-membership-page .bd-social-links { display: flex; gap: .55rem; flex-wrap: wrap; }
+.bd-membership-page .bd-social-links a { display: inline-flex; align-items: center; justify-content: center; width: 42px; height: 42px;
+  border: 1px solid var(--bdm-rule); border-radius: 50%; color: var(--bdm-text); background: rgba(255, 255, 255, .02); }
+.bd-membership-page .bd-social-links a:hover { background: var(--bdm-accent); color: #0a0a0a; border-color: var(--bdm-accent); }
+.bd-membership-page .bd-social-links svg { width: 19px; height: 19px; display: block; }
+.bd-membership-page .footer-social { justify-content: center; margin: .6rem 0 1rem; }
+
+.bd-account, .bd-terms { max-width: 40rem; margin: 0 auto; padding: 2rem 1.5rem 1rem; }
+/* Title = the article headline (.article__title, single.php:460-466). */
+.bd-account__title, .bd-terms__title {
+  margin: 0 0 1rem;
+  font-family: var(--bdm-font-head);
+  font-size: clamp(2rem, 5vw, 3rem);
+  font-weight: 700;
+  line-height: 1.15;
+  letter-spacing: -.02em;
+}
+.bd-account__eyebrow, .bd-terms__eyebrow {
+  display: inline-block;
+  margin: 0 0 1rem;
+  font-size: .7rem; font-weight: 600; letter-spacing: .1em; text-transform: uppercase; color: var(--bdm-text);
+  text-decoration: underline; text-decoration-color: var(--bdm-accent); text-decoration-thickness: 2px; text-underline-offset: 3px;
+}                                                 /* = .article__category, single.php:428-440 */
+.bd-account__status { margin: 0 0 1.5rem; font-size: .95rem; color: var(--bdm-soft); min-height: 1.5em; }
+.bd-account__view[hidden] { display: none; }
+.bd-account__view h2 { margin: 0 0 .75rem; font-family: var(--bdm-font-head); font-size: 1.5rem; font-weight: 700; line-height: 1.3; }
+.bd-account__view p { margin: 0 0 1rem; color: var(--bdm-soft); }
+.bd-account__view p strong { color: var(--bdm-text); font-weight: 600; }
+.bd-account__card {
+  padding: clamp(1.4rem, 4vw, 2rem);
+  background: linear-gradient(var(--bdm-accent), var(--bdm-accent)) top / 100% 3px no-repeat, var(--bdm-surface);
+  border: 1px solid var(--bdm-rule);
+  border-radius: var(--bdm-radius-card);
+}
+.bd-account__facts { display: grid; grid-template-columns: minmax(7rem, auto) 1fr; gap: .75rem 1.25rem; margin: 0 0 1.5rem; }
+.bd-account__facts dt { padding-top: .3rem; font-size: .75rem; font-weight: 600; letter-spacing: .1em; text-transform: uppercase; color: var(--bdm-soft); }
+.bd-account__facts dd { margin: 0; font-family: var(--bdm-font-head); font-size: 1.2rem; color: var(--bdm-text); }
+.bd-account__actions { display: grid; gap: .75rem; }
+@media (min-width: 560px) { .bd-account__actions { grid-template-columns: 1fr 1fr; } }
+.bd-account__confirm { margin-top: 1rem; padding: 1.25rem; border: 1px solid var(--bdm-danger-line); border-radius: var(--bdm-radius-tile); background: var(--bdm-field); }
+.bd-account__confirm[hidden] { display: none; }
+.bd-account__confirm p { color: var(--bdm-text); font-size: 1.05rem; }
+.bd-account__plans { list-style: none; margin: 0 0 1.5rem; padding: 0; display: grid; gap: .5rem; }
+.bd-account__plans li { display: flex; justify-content: space-between; gap: 1rem; padding: .85rem 1rem; background: var(--bdm-field); border: 1px solid var(--bdm-line); border-radius: var(--bdm-radius-tile); color: var(--bdm-text); }
+.bd-account__plans li span:last-child { color: var(--bdm-soft); text-align: right; }
+.bd-account__signout { margin-top: 1.5rem; font-size: .95rem; }
+.bd-account__help { margin: 2.5rem 0 0; padding-top: 1.25rem; border-top: 1px solid var(--bdm-rule); font-size: .9rem; color: var(--bdm-soft); }
+.bd-account__mode { margin: 0 0 1.5rem; padding: .6rem .85rem; font-size: .85rem; border: 1px dashed var(--bdm-accent); color: var(--bdm-text); }
+.bd-account__mode[hidden] { display: none; }
+.bd-account .bd-btn { width: 100%; }
+
+/* terms: the article body voice (single.php:577-622) */
+.bd-terms__meta { margin: 0 0 2rem; font-size: .85rem; color: var(--bdm-soft); }
+.bd-terms article { font-family: var(--bdm-font-head); font-size: 1.2rem; line-height: 1.8; }
+.bd-terms h2 { margin: 2.5rem 0 1rem; font-family: var(--bdm-font-head); font-size: 1.75rem; font-weight: 700; line-height: 1.3; color: var(--bdm-text); }
+.bd-terms p, .bd-terms li { color: var(--bdm-text); }
+.bd-terms p { margin: 0 0 1.5rem; }
+.bd-terms ul { margin: 1.5rem 0; padding-left: 1.5rem; }
+.bd-terms li { margin-bottom: .5rem; }
+.bd-terms strong { font-weight: 700; }

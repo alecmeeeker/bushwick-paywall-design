@@ -1,0 +1,1012 @@
+/*
+ * bd-membership front end: the members gate (a chapter break inside the article), the account
+ * page and the membership terms page. No build step.
+ *
+ * Tokens: every value derives from the article's own :root tokens when present (the DiMieri page:
+ * --color-bg, --color-text, --color-accent, --font-display/body/ui, --space-*), with literal
+ * fallbacks so the same CSS works on /account/ and /membership-terms/. All custom properties here
+ * use the --bdm- prefix; the theme's critical.css already owns --bd-* on :root.
+ *
+ * Contrast (measured in docs/paywall/pilot/harness/run_t3.py, ratios against #0a0a0a):
+ *   --bdm-text   #e8e4df  body text
+ *   --bdm-soft   #cfc9c2  pitch / secondary copy
+ *   --bdm-muted  #aaa49d  small UI text (the page's #8a8580 is 5.4:1, kept only where it already is)
+ *   --bdm-line   #6f6a64  input and control borders (WCAG 1.4.11 needs >= 3:1)
+ *   --bdm-accent #f5ab07  actions, focus rings
+ *   --bdm-danger #ff8a7a  errors
+ *
+ * Layout stability (CLS): the gate is in the cached HTML. The late-arriving pieces are the step that
+ * answers "Continue" (gate funnel v2) and the Stripe iframes in S2b:
+ *   [data-bd-gate-stage]    the steps' box. On "Continue" (inside the input's 500 ms window) it is given
+ *                           the height of S2b, the taller answer, as an inline min-height; the answer
+ *                           (S2b, or the shorter S2a) then appears inside it. It never shrinks outside
+ *                           an input: the reservation is dropped at the reader's next key or pointer
+ *                           press, or once its empty part is entirely below the viewport. See
+ *                           reserveFor() / settleHeight() in membership.js.
+ *   .bd-gate__express       48px slot (Express Checkout buttons, one row, buttonHeight 48).
+ *                           No wallets: if the slot is entirely below the viewport it is removed
+ *                           at once (nothing visible moves); if any part is on screen it KEEPS its
+ *                           48px and shows a one-line note instead (opacity fade only). See
+ *                           settleExpress() in membership.js.
+ *   .bd-gate__payment-mount reserved min-height for the card form, opened by a click (input-driven).
+ * .bd-gate__step is a block formatting context (flow-root): no margin collapses through a step, so a
+ * step's box height is exactly what it adds to the stage (the reservation arithmetic relies on it).
+ */
+
+/* ───────────────────────── tokens ───────────────────────── */
+.bd-gate,
+.bd-membership-page {
+  --bdm-bg: var(--color-bg, #0a0a0a);
+  --bdm-raised: var(--color-bg-elevated, #141414);
+  --bdm-text: var(--color-text, #e8e4df);
+  --bdm-soft: #cfc9c2;
+  --bdm-muted: #aaa49d;
+  --bdm-accent: var(--color-accent, #f5ab07);
+  --bdm-accent-hover: #ffc233;
+  --bdm-accent-glow: var(--color-accent-glow, rgba(245, 171, 7, 0.15));
+  --bdm-rule: var(--color-border, #2a2a2a);
+  --bdm-line: #6f6a64;
+  --bdm-danger: #ff8a7a;
+  --bdm-on-accent: #0a0a0a;
+  --bdm-font-display: var(--font-display, 'Playfair Display', Georgia, serif);
+  --bdm-font-body: var(--font-body, 'Source Serif 4', Georgia, serif);
+  --bdm-font-ui: var(--font-ui, 'Space Grotesk', system-ui, -apple-system, sans-serif);
+  --bdm-u: var(--space-unit, 8px);
+  --bdm-gate-fade: 4.5rem;
+  --bdm-pe-min: 296px;
+  color-scheme: dark;
+}
+
+/* ───────────────────────── shared primitives ───────────────────────── */
+/* [hidden] must win over the display values below (.bd-btn is inline-flex, etc.). */
+.bd-gate [hidden],
+.bd-membership-page [hidden] { display: none !important; }
+
+.bd-sr-only {
+  position: absolute !important;
+  width: 1px; height: 1px;
+  padding: 0; margin: -1px;
+  overflow: hidden; clip: rect(0 0 0 0); clip-path: inset(50%);
+  white-space: nowrap; border: 0;
+}
+
+.bd-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.6em;
+  width: 100%;
+  min-height: 48px;
+  padding: 0.75rem 1.25rem;
+  font-family: var(--bdm-font-ui);
+  font-size: 0.9rem;
+  font-weight: 600;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  line-height: 1.2;
+  text-align: center;
+  border-radius: 2px;
+  border: 1px solid transparent;
+  cursor: pointer;
+  transition: background-color 0.15s ease, color 0.15s ease, border-color 0.15s ease;
+  -webkit-appearance: none;
+  appearance: none;
+}
+.bd-btn--primary {
+  background: var(--bdm-accent);
+  color: var(--bdm-on-accent);
+  border-color: var(--bdm-accent);
+  font-weight: 700;
+}
+.bd-btn--primary:hover { background: var(--bdm-accent-hover); border-color: var(--bdm-accent-hover); }
+.bd-btn--secondary {
+  background: transparent;
+  color: var(--bdm-text);
+  border-color: var(--bdm-text);
+}
+.bd-btn--secondary:hover { color: var(--bdm-accent); border-color: var(--bdm-accent); }
+.bd-btn--quiet {
+  background: transparent;
+  color: var(--bdm-soft);
+  border-color: var(--bdm-line);
+}
+.bd-btn--quiet:hover { color: var(--bdm-text); border-color: var(--bdm-text); }
+.bd-btn[aria-busy='true'] { cursor: progress; opacity: 0.75; }
+.bd-btn[disabled] { cursor: not-allowed; opacity: 0.55; }
+
+.bd-link {
+  display: inline-flex;
+  align-items: center;
+  min-height: 44px;
+  padding: 0 0.25rem;
+  margin: 0;
+  background: none;
+  border: 0;
+  font: inherit;
+  font-weight: 600;
+  color: var(--bdm-accent);
+  text-decoration: underline;
+  text-decoration-thickness: 1px;
+  text-underline-offset: 3px;
+  cursor: pointer;
+}
+.bd-link:hover { color: var(--bdm-accent-hover); }
+.bd-link[disabled] { color: var(--bdm-muted); text-decoration: none; cursor: default; }
+
+.bd-gate a:not(.bd-btn),
+.bd-membership-page main a:not(.bd-btn) {
+  color: var(--bdm-accent);
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+a.bd-btn { text-decoration: none; }
+
+/* Focus: 2px accent ring, offset, >= 10:1 against the ground. Never removed. */
+.bd-gate :focus-visible,
+.bd-membership-page :focus-visible {
+  outline: 2px solid var(--bdm-accent);
+  outline-offset: 3px;
+}
+.bd-btn--primary:focus-visible { outline-color: var(--bdm-text); }
+.bd-gate [tabindex='-1']:focus,
+.bd-membership-page [tabindex='-1']:focus { outline: none; }
+.bd-gate [tabindex='-1']:focus-visible,
+.bd-membership-page [tabindex='-1']:focus-visible { outline: 2px dashed var(--bdm-accent); outline-offset: 6px; }
+
+/* Focus Not Obscured (2.4.11): the article's fixed nav is ~60px; keep focused controls clear of it. */
+.bd-gate input,
+.bd-gate button,
+.bd-gate a,
+.bd-gate iframe,
+.bd-gate [tabindex],
+.bd-membership-page main input,
+.bd-membership-page main button,
+.bd-membership-page main a { scroll-margin-top: 112px; scroll-margin-bottom: 24px; }
+
+.bd-field { display: grid; gap: 0.35rem; margin: 0 0 1rem; }
+.bd-field__label {
+  font-family: var(--bdm-font-ui);
+  font-size: 0.875rem;
+  font-weight: 600;
+  letter-spacing: 0.02em;
+  color: var(--bdm-text);
+}
+.bd-field__hint {
+  font-family: var(--bdm-font-ui);
+  font-size: 0.8125rem;
+  line-height: 1.45;
+  color: var(--bdm-muted);
+  margin: 0;
+}
+.bd-field__input {
+  width: 100%;
+  min-height: 48px;
+  padding: 0.7rem 0.85rem;
+  font-family: var(--bdm-font-ui);
+  font-size: 1rem; /* >= 16px: no iOS zoom on focus */
+  color: var(--bdm-text);
+  background: var(--bdm-raised);
+  border: 1px solid var(--bdm-line);
+  border-radius: 2px;
+  -webkit-appearance: none;
+  appearance: none;
+}
+.bd-field__input::placeholder { color: var(--bdm-muted); }
+.bd-field__input:focus-visible { border-color: var(--bdm-accent); }
+.bd-field__input[aria-invalid='true'] { border-color: var(--bdm-danger); }
+.bd-field__input--code {
+  max-width: 12rem;
+  font-size: 1.375rem;
+  letter-spacing: 0.3em;
+  font-variant-numeric: tabular-nums;
+}
+
+.bd-error {
+  margin: 0;
+  font-family: var(--bdm-font-ui);
+  font-size: 0.875rem;
+  line-height: 1.45;
+  font-weight: 500;
+  color: var(--bdm-danger);
+}
+.bd-error:empty { display: none; }
+.bd-error:not(:empty)::before { content: 'Error: '; font-weight: 700; }
+
+.bd-check {
+  width: 1.5rem;
+  height: 1.5rem;
+  margin: 0.1rem 0 0;
+  accent-color: var(--bdm-accent);
+  cursor: pointer;
+  flex: none;
+}
+
+/* ───────────────────────── the gate ───────────────────────── */
+.bd-gate {
+  position: relative;
+  margin: calc(var(--bdm-u) * 3) 0 calc(var(--bdm-u) * 6);
+  padding: calc(var(--bdm-u) * 6) 0 calc(var(--bdm-u) * 6);
+  color: var(--bdm-text);
+  font-family: var(--bdm-font-body);
+  font-size: 1rem;
+  line-height: 1.6;
+  text-align: left;
+  scroll-margin-top: 100px;
+  isolation: isolate;
+}
+
+/* The free lead fades into the gate: decoration over text that is already public, drawn above
+   the gate's top edge. Absolutely positioned, so it never takes layout space. */
+.bd-gate::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 100%;
+  height: var(--bdm-gate-fade);
+  background: linear-gradient(to bottom, rgba(10, 10, 10, 0) 0%, rgba(10, 10, 10, 0.55) 55%, var(--bdm-bg) 100%);
+  pointer-events: none;
+}
+/* The section-header glow of the article, pulled into the break. */
+.bd-gate::after {
+  content: '';
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: 0;
+  height: 22rem;
+  background: radial-gradient(55% 50% at 50% 38%, var(--bdm-accent-glow), transparent 100%);
+  pointer-events: none;
+  z-index: -1;
+}
+
+.bd-gate__head {
+  position: relative;
+  text-align: center;
+  max-width: 40rem;
+  margin: 0 auto;
+  scroll-margin-top: 100px;
+}
+.bd-gate__alias { display: block; height: 0; overflow: hidden; scroll-margin-top: 100px; }
+
+.bd-gate__eyebrow {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 1rem;
+  margin: 0 0 1.5rem;
+  font-family: var(--bdm-font-ui);
+  font-size: 0.75rem;
+  font-weight: 600;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  color: var(--bdm-accent);
+}
+.bd-gate__eyebrow::before,
+.bd-gate__eyebrow::after {
+  content: '';
+  flex: 0 1 5rem;
+  height: 1px;
+  background: linear-gradient(90deg, transparent, var(--bdm-accent));
+}
+.bd-gate__eyebrow::after { background: linear-gradient(270deg, transparent, var(--bdm-accent)); }
+
+.bd-gate__title {
+  margin: 0 auto 1.25rem;
+  max-width: 21ch;
+  font-family: var(--bdm-font-display);
+  font-size: clamp(2rem, 1.35rem + 2.6vw, 3rem);
+  font-weight: 400;
+  line-height: 1.14;
+  letter-spacing: -0.015em;
+  color: var(--bdm-text);
+  text-wrap: balance;
+}
+.bd-gate__title em { font-style: italic; color: var(--bdm-accent); }
+
+/* Below the title: the space sits under the note (the steps follow it), never above it. */
+.bd-gate__jump {
+  margin: 0 auto 1rem;
+  font-family: var(--bdm-font-ui);
+  font-size: 0.875rem;
+  color: var(--bdm-accent);
+}
+.bd-gate__jump:empty { display: none; }
+
+.bd-gate__mode {
+  max-width: 34rem;
+  margin: 2rem auto 0;
+  padding: 0.65rem 0.9rem;
+  font-family: var(--bdm-font-ui);
+  font-size: 0.8125rem;
+  line-height: 1.45;
+  color: var(--bdm-text);
+  border: 1px dashed var(--bdm-accent);
+  background: rgba(245, 171, 7, 0.06);
+}
+
+.bd-gate__body {
+  max-width: 34rem;
+  margin: 0 auto;
+}
+.bd-gate__form { margin: 0; }
+
+/* steps (gate funnel v2): S1 start, S2a code, S2b plans. Exactly one is shown (membership.js). */
+.bd-gate__step { display: flow-root; }
+.bd-gate__step .bd-gate__mode { max-width: none; margin: 0 0 1.25rem; }
+
+.bd-gate__lede {
+  margin: 0 auto 1.75rem;
+  max-width: 30rem;
+  font-size: 1.0625rem;
+  line-height: 1.65;
+  text-align: center;
+  color: var(--bdm-soft);
+  text-wrap: balance;
+}
+
+/* One row: the field takes the free space, the button keeps its label width; when the row is too narrow
+   to hold both (phones), each takes the full width on its own line. */
+.bd-gate__row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}
+.bd-gate__row > .bd-field__input { flex: 999 1 14rem; width: auto; min-width: 0; max-width: none; }
+.bd-gate__row > .bd-field__input--code { flex-basis: 9rem; }
+/* min-width holds the busy labels ("Checking…", "Signing in…"), so a label change never moves the field. */
+.bd-gate__row > .bd-btn { flex: 1 0 auto; width: auto; min-width: 11rem; padding-left: 1.75rem; padding-right: 1.75rem; }
+.bd-gate__row + .bd-error { margin-top: 0.5rem; }
+
+.bd-gate__optin {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.7rem;
+  margin-top: 1rem;
+  font-family: var(--bdm-font-ui);
+  font-size: 0.9375rem;
+  line-height: 1.45;
+  color: var(--bdm-soft);
+}
+.bd-gate__optin label { padding-top: 0.15rem; cursor: pointer; }
+
+.bd-gate__step-head {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  align-items: baseline;
+  column-gap: 0.4rem;
+  margin: 0 0 1.5rem;
+  text-align: center;
+}
+.bd-gate__step-title {
+  margin: 0 0 1.25rem;
+  font-family: var(--bdm-font-body);
+  font-size: 1.1875rem;
+  font-weight: 400;
+  line-height: 1.5;
+  text-align: center;
+  color: var(--bdm-text);
+  text-wrap: balance;
+}
+.bd-gate__step-head .bd-gate__step-title { margin: 0; }
+.bd-gate__step-title strong { color: var(--bdm-accent); font-weight: 600; overflow-wrap: anywhere; }
+.bd-gate__no-membership {
+  margin: 0.75rem 0 0;
+  padding: 0.75rem 1rem;
+  border-left: 3px solid var(--bdm-accent);
+  background: var(--bdm-raised);
+  font-family: var(--bdm-font-ui);
+  font-size: 0.95rem;
+  line-height: 1.45;
+  color: var(--bdm-text);
+}
+.bd-gate__no-membership[hidden] { display: none; }
+.bd-gate__change { font-family: var(--bdm-font-ui); font-size: 0.9375rem; }
+.bd-gate .bd-nowrap { white-space: nowrap; }
+.bd-gate__code-more {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  align-items: center;
+  gap: 0 0.5rem;
+  margin: 0.75rem 0 0;
+  font-family: var(--bdm-font-ui);
+  font-size: 0.875rem;
+  color: var(--bdm-muted);
+}
+.bd-gate__code-wait {
+  margin: 0;
+  font-family: var(--bdm-font-ui);
+  font-size: 0.8125rem;
+  line-height: 1.45;
+  text-align: center;
+  color: var(--bdm-muted);
+}
+
+/* plans */
+.bd-gate__plans { margin: 0; padding: 0; border: 0; min-width: 0; }
+.bd-gate__legend {
+  padding: 0;
+  margin: 0 0 0.75rem;
+  font-family: var(--bdm-font-ui);
+  font-size: 0.75rem;
+  font-weight: 600;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--bdm-muted);
+}
+.bd-gate__plan-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0.75rem;
+}
+.bd-plan {
+  position: relative;
+  display: grid;
+  grid-template-columns: auto 1fr;
+  grid-template-areas: 'radio name' '. price';
+  align-content: start;
+  column-gap: 0.65rem;
+  row-gap: 0.4rem;
+  align-items: center;
+  min-height: 7.5rem;
+  padding: 1rem 1rem 1.1rem;
+  background: var(--bdm-raised);
+  border: 1px solid var(--bdm-line);
+  border-radius: 2px;
+  cursor: pointer;
+  transition: border-color 0.15s ease, background-color 0.15s ease, box-shadow 0.15s ease;
+}
+.bd-plan:hover { border-color: var(--bdm-soft); }
+.bd-plan.is-selected,
+.bd-plan:has(.bd-plan__input:checked) {
+  border-color: var(--bdm-accent);
+  box-shadow: inset 0 0 0 1px var(--bdm-accent);
+  background: linear-gradient(180deg, rgba(245, 171, 7, 0.09), rgba(245, 171, 7, 0) 70%), var(--bdm-raised);
+}
+.bd-plan.is-focused,
+.bd-plan:has(.bd-plan__input:focus-visible) { outline: 2px solid var(--bdm-accent); outline-offset: 3px; }
+.bd-plan__input {
+  grid-area: radio;
+  width: 1.5rem;
+  height: 1.5rem;
+  margin: 0;
+  accent-color: var(--bdm-accent);
+  cursor: pointer;
+}
+.bd-plan__input:focus-visible { outline: none; } /* the card carries the ring */
+.bd-plan__name {
+  grid-area: name;
+  font-family: var(--bdm-font-ui);
+  font-size: 0.8125rem;
+  font-weight: 600;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--bdm-text);
+}
+.bd-plan__price { grid-area: price; display: block; }
+.bd-plan__amount {
+  font-family: var(--bdm-font-display);
+  font-size: clamp(1.75rem, 1.45rem + 1vw, 2.125rem);
+  font-weight: 400;
+  line-height: 1.1;
+  color: var(--bdm-text);
+  font-variant-numeric: lining-nums;
+}
+.bd-plan__per {
+  margin-left: 0.15rem;
+  font-family: var(--bdm-font-ui);
+  font-size: 0.875rem;
+  color: var(--bdm-soft);
+}
+.bd-plan__save,
+.bd-plan__note {
+  display: block;
+  margin-top: 0.4rem;
+  font-family: var(--bdm-font-ui);
+  font-size: 0.8125rem;
+  line-height: 1.35;
+  font-weight: 600;
+  color: var(--bdm-accent);
+}
+.bd-plan__save--plain,
+.bd-plan__note,
+.bd-plan__basis { font-weight: 400; color: var(--bdm-muted); }
+.bd-plan__basis {
+  display: block;
+  margin-top: 0.1rem;
+  font-family: var(--bdm-font-ui);
+  font-size: 0.8125rem;
+  line-height: 1.35;
+}
+
+/* consent */
+.bd-gate__consent {
+  display: grid;
+  grid-template-columns: auto 1fr;
+  column-gap: 0.85rem;
+  row-gap: 0.5rem;
+  align-items: start;
+  margin-top: 1.25rem;
+  padding: 1rem 1rem 1.05rem;
+  border: 1px solid var(--bdm-rule);
+  background: rgba(255, 255, 255, 0.02);
+  border-radius: 2px;
+}
+.bd-gate__consent.has-error { border-color: var(--bdm-danger); }
+.bd-gate__disclosure {
+  font-size: 1rem;
+  line-height: 1.55;
+  color: var(--bdm-text);
+  cursor: pointer;
+  min-width: 0;
+  overflow-wrap: anywhere; /* "bushwickdaily.com/members/account/;" is wider than a phone's consent box */
+}
+.bd-gate__consent-error { grid-column: 2; }
+.bd-gate__legal {
+  margin: 0.6rem 0 0;
+  font-family: var(--bdm-font-ui);
+  font-size: 0.8125rem;
+  color: var(--bdm-muted);
+}
+.bd-gate__legal a {
+  display: inline-flex;
+  align-items: center;
+  min-height: 32px;
+}
+
+/* pay area */
+.bd-gate__pay {
+  display: grid;
+  gap: 0.75rem;
+  margin-top: 1.25rem;
+}
+.bd-gate__express {
+  position: relative;
+  min-height: 48px;
+  border-radius: 2px;
+}
+/* Stripe's wallet buttons only darken slightly on focus (inside their iframe), and neither :focus nor
+   :focus-within matches an iframe whose document holds focus (Chromium and WebKit, measured in T3).
+   membership.js sets .has-focus while the slot's iframe is document.activeElement. */
+.bd-gate__express.has-focus,
+.bd-gate__express:focus-within { outline: 2px solid var(--bdm-accent); outline-offset: 3px; }
+.bd-gate__express[data-state='loading'] {
+  background: linear-gradient(90deg, #151515 0%, #1e1e1e 50%, #151515 100%);
+  background-size: 200% 100%;
+  animation: bdm-shimmer 1.6s ease-in-out infinite;
+}
+.bd-gate__express-note {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: 0;
+  padding: 0 0.75rem;
+  font-family: var(--bdm-font-ui);
+  font-size: 0.8125rem;
+  line-height: 1.3;
+  text-align: center;
+  color: var(--bdm-muted);
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.25s ease;
+}
+.bd-gate__express[data-state='none-visible'],
+.bd-gate__express[data-state='error'] { border: 1px dashed var(--bdm-rule); }
+.bd-gate__express[data-state='none-visible'] .bd-gate__express-note,
+.bd-gate__express[data-state='error'] .bd-gate__express-note { opacity: 1; pointer-events: auto; }
+.bd-gate__express[data-state='error'] .bd-gate__express-note { color: var(--bdm-danger); }
+.bd-gate__express[data-state='none'] { display: none; }
+/* No buttons to show: take the (empty) Stripe iframe out of the tab order and the a11y tree. */
+.bd-gate__express[data-state='none-visible'] .bd-gate__express-mount,
+.bd-gate__express[data-state='error'] .bd-gate__express-mount { display: none; }
+
+/* No wallets on this device: the card button becomes the primary action (colour only; no reflow). */
+.bd-gate[data-bd-wallets='none'] .bd-gate__card-toggle[aria-expanded='false'] {
+  background: var(--bdm-accent);
+  color: var(--bdm-on-accent);
+  border-color: var(--bdm-accent);
+  font-weight: 700;
+}
+.bd-gate[data-bd-wallets='none'] .bd-gate__card-toggle[aria-expanded='false']:focus-visible { outline-color: var(--bdm-text); }
+
+/* A wallet button is on screen (owner rule 2026-10-12: exactly one black Apple Pay / Google Pay button and nothing
+   that competes with it): the card path is the quiet text link "Pay with card instead" (membership.js applyWallets
+   sets the label) in the same 48px box, so the switch causes no reflow. Keyed on the wallet names, not on "not
+   none": in S2b the state is 'pending' while Stripe.js loads, and no wallet exists yet. */
+.bd-gate[data-bd-wallets~='applePay'] .bd-gate__card-toggle[aria-expanded='false'],
+.bd-gate[data-bd-wallets~='googlePay'] .bd-gate__card-toggle[aria-expanded='false'] {
+  background: transparent;
+  border-color: transparent;
+  color: var(--bdm-muted);
+  font-weight: 400;
+  letter-spacing: normal;
+  text-transform: none;
+  text-decoration: underline;
+  text-decoration-thickness: 1px;
+  text-underline-offset: 3px;
+}
+.bd-gate[data-bd-wallets~='applePay'] .bd-gate__card-toggle[aria-expanded='false']:hover,
+.bd-gate[data-bd-wallets~='googlePay'] .bd-gate__card-toggle[aria-expanded='false']:hover { color: var(--bdm-text); }
+
+.bd-gate__card {
+  padding-top: 1rem;
+  border-top: 1px solid var(--bdm-rule);
+  container-type: inline-size;
+  container-name: bdm-card;
+}
+.bd-gate__card[hidden] { display: none; }
+.bd-gate__payment-mount {
+  min-height: var(--bdm-pe-min);
+  margin: 0.25rem 0 1rem;
+}
+/* Card-form heights measured in run_t3.py / Chromium (card only, labels above, US country):
+   column >= 456px: 292px | 416px: 369px | 296-366px: 391px | 256px: 490px. Stripe re-flows the
+   expiry/CVC/country/ZIP rows by its own width, so the reservation follows the column width. */
+@container bdm-card (max-width: 449px) { .bd-gate__payment-mount { min-height: 372px; } }
+@container bdm-card (max-width: 399px) { .bd-gate__payment-mount { min-height: 392px; } }
+@container bdm-card (max-width: 279px) { .bd-gate__payment-mount { min-height: 492px; } }
+@supports not (container-type: inline-size) {
+  @media (max-width: 520px) { .bd-gate__payment-mount { min-height: 392px; } }
+}
+.bd-gate__payment-mount[data-state='loading'] {
+  background: linear-gradient(90deg, #121212 0%, #1a1a1a 50%, #121212 100%);
+  background-size: 200% 100%;
+  animation: bdm-shimmer 1.6s ease-in-out infinite;
+}
+.bd-gate__submit { min-height: 52px; font-size: 0.95rem; }
+
+.bd-gate__alert { margin-top: 0.75rem; }
+.bd-gate__progress:not(:empty) { margin-top: 0.75rem; }
+.bd-gate__closed {
+  margin: 0;
+  padding: 1rem;
+  font-family: var(--bdm-font-ui);
+  font-size: 0.9375rem;
+  line-height: 1.5;
+  color: var(--bdm-text);
+  border: 1px solid var(--bdm-rule);
+  text-align: center;
+}
+.bd-gate__progress {
+  margin: 0;
+  font-family: var(--bdm-font-ui);
+  font-size: 0.875rem;
+  color: var(--bdm-soft);
+}
+.bd-gate__progress:empty { display: none; }
+
+/* member line + sign-in */
+.bd-gate__member {
+  margin-top: 1.75rem;
+  padding-top: 1.25rem;
+  border-top: 1px solid var(--bdm-rule);
+  text-align: center;
+}
+.bd-gate__member-line {
+  margin: 0;
+  font-family: var(--bdm-font-ui);
+  font-size: 0.9375rem;
+  line-height: 1.5;
+  color: var(--bdm-soft);
+}
+.bd-gate__member-line strong { color: var(--bdm-text); font-weight: 600; }
+.bd-gate__member-line[hidden] { display: none; }
+.bd-gate__signed-in { margin-top: 1.25rem; text-align: center; }
+
+/* the newsletter outcome when it needs the reader (pending confirmation, refusal) */
+.bd-gate__note {
+  margin: 0.75rem 0 0;
+  font-family: var(--bdm-font-ui);
+  font-size: 0.8125rem;
+  line-height: 1.5;
+  text-align: center;
+  color: var(--bdm-soft);
+}
+.bd-gate__note:empty { display: none; }
+.bd-gate__signin { margin-top: 1rem; text-align: left; }
+.bd-gate__signin[hidden] { display: none; }
+
+.bd-signin__step[hidden] { display: none; }
+.bd-signin__sent {
+  margin: 0 0 1rem;
+  font-size: 1rem;
+  line-height: 1.55;
+  color: var(--bdm-text);
+}
+.bd-signin__sent strong { color: var(--bdm-accent); font-weight: 600; overflow-wrap: anywhere; }
+.bd-signin__more {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0 0.75rem;
+  margin: 0.75rem 0 0;
+  font-family: var(--bdm-font-ui);
+  font-size: 0.8125rem;
+  color: var(--bdm-muted);
+}
+
+.bd-gate__fine {
+  margin: 1.5rem 0 0;
+  font-family: var(--bdm-font-ui);
+  font-size: 0.75rem;
+  line-height: 1.5;
+  text-align: center;
+  color: var(--bdm-muted);
+}
+.bd-gate__noscript {
+  margin: 1rem 0 0;
+  font-family: var(--bdm-font-ui);
+  font-size: 0.875rem;
+  color: var(--bdm-text);
+}
+
+/* while a membership check or a payment runs: the form stays in place, inert to pointer input */
+.bd-gate[data-bd-state='checking'] .bd-gate__start,
+.bd-gate[data-bd-state='checking'] .bd-gate__form,
+.bd-gate[data-bd-state='processing'] .bd-gate__plans,
+.bd-gate[data-bd-state='processing'] .bd-gate__consent { opacity: 0.6; pointer-events: none; }
+
+/* Unlocked text arrives in B1's .bd-paywalled wrapper (the hasPart cssSelector). The wrapper must
+   not create a box: on the DiMieri template the sections are grid items of .article (full-bleed
+   headers use grid-column: full), so a block wrapper would squeeze them into one column. */
+.bd-paywalled { display: contents; }
+.bd-paywalled.bd-just-unlocked > * { animation: bdm-arrive 0.5s ease-out both; }
+
+@media (max-width: 480px) {
+  .bd-gate { padding-top: calc(var(--bdm-u) * 5); }
+  .bd-gate__plan-grid { gap: 0.5rem; }
+  .bd-plan { padding: 0.85rem 0.75rem 0.95rem; column-gap: 0.5rem; min-height: 8.25rem; }
+  .bd-plan__name { font-size: 0.75rem; letter-spacing: 0.1em; }
+  .bd-gate__consent { padding: 0.85rem 0.8rem; }
+}
+
+@keyframes bdm-shimmer {
+  0% { background-position: 100% 0; }
+  100% { background-position: -100% 0; }
+}
+@keyframes bdm-arrive {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .bd-gate *,
+  .bd-membership-page * { transition: none !important; animation: none !important; }
+  .bd-paywalled.bd-just-unlocked > * { animation: none; }
+}
+
+@media (forced-colors: active) {
+  .bd-plan.is-selected,
+  .bd-plan:has(.bd-plan__input:checked) { outline: 3px solid Highlight; }
+  .bd-btn { border: 1px solid ButtonText; }
+}
+
+/* ───────────────────────── full-page templates: account + terms ───────────────────────── */
+body.bd-membership-page {
+  margin: 0;
+  min-height: 100vh;
+  background: var(--bdm-bg);
+  color: var(--bdm-text);
+  font-family: var(--bdm-font-body);
+  font-size: 1.0625rem;
+  line-height: 1.65;
+  -webkit-font-smoothing: antialiased;
+}
+body.bd-membership-page *,
+body.bd-membership-page *::before,
+body.bd-membership-page *::after { box-sizing: border-box; }
+
+/* Site chrome: template-parts/dark-header.php and dark-footer.php ship markup only; their CSS is
+   inlined in category.php and coverage-index.php. Minimal port here (debt noted in the report).
+   The header is NOT sticky on these pages: a 130px sticky header would cover focused controls
+   (WCAG 2.4.11, failure F110). The nav toggle has no script anywhere in the theme; hidden here. */
+.bd-membership-page .header {
+  position: relative;
+  background: var(--bdm-bg);
+  border-bottom: 1px solid var(--bdm-rule);
+}
+.bd-membership-page .header-main {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 1.25rem 1.5rem;
+}
+.bd-membership-page .header .logo { display: block; width: 100%; max-width: 420px; }
+.bd-membership-page .header .logo svg { display: block; width: 100%; height: auto; }
+.bd-membership-page .header-nav-toggle { display: none; }
+.bd-membership-page .bd-min-header {
+  padding: 1.25rem 1.5rem;
+  border-bottom: 1px solid var(--bdm-rule);
+  text-align: center;
+  font-family: var(--bdm-font-ui);
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+.bd-membership-page .bd-min-header a { color: var(--bdm-text); text-decoration: none; }
+.bd-membership-page .footer {
+  margin-top: 5rem;
+  padding: 3rem 1.5rem;
+  background: #141414;
+  border-top: 1px solid var(--bdm-rule);
+  text-align: center;
+  font-family: var(--bdm-font-ui);
+}
+.bd-membership-page .footer-subscribe { margin-bottom: 2rem; padding-bottom: 2rem; border-bottom: 1px solid var(--bdm-rule); }
+.bd-membership-page .footer-subscribe-text { margin: 0 0 1rem; font-size: 1.05rem; color: var(--bdm-soft); }
+.bd-membership-page .footer-subscribe-btn {
+  display: inline-flex; align-items: center; min-height: 44px;
+  padding: 0.75rem 1.5rem; background: #ffe135; color: #0a0a0a;
+  font-size: 0.8rem; font-weight: 600; letter-spacing: 0.05em; text-transform: uppercase; text-decoration: none;
+}
+.bd-membership-page .footer-logo { width: 180px; margin: 0 auto 1.5rem; }
+.bd-membership-page .footer-logo svg { width: 100%; height: auto; opacity: 0.6; }
+.bd-membership-page .footer-text { margin: 0; font-size: 0.8rem; color: var(--bdm-muted); }
+.bd-membership-page .footer-text a { color: var(--bdm-soft); }
+.bd-membership-page .footer-links {
+  display: flex; flex-wrap: wrap; justify-content: center; gap: 0 1.5rem; margin-top: 1.5rem;
+}
+.bd-membership-page .footer-links a {
+  display: inline-flex; align-items: center; min-height: 44px;
+  font-size: 0.8rem; color: var(--bdm-soft); text-decoration: none;
+}
+.bd-membership-page .footer-links a:hover { color: var(--bdm-accent); }
+
+/* account page */
+.bd-account {
+  max-width: 40rem;
+  margin: 0 auto;
+  padding: 4rem 1.5rem 2rem;
+}
+.bd-account__eyebrow,
+.bd-terms__eyebrow {
+  margin: 0 0 0.75rem;
+  font-family: var(--bdm-font-ui);
+  font-size: 0.75rem;
+  font-weight: 600;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  color: var(--bdm-accent);
+}
+.bd-account__title,
+.bd-terms__title {
+  margin: 0 0 1.5rem;
+  font-family: var(--bdm-font-display);
+  font-size: clamp(2.25rem, 1.6rem + 2.4vw, 3.25rem);
+  font-weight: 400;
+  line-height: 1.1;
+  letter-spacing: -0.015em;
+}
+.bd-account__status {
+  margin: 0 0 1.5rem;
+  font-family: var(--bdm-font-ui);
+  font-size: 0.9375rem;
+  color: var(--bdm-soft);
+  min-height: 1.5em;
+}
+.bd-account__view[hidden] { display: none; }
+.bd-account__view h2 {
+  margin: 0 0 0.75rem;
+  font-family: var(--bdm-font-display);
+  font-size: 1.625rem;
+  font-weight: 400;
+  line-height: 1.25;
+}
+.bd-account__view p { margin: 0 0 1rem; color: var(--bdm-soft); }
+.bd-account__view p strong { color: var(--bdm-text); font-weight: 600; }
+.bd-account__card {
+  padding: 1.5rem;
+  background: var(--bdm-raised);
+  border: 1px solid var(--bdm-rule);
+  border-top: 2px solid var(--bdm-accent);
+  border-radius: 2px;
+}
+.bd-account__facts {
+  display: grid;
+  grid-template-columns: minmax(7.5rem, auto) 1fr;
+  gap: 0.75rem 1.25rem;
+  margin: 0 0 1.5rem;
+}
+.bd-account__facts dt {
+  font-family: var(--bdm-font-ui);
+  font-size: 0.75rem;
+  font-weight: 600;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--bdm-muted);
+  padding-top: 0.3rem;
+}
+.bd-account__facts dd { margin: 0; font-size: 1.125rem; color: var(--bdm-text); }
+.bd-account__actions {
+  display: grid;
+  gap: 0.75rem;
+}
+@media (min-width: 560px) {
+  .bd-account__actions { grid-template-columns: 1fr 1fr; }
+}
+.bd-account__confirm {
+  margin-top: 1rem;
+  padding: 1.25rem;
+  border: 1px solid var(--bdm-danger);
+  border-radius: 2px;
+  background: rgba(255, 138, 122, 0.05);
+}
+.bd-account__confirm[hidden] { display: none; }
+.bd-account__confirm p { color: var(--bdm-text); font-size: 1.0625rem; }
+.bd-account__plans {
+  list-style: none;
+  margin: 0 0 1.5rem;
+  padding: 0;
+  display: grid;
+  gap: 0.5rem;
+}
+.bd-account__plans li {
+  display: flex;
+  justify-content: space-between;
+  gap: 1rem;
+  padding: 0.85rem 1rem;
+  border: 1px solid var(--bdm-line);
+  border-radius: 2px;
+  font-family: var(--bdm-font-ui);
+  color: var(--bdm-text);
+}
+.bd-account__plans li span:last-child { color: var(--bdm-soft); text-align: right; }
+.bd-account__signout { margin-top: 1.5rem; text-align: center; font-family: var(--bdm-font-ui); font-size: 0.9375rem; }
+.bd-account__help {
+  margin: 3rem 0 0;
+  padding-top: 1.25rem;
+  border-top: 1px solid var(--bdm-rule);
+  font-family: var(--bdm-font-ui);
+  font-size: 0.875rem;
+  color: var(--bdm-muted);
+}
+.bd-account__mode {
+  margin: 0 0 1.5rem;
+  padding: 0.6rem 0.85rem;
+  font-family: var(--bdm-font-ui);
+  font-size: 0.8125rem;
+  border: 1px dashed var(--bdm-accent);
+  color: var(--bdm-text);
+}
+.bd-account__mode[hidden] { display: none; }
+.bd-account .bd-btn { width: 100%; }
+
+/* terms page */
+.bd-terms {
+  max-width: 42rem;
+  margin: 0 auto;
+  padding: 4rem 1.5rem 2rem;
+}
+.bd-terms__meta {
+  margin: -0.75rem 0 2.5rem;
+  font-family: var(--bdm-font-ui);
+  font-size: 0.875rem;
+  color: var(--bdm-muted);
+}
+.bd-terms h2 {
+  margin: 2.5rem 0 0.75rem;
+  font-family: var(--bdm-font-display);
+  font-size: 1.5rem;
+  font-weight: 400;
+  line-height: 1.25;
+  color: var(--bdm-text);
+}
+.bd-terms p,
+.bd-terms li { color: var(--bdm-soft); }
+.bd-terms p { margin: 0 0 1rem; }
+.bd-terms ul { margin: 0 0 1rem; padding-left: 1.25rem; }
+.bd-terms li { margin-bottom: 0.4rem; }
+.bd-terms strong { color: var(--bdm-text); font-weight: 600; }
+
+.bd-signin__notice {
+  margin: 0 0 0.75rem;
+  font-family: var(--bdm-font-ui);
+  font-size: 0.9375rem;
+  font-weight: 600;
+  color: var(--bdm-accent);
+}
+.bd-signin__notice:empty { display: none; }

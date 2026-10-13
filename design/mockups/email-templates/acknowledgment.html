@@ -1,0 +1,19 @@
+<meta name="robots" content="noindex,nofollow">{% extends "_layout.html" %}
+{#- The NY GBL 527-a acknowledgment. Every sentence is the deployed template's (membership/templates/email/acknowledgment.html),
+    word for word; only the styling changes. Facts are set as label + value rows. -#}
+{% block kicker %}<tr><td style="padding:0 48px 20px"><span style="display:inline-block;background:#ffe135;padding:3px 7px;font-family:'Helvetica Neue', Helvetica, Arial, sans-serif;font-size:11px;font-weight:600;letter-spacing:0.22em;text-transform:uppercase;color:#0a0a0a">Membership</span></td></tr>{% endblock %}
+{% block heading %}Your membership is active{% endblock %}
+{% block body %}
+<p style="margin:0 0 24px;font-family:'Helvetica Neue', Helvetica, Arial, sans-serif;font-size:16px;line-height:1.65;color:#0a0a0a;">Thank you for becoming a Bushwick Daily member. This email confirms your membership and its terms. Keep it for your records.</p>
+<p style="margin:0 0 18px;padding-top:14px;border-top:1px solid #d6d5cf;font-family:'Helvetica Neue', Helvetica, Arial, sans-serif;font-size:16px;line-height:1.65;color:#0a0a0a;"><strong>Plan:</strong> {{ plan_name }}, {{ amount }} per {{ interval }}.</p>
+<p style="margin:0 0 18px;font-family:'Helvetica Neue', Helvetica, Arial, sans-serif;font-size:16px;line-height:1.65;color:#0a0a0a;"><strong>Automatic renewal:</strong> Your membership renews automatically every {{ interval }}, and your payment method is charged {{ amount }} every {{ interval }} until you cancel.</p>
+{% if next_date %}
+<p style="margin:0 0 18px;font-family:'Helvetica Neue', Helvetica, Arial, sans-serif;font-size:16px;line-height:1.65;color:#0a0a0a;"><strong>Next charge:</strong> {{ amount }} on {{ next_date }}.</p>
+{% endif %}
+<p style="margin:0 0 18px;font-family:'Helvetica Neue', Helvetica, Arial, sans-serif;font-size:16px;line-height:1.65;color:#0a0a0a;"><strong>How to cancel:</strong> anytime, online, at <a href="{{ account_url }}" style="color:#0a0a0a;text-decoration:none;border-bottom:1px solid #0a0a0a">{{ account_url }}</a>. Sign in with this email address and choose &ldquo;Cancel membership.&rdquo; Canceling stops all future charges; you keep access until the end of the period you have already paid for. No phone call or email is needed.</p>
+<p style="margin:0 0 18px;font-family:'Helvetica Neue', Helvetica, Arial, sans-serif;font-size:16px;line-height:1.65;color:#0a0a0a;"><strong>Membership terms:</strong> <a href="{{ terms_url }}" style="color:#0a0a0a;text-decoration:none;border-bottom:1px solid #0a0a0a">{{ terms_url }}</a>{% if terms_version %} (version of {{ terms_version }}){% endif %}.</p>
+{% if disclosure_text %}
+<p style="margin:24px 0 8px;font-family:'Helvetica Neue', Helvetica, Arial, sans-serif;font-size:11px;font-weight:600;letter-spacing:0.22em;text-transform:uppercase;color:#6b6b66;">What you agreed to{% if accepted_on %} on {{ accepted_on }}{% endif %}:</p>
+<blockquote style="margin:0;padding:0 0 0 16px;border-left:3px solid #ffe135;font-family:'Helvetica Neue', Helvetica, Arial, sans-serif;font-size:16px;line-height:1.65;color:#0a0a0a;">{{ disclosure_text }}</blockquote>
+{% endif %}
+{% endblock %}

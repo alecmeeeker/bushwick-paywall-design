@@ -1,0 +1,16 @@
+<meta name="robots" content="noindex,nofollow">{% extends "_layout.html" %}
+{% block kicker %}<tr><td style="padding:0 48px 20px"><span style="display:inline-block;background:#ffe135;padding:3px 7px;font-family:'Helvetica Neue', Helvetica, Arial, sans-serif;font-size:11px;font-weight:600;letter-spacing:0.22em;text-transform:uppercase;color:#0a0a0a">Membership</span></td></tr>{% endblock %}
+{% block heading %}Your membership is canceled{% endblock %}
+{% block body %}
+<p style="margin:0 0 18px;font-family:'Helvetica Neue', Helvetica, Arial, sans-serif;font-size:16px;line-height:1.65;color:#0a0a0a;">We have canceled your Bushwick Daily membership. You will not be charged again.</p>
+{% if immediate|default(false) %}
+<p style="margin:0 0 18px;font-family:'Helvetica Neue', Helvetica, Arial, sans-serif;font-size:16px;line-height:1.65;color:#0a0a0a;">Your membership ended on {{ access_until }}.{% if refund_amount|default("") %} We refunded {{ refund_amount }} to the payment method you paid with; your bank may take 5 to 10 business days to show it.{% endif %}</p>
+<p style="margin:0 0 18px;font-family:'Helvetica Neue', Helvetica, Arial, sans-serif;font-size:16px;line-height:1.65;color:#0a0a0a;">You can join again at any time.</p>
+{% else %}
+{% if access_until %}
+<p style="margin:0 0 18px;font-family:'Helvetica Neue', Helvetica, Arial, sans-serif;font-size:16px;line-height:1.65;color:#0a0a0a;">You can keep reading members-only stories until {{ access_until }}.</p>
+{% endif %}
+<p style="margin:0 0 18px;font-family:'Helvetica Neue', Helvetica, Arial, sans-serif;font-size:16px;line-height:1.65;color:#0a0a0a;">Changed your mind? You can resume your membership at <a href="{{ account_url }}" style="color:#0a0a0a;text-decoration:none;border-bottom:1px solid #0a0a0a">{{ account_url }}</a>{% if access_until %} before {{ access_until }}{% endif %}.</p>
+{% endif %}
+<p style="margin:0;font-family:'Helvetica Neue', Helvetica, Arial, sans-serif;font-size:16px;line-height:1.65;color:#0a0a0a;">Thank you for paying for local reporting.</p>
+{% endblock %}
