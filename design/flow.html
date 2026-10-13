@@ -97,8 +97,8 @@ th,td{border:1px solid var(--line);padding:6px 8px;text-align:left;vertical-alig
 <figure class=phone><a href="img/sheet-success-proposed-iphone13.webp"><img loading=lazy src="img/sheet-success-proposed-iphone13.webp" alt="Success, iPhone 13, 390×664"></a><figcaption>iPhone 13, 390×664</figcaption></figure>
 <figure class=desk><a href="img/sheet-success-proposed-desktop.webp"><img loading=lazy src="img/sheet-success-proposed-desktop.webp" alt="Success, Desktop, 1440×900"></a><figcaption>Desktop, 1440×900</figcaption></figure>
 <div class=text><h3><span class=id>A7</span>Success</h3>
-<h4>On screen (verbatim)</h4><div class=copy><p>You’re a member.</p><p>Every Bushwick Daily story is now open to you.</p><p>You’re signed in on this device. On another phone or computer, sign in with reader@example.com and we’ll email you a code. Your confirmation email is on its way.</p><p>Keep reading</p></div>
-<h4>What the reader can do → where it leads</h4><ul><li><b>“Keep reading”</b> → <a href="#A8">A8 The story, unlocked in place</a></li></ul>
+<h4>On screen (verbatim)</h4><div class=copy><p>You’re a member.</p><p>Every Bushwick Daily story is now open to you.</p><p>Your confirmation email is on its way to reader@example.com.</p><p>Keep reading</p></div>
+<h4>What the reader can do → where it leads</h4><ul><li><b>“Keep reading”</b> → <a href="#A8">A8 The story, unlocked in place</a></li><li><b>Do nothing for 2 seconds</b> → the sheet closes by itself: <a href="#A8">A8 The story, unlocked in place</a></li></ul>
 <h4>How to leave</h4><p class=leave>X, Escape or Back do what “Keep reading” does: <a href="#A8">A8 The story, unlocked in place</a> (v2.1; in v2 an X here left the story locked).</p>
 </div></div>
 <div class="step" id="A8">
@@ -258,7 +258,7 @@ th,td{border:1px solid var(--line);padding:6px 8px;text-align:left;vertical-alig
 </div></div>
 <div class="step noimg" id="E4">
 <div class=text><h3><span class=id>E4</span>Closing the success screen</h3>
-<h4>What the reader can do → where it leads</h4><ul><li><b>X, Escape, Back or “Keep reading”</b> → <a href="#A8">A8 The story, unlocked in place</a>: the story unlocked, focus in the story, the page where it was (v2.1; checked by verify_sheet.py)</li></ul>
+<h4>What the reader can do → where it leads</h4><ul><li><b>X, Escape, Back, “Keep reading”, or 2 seconds</b> → <a href="#A8">A8 The story, unlocked in place</a>: the story unlocked, focus in the story, the page where it was (v2.1; checked by verify_sheet.py)</li></ul>
 </div></div>
 <div class="step noimg" id="E5">
 <div class=text><h3><span class=id>E5</span>“Use a different email” (code step)</h3>
