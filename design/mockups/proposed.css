@@ -24,7 +24,8 @@
  */
 .bd-gate,
 .bd-membership-page,
-.bd-unlock-note {
+.bd-unlock-note,
+.bd-sheet {
   --bdm-bg: var(--bg-primary, #0a0a0a);          /* single.php:183; live body background rgb(10,10,10) */
   --bdm-surface: var(--bg-secondary, #141414);   /* single.php:184; live .trending / .footer background rgb(20,20,20) */
   --bdm-field: var(--bg-tertiary, #1a1a1a);      /* single.php:185; live .bd-newsletter__input background rgb(26,26,26) */
@@ -468,7 +469,7 @@
 @keyframes bdm-shimmer { 0% { background-position: 100% 0; } 100% { background-position: -100% 0; } }
 @keyframes bdm-arrive { from { opacity: 0; } to { opacity: 1; } }
 @media (prefers-reduced-motion: reduce) {
-  .bd-gate *, .bd-membership-page * { transition: none !important; animation: none !important; }
+  .bd-gate *, .bd-membership-page *, .bd-sheet, .bd-sheet * { transition: none !important; animation: none !important; }
 }
 @media (forced-colors: active) {
   .bd-gate .bd-plan.is-selected, .bd-gate .bd-plan:has(.bd-plan__input:checked) { outline: 3px solid Highlight; }
@@ -564,3 +565,285 @@ body.bd-membership-page *, body.bd-membership-page *::before, body.bd-membership
 .bd-terms ul { margin: 1.5rem 0; padding-left: 1.5rem; }
 .bd-terms li { margin-bottom: .5rem; }
 .bd-terms strong { font-weight: 700; }
+
+/* ═══════════════════════════════════════════════════════════════════════════════════════════════════════════════
+   v2 (owner decisions 2026-10-13): the inline card holds S1 only; every later step happens in a full-screen sheet.
+   PROPOSAL.md section V2 is the specification; each rule below names the decision (V2-n) or token it implements.
+   Journalism purpose: the reader who decides to pay gets one task on screen, on the article they came to read.
+   ═══════════════════════════════════════════════════════════════════════════════════════════════════════════════ */
+
+/* ── the card: the signed-in non-member step (V2-1: variant C headline, the signed-in line, "See plans"; the sheet
+      does not open by itself) */
+.bd-gate .bd-gate__lede--member { max-width: 40ch; }
+.bd-gate .bd-gate__lede strong { color: var(--bdm-text); font-weight: 600; overflow-wrap: anywhere; }
+.bd-gate .bd-gate__see-plans { width: auto; min-width: 10.5rem; }
+.bd-gate .bd-gate__step--member .bd-gate__member-line { margin-top: 1rem; }
+@media (max-width: 480px) { .bd-gate .bd-gate__see-plans { width: 100%; } }
+
+/* ── the sheet (V2-2). z-index above every fixed layer the article prints: progress bar 9999 (single.php:263),
+      newsletter popup 10000 (single.php:1278), Support button 99990 (bd-support-cta.php:21). */
+.bd-sheet {
+  position: fixed;
+  inset: 0;
+  z-index: 100000;
+  display: flex;
+  align-items: stretch;
+  justify-content: center;
+  font-family: var(--bdm-font-ui);
+  font-size: 1rem;
+  line-height: 1.55;
+  color: var(--bdm-text);
+  -webkit-font-smoothing: antialiased;
+  -webkit-text-size-adjust: 100%;
+}
+.bd-sheet[hidden] { display: none; }
+.bd-sheet *, .bd-sheet *::before, .bd-sheet *::after { box-sizing: border-box; }
+.bd-sheet [hidden] { display: none !important; }
+/* Phones: the page is not visible at all (opaque), as in Ghost Portal on a phone (research 27 F4: 100% opaque). */
+.bd-sheet__scrim { position: absolute; inset: 0; background: var(--bdm-bg); opacity: 0; transition: opacity .18s ease; }
+.bd-sheet__panel {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  height: 100vh;
+  height: 100dvh;                                   /* follows Safari's moving toolbars (100vh does not) */
+  padding-top: env(safe-area-inset-top, 0px);       /* 0 unless the page opts into viewport-fit=cover (V2-2) */
+  background: linear-gradient(var(--bdm-accent), var(--bdm-accent)) top / 100% 3px no-repeat, var(--bdm-bg);
+  opacity: 0;
+  transform: translateY(16px);
+  transition: transform .22s cubic-bezier(.2, .8, .2, 1), opacity .18s ease;   /* transform/opacity only: no CLS */
+}
+.bd-sheet.is-open .bd-sheet__scrim,
+.bd-sheet.is-open .bd-sheet__panel { opacity: 1; transform: none; }
+
+/* Top bar: "← Back" (previous step, V2-2), the wordmark (single.php:1517-1540, the site’s own mark), the close X. */
+.bd-sheet__bar {
+  flex: none;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr);
+  align-items: center;
+  min-height: 56px;
+  margin-top: 3px;                                   /* under the 3px yellow rule (the card family, single.php:666-673) */
+  padding: 0 max(4px, env(safe-area-inset-right, 0px)) 0 max(4px, env(safe-area-inset-left, 0px));
+  border-bottom: 1px solid var(--bdm-rule);
+}
+.bd-sheet__back {
+  grid-column: 1;
+  justify-self: start;
+  display: inline-flex;
+  align-items: center;
+  gap: .4rem;
+  min-height: 48px;
+  padding: 0 .75rem;
+  background: none;
+  border: 0;
+  border-radius: 2px;
+  font: 600 .95rem/1 var(--bdm-font-ui);
+  color: var(--bdm-text);
+  cursor: pointer;
+}
+.bd-sheet__back:hover, .bd-sheet__close:hover { color: var(--bdm-accent); }
+.bd-sheet__mark { grid-column: 2; display: block; width: 132px; line-height: 0; }
+.bd-sheet__mark svg { display: block; width: 100%; height: auto; }
+.bd-sheet__close {
+  grid-column: 3;
+  justify-self: end;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 48px;
+  height: 48px;
+  padding: 0;
+  background: none;
+  border: 0;
+  border-radius: 2px;
+  color: var(--bdm-text);
+  cursor: pointer;
+}
+.bd-sheet__close[aria-disabled='true'] { opacity: .35; cursor: progress; }     /* a payment is processing (V2-2) */
+.bd-sheet__bar :focus-visible { outline: 2px solid var(--bdm-accent); outline-offset: -2px; }   /* single.php:702 ring */
+
+/* The only scrolling box while the sheet is open; it never hands its scroll to the page (V2-2). */
+.bd-sheet__scroll {
+  flex: 1 1 auto;
+  min-height: 0;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  -webkit-overflow-scrolling: touch;
+}
+/* The step content reuses the gate's component rules (.bd-gate scope), without the in-article card's box. */
+.bd-gate.bd-gate--sheet {
+  max-width: 34rem;
+  margin: 0 auto;
+  padding: 1.75rem max(16px, env(safe-area-inset-right, 0px)) calc(2rem + env(safe-area-inset-bottom, 0px)) max(16px, env(safe-area-inset-left, 0px));
+  background: none;
+  border: 0;
+  border-radius: 0;
+  scroll-margin-top: 0;
+}
+.bd-gate.bd-gate--sheet::before { display: none; }
+/* Focus Not Obscured (2.4.11): inside the sheet nothing sits over the scroll box (the bar is outside it). */
+.bd-gate--sheet input, .bd-gate--sheet button, .bd-gate--sheet a, .bd-gate--sheet iframe, .bd-gate--sheet [tabindex] {
+  scroll-margin-top: 16px;
+  scroll-margin-bottom: 96px;                       /* clears the pinned action bar on phones */
+}
+
+/* Headline = the site's membership headline voice (.bd-member-band__title, single.php:680-682): Satoshi 900 italic
+   uppercase, second half yellow; 2.1rem is the band's minimum, 2.75rem on wide screens (inside its clamp). */
+.bd-sheet .bd-sheet__title {
+  margin: 0 0 .85rem;
+  font-family: var(--bdm-font-head);
+  font-size: 2.1rem;
+  font-weight: 900;
+  font-style: italic;
+  line-height: .92;
+  letter-spacing: -.03em;
+  text-transform: uppercase;
+  color: var(--bdm-text);
+}
+.bd-sheet .bd-sheet__title em { font-style: italic; color: var(--bdm-accent); }
+/* Line under it = .bd-member-band__sub (single.php:683-684), prices and the address in white. */
+.bd-sheet .bd-sheet__lede { margin: 0 0 1.5rem; max-width: 46ch; font-size: 1.05rem; line-height: 1.55; color: var(--bdm-soft); }
+.bd-sheet .bd-sheet__lede strong { color: var(--bdm-text); font-weight: 600; overflow-wrap: anywhere; }
+.bd-sheet .bd-sheet__lede--big { margin: 0 0 .5rem; font-family: var(--bdm-font-head); font-size: 1.5rem; font-weight: 700; line-height: 1.3; color: var(--bdm-text); }
+/* Step titles ("Payment", "Sign in", S2a's line) = the article h3 (single.php:600-615: Satoshi 700 1.5rem). */
+.bd-sheet .bd-sheet__step-title,
+.bd-sheet .bd-gate__step-title { margin: 0 0 1.25rem; font-family: var(--bdm-font-head); font-size: 1.5rem; font-weight: 700; line-height: 1.3; color: var(--bdm-text); }
+/* The step heading takes focus when a step opens (V2-2) so a screen reader announces it; it is not a control, so it
+   draws no ring (WCAG 2.4.7 applies to operable components). */
+.bd-sheet [data-bd-sheet-heading]:focus, .bd-sheet [data-bd-sheet-heading]:focus-visible { outline: none; }
+
+/* ── plans (V2-4): a Monthly / Yearly switch, the saving in dollars ("Save $13.88", gate.php), one plan card. */
+.bd-sheet .bd-cadence {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 4px;
+  min-width: 0;
+  margin: 0 0 1rem;
+  padding: 4px;
+  border: 1px solid var(--bdm-line);                /* #707070: 3.72:1 on the page, WCAG 1.4.11 (v1 token table) */
+  border-radius: var(--bdm-radius-tile);
+}
+.bd-sheet .bd-cadence__opt {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-height: 52px;
+  padding: .35rem .5rem;
+  border-radius: 2px;
+  color: var(--bdm-text);
+  text-align: center;
+  cursor: pointer;
+  transition: background-color .15s ease, color .15s ease;
+}
+/* The native radio covers its option (invisible), so the option is the hit area and keyboard arrows work as usual. */
+.bd-sheet .bd-cadence__input { position: absolute; inset: 0; width: 100%; height: 100%; margin: 0; opacity: 0; cursor: pointer; }
+.bd-sheet .bd-cadence__name { font-size: .85rem; font-weight: 800; letter-spacing: .06em; line-height: 1.2; text-transform: uppercase; }
+.bd-sheet .bd-cadence__save { margin-top: .15rem; font-size: .8rem; font-weight: 600; line-height: 1.2; color: var(--bdm-accent); }
+.bd-sheet .bd-cadence__opt:hover { background: var(--bdm-field); }
+.bd-sheet .bd-cadence__opt:has(.bd-cadence__input:checked) { background: var(--bdm-accent); color: var(--bdm-on-accent); }
+.bd-sheet .bd-cadence__opt:has(.bd-cadence__input:checked) .bd-cadence__save { color: var(--bdm-on-accent); }
+.bd-sheet .bd-cadence__opt:has(.bd-cadence__input:focus-visible) { outline: 2px solid var(--bdm-text); outline-offset: 2px; }
+
+/* The plan card = the card family (single.php:666-673: 1px #2a2a2a, 8px radius, 3px yellow rule) on #141414. */
+.bd-sheet .bd-offer {
+  padding: 1.25rem 1.25rem 1.35rem;
+  background: linear-gradient(var(--bdm-accent), var(--bdm-accent)) top / 100% 3px no-repeat, var(--bdm-surface);
+  border: 1px solid var(--bdm-rule);
+  border-radius: var(--bdm-radius-card);
+}
+/* name = the article kicker (single.php:440-452: Inter 600, .1em, uppercase) */
+.bd-sheet .bd-offer__name { margin: 0; font-size: .75rem; font-weight: 600; letter-spacing: .1em; text-transform: uppercase; color: var(--bdm-text); }
+.bd-sheet .bd-offer__price { display: flex; align-items: baseline; flex-wrap: wrap; gap: 0 .2rem; margin: .4rem 0 0; }
+/* price = the band's price voice (.bd-member-band__price, single.php:698: Satoshi 900 italic) */
+.bd-sheet .bd-offer__amount { font-family: var(--bdm-font-head); font-size: 2.75rem; font-weight: 900; font-style: italic; line-height: 1; letter-spacing: -.02em; font-variant-numeric: lining-nums; }
+.bd-sheet .bd-offer__per { font-size: .95rem; color: var(--bdm-soft); }
+.bd-sheet .bd-offer__basis { margin: .35rem 0 0; font-size: .875rem; line-height: 1.45; color: var(--bdm-soft); }
+.bd-sheet .bd-offer__why { margin: 1rem 0 0; padding-top: 1rem; border-top: 1px solid var(--bdm-rule); font-size: .95rem; line-height: 1.5; color: var(--bdm-text); }
+.bd-sheet .bd-offer__label { margin: 1rem 0 .5rem; font-size: .7rem; font-weight: 600; letter-spacing: .1em; text-transform: uppercase; color: var(--bdm-soft); }
+.bd-sheet .bd-offer__list { display: grid; gap: .5rem; margin: 0; padding: 0; list-style: none; }
+/* = the band's perk line (.bd-member-band__perks li, single.php:686-689: Inter 600, #e8e8e8, 6px yellow dot) as a list */
+.bd-sheet .bd-offer__list li { position: relative; padding-left: 1.1rem; font-size: .9rem; font-weight: 600; line-height: 1.45; color: #e8e8e8; }
+.bd-sheet .bd-offer__list li::before { content: ''; position: absolute; left: 0; top: .55em; width: 6px; height: 6px; border-radius: 50%; background: var(--bdm-accent); }
+
+/* The primary action is pinned to the bottom of the sheet on phones (V2-2), so "Continue" is on screen on any
+   phone height; in flow from 768px. */
+.bd-sheet .bd-sheet__actions {
+  position: sticky;
+  bottom: 0;
+  z-index: 1;
+  margin: 1.25rem calc(-1 * max(16px, env(safe-area-inset-left, 0px))) 0;
+  padding: .75rem max(16px, env(safe-area-inset-right, 0px)) calc(.75rem + env(safe-area-inset-bottom, 0px)) max(16px, env(safe-area-inset-left, 0px));
+  background: var(--bdm-bg);
+  border-top: 1px solid var(--bdm-rule);
+}
+.bd-sheet .bd-sheet__step .bd-gate__member-line { margin-top: 1rem; }
+.bd-sheet .bd-gate__member-line .bd-link { padding-right: 0; }   /* "Sign out, then …": no gap before the comma */
+
+/* ── payment (V2-3): summary, the 527-a consent (verbatim, above both pay buttons), the black wallet button, the
+      "Pay with card" link, the card form, Subscribe with its error line directly under it (D-1545). */
+.bd-sheet .bd-sheet__summary {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  column-gap: 1rem;
+  align-items: center;
+  margin: 0 0 1.25rem;
+  padding: .9rem 1rem;
+  background: var(--bdm-surface);
+  border: 1px solid var(--bdm-rule);
+  border-radius: var(--bdm-radius-tile);
+}
+.bd-sheet .bd-sheet__summary-plan { grid-column: 1; display: flex; flex-wrap: wrap; align-items: baseline; gap: 0 .6rem; margin: 0; font-weight: 600; }
+.bd-sheet .bd-sheet__summary-price { font-family: var(--bdm-font-head); font-size: 1.2rem; font-weight: 900; font-style: italic; }
+.bd-sheet .bd-sheet__summary-for { grid-column: 1; margin: .2rem 0 0; font-size: .9rem; color: var(--bdm-soft); overflow-wrap: anywhere; }
+.bd-sheet .bd-sheet__summary-for strong { color: var(--bdm-text); font-weight: 600; }
+.bd-sheet .bd-sheet__summary-change { grid-column: 2; grid-row: 1 / span 2; }
+.bd-gate--sheet .bd-gate__consent { margin-top: 0; }
+/* No wallet in this browser: the card form is already open and is the only path, so its toggle is not shown. */
+.bd-gate--sheet[data-bd-wallets='none'] .bd-gate__card-toggle { display: none; }
+/* A wallet on screen: "Pay with card" is a centred text link under the black button (owner, 2026-10-13). */
+.bd-gate--sheet[data-bd-wallets~='applePay'] .bd-gate__card-toggle[aria-expanded='false'],
+.bd-gate--sheet[data-bd-wallets~='googlePay'] .bd-gate__card-toggle[aria-expanded='false'] { justify-content: center; min-height: 44px; }
+.bd-sheet .bd-ext { margin-left: .2em; text-decoration: none; display: inline-block; }
+
+/* ── membership terms in the sheet (V2-3): the terms body, at reading size */
+.bd-sheet .bd-sheet__terms { font-size: 1rem; line-height: 1.7; color: var(--bdm-text); }
+.bd-sheet .bd-sheet__terms h3 { margin: 2rem 0 .75rem; font-family: var(--bdm-font-head); font-size: 1.2rem; font-weight: 700; line-height: 1.3; }
+.bd-sheet .bd-sheet__terms p, .bd-sheet .bd-sheet__terms li { margin: 0 0 .9rem; }
+.bd-sheet .bd-sheet__terms ul { margin: 0 0 1rem; padding-left: 1.25rem; }
+.bd-sheet .bd-sheet__terms a { color: var(--bdm-accent); }
+
+/* ── success (V2-1) */
+.bd-sheet .bd-sheet__step--done { padding-top: 1rem; }
+.bd-sheet .bd-sheet__receipt { margin: 0 0 1.75rem; font-size: .95rem; line-height: 1.5; color: var(--bdm-soft); }
+.bd-sheet .bd-sheet__receipt strong { color: var(--bdm-text); font-weight: 600; overflow-wrap: anywhere; }
+
+/* ── wide screens (the site's breakpoint, single.php:320): a large centred panel over the dimmed, blurred page */
+@media (min-width: 768px) {
+  .bd-sheet { align-items: center; padding: 2rem; }
+  .bd-sheet__scrim { background: rgba(10, 10, 10, .72); -webkit-backdrop-filter: blur(6px); backdrop-filter: blur(6px); }
+  .bd-sheet__panel {
+    width: min(48rem, 100%);
+    height: auto;
+    max-height: calc(100vh - 4rem);
+    max-height: calc(100dvh - 4rem);
+    padding-top: 0;
+    overflow: hidden;
+    border: 1px solid var(--bdm-rule);
+    border-radius: var(--bdm-radius-card);
+    box-shadow: 0 40px 120px rgba(0, 0, 0, .65);
+  }
+  .bd-sheet__bar { padding: 0 .5rem; }
+  .bd-sheet__mark { width: 150px; }
+  .bd-gate.bd-gate--sheet { max-width: 40rem; padding: 1.75rem 2.5rem 2rem; }
+  .bd-sheet .bd-sheet__title { font-size: 2.75rem; }
+  .bd-sheet .bd-sheet__actions { position: static; margin: 1rem 0 0; padding: 0; background: none; border: 0; }
+  .bd-sheet .bd-offer__why { margin-top: .85rem; padding-top: .85rem; }
+}
+@media (forced-colors: active) {
+  .bd-sheet__panel { border: 1px solid CanvasText; }
+  .bd-sheet .bd-cadence__opt:has(.bd-cadence__input:checked) { outline: 3px solid Highlight; }
+}

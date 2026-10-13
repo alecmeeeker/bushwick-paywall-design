@@ -1686,130 +1686,18 @@ img:is([sizes=auto i],[sizes^="auto," i]){contain-intrinsic-size:3000px 1500px}
 <label for="bd-gate-newsletter" id="bd-gate-newsletter-label">Also send me the Bushwick Daily newsletter</label>
 </div>
 </div>
-<button class="bd-btn bd-btn--primary" id="bd-gate-continue" type="submit">Continue</button>
+<button aria-controls="bd-sheet" class="bd-btn bd-btn--primary" id="bd-gate-continue" type="submit">Continue</button>
 </form>
+</div><div class="bd-gate__step bd-gate__step--member" data-bd-step="member" hidden="">
+<p class="bd-gate__lede bd-gate__lede--member" data-bd-c-line="">You’re signed in as <strong data-bd-account-email=""></strong>. A membership unlocks this story and every other one: <strong>$6.99 a month</strong> or <strong>$70 a year</strong>.</p>
+<button aria-controls="bd-sheet" aria-haspopup="dialog" class="bd-btn bd-btn--primary bd-gate__see-plans" data-bd-see-plans="" type="button">See plans</button>
+<p class="bd-gate__member-line">Not you? <button class="bd-link" data-bd-signout="" type="button">Sign out</button></p>
 </div>
-<div class="bd-gate__step bd-gate__step--code" data-bd-step="code" hidden="">
-<form class="bd-gate__code" data-bd-signin-verify="" novalidate="">
-<p class="bd-signin__notice" data-bd-signin-notice=""></p>
-<h3 class="bd-gate__step-title" id="bd-gate-code-sent">Welcome back. We emailed a <span class="bd-nowrap">6-digit</span> code to <strong data-bd-sent-to=""></strong>.</h3>
-<div class="bd-gate__row">
-<label class="bd-sr-only" for="bd-gate-code">6-digit code</label>
-<input aria-describedby="bd-gate-code-sent bd-gate-code-error" autocomplete="one-time-code" class="bd-field__input bd-field__input--code" data-bd-code="" id="bd-gate-code" inputmode="numeric" maxlength="6" name="code" pattern="[0-9]{6}" type="text"/>
-<button class="bd-btn bd-btn--primary" data-bd-submit="" type="submit">Continue</button>
-</div>
-<p class="bd-error" data-bd-error="" id="bd-gate-code-error"></p>
-<p class="bd-gate__code-more">
-<button class="bd-link" data-bd-resend="" disabled="" type="button">Resend code</button>
-<span aria-hidden="true">·</span>
-<button class="bd-link" data-bd-change-email="" type="button">Use a different email</button>
-</p>
-<p class="bd-gate__code-wait" data-bd-resend-wait="">You can resend the code after 30 seconds.</p>
-</form>
-</div>
-<div class="bd-gate__step bd-gate__step--plans" data-bd-step="plans" hidden="">
-<div class="bd-gate__step-head">
-<h3 class="bd-gate__step-title" id="bd-gate-plans-title" tabindex="-1">Choose a plan, <strong data-bd-step-email=""></strong></h3>
-<button aria-label="Change email address" class="bd-link bd-gate__change" data-bd-gate-change="" type="button">(change)</button>
-</div>
-<p class="bd-gate__no-membership" data-bd-no-membership="" hidden="">This email has no membership yet. Subscribe below to keep reading. Paid with a different email? Sign out below, then sign in with that one.</p>
-<form class="bd-gate__form" id="bd-gate-join" novalidate="">
-<fieldset class="bd-gate__plans">
-<legend class="bd-sr-only">Plan</legend>
-<div class="bd-gate__plan-grid">
-<label class="bd-plan is-selected" data-bd-plan="monthly">
-<input checked="" class="bd-plan__input" name="bd_plan" type="radio" value="monthly"/>
-<span class="bd-plan__name">Monthly</span>
-<span class="bd-plan__price">
-<span class="bd-plan__amount">$6.99</span><span class="bd-plan__per">/month</span>
-<span class="bd-plan__save bd-plan__save--plain">Billed every month</span>
-</span>
-</label>
-<label class="bd-plan" data-bd-plan="annual">
-<input class="bd-plan__input" name="bd_plan" type="radio" value="annual"/>
-<span class="bd-plan__name">Yearly</span>
-<span class="bd-plan__price">
-<span class="bd-plan__amount">$70</span><span class="bd-plan__per">/year</span>
-<span class="bd-plan__save">Save $13.88</span>
-<span class="bd-plan__basis">vs. 12 monthly payments</span>
-</span>
-</label>
-</div>
-</fieldset>
-<div class="bd-gate__consent">
-<input aria-describedby="bd-gate-consent-error" class="bd-check" id="bd-gate-consent" name="bd_consent" type="checkbox"/>
-<label class="bd-gate__disclosure" for="bd-gate-consent" id="bd-gate-disclosure">By checking this box, you agree to the Bushwick Daily Membership Terms and authorize Bushwick Daily to charge $6.99 now and every month after that to your payment method. Your membership renews automatically every month until you cancel. To avoid the next charge, cancel before your next renewal date, anytime online at bushwickdaily.com/account/; you keep access until the end of the period you paid for. There is no minimum term or cancellation fee. The price may change for future renewals, only after at least 14 days' notice by email.</label>
-<p class="bd-error bd-gate__consent-error" data-bd-error="" id="bd-gate-consent-error"></p>
-</div>
-<p class="bd-gate__legal">
-<a href="/membership-terms/">Membership terms</a><span aria-hidden="true"> · </span><a href="/privacy-policy/">Privacy policy</a>
-</p>
-<div class="bd-gate__pay">
-<div aria-busy="true" class="bd-gate__express" data-state="loading" id="bd-gate-express">
-<div class="bd-gate__express-mount" id="bd-gate-express-mount"></div>
-<p class="bd-gate__express-note" id="bd-gate-express-note"><span class="bd-sr-only">Loading payment options.</span></p>
-</div>
-<button aria-controls="bd-gate-card-panel" aria-expanded="false" class="bd-btn bd-btn--secondary bd-gate__card-toggle" id="bd-gate-card-toggle" type="button">Pay with card</button>
-<div class="bd-gate__card" hidden="" id="bd-gate-card-panel">
-<div class="bd-gate__payment-mount" data-state="empty" id="bd-gate-payment-element"></div>
-<button class="bd-btn bd-btn--primary bd-gate__submit" id="bd-gate-submit" type="submit">Subscribe for $6.99 a month</button>
-<p class="bd-error bd-gate__alert" data-bd-error="" id="bd-gate-alert" role="alert"></p>
-</div>
-</div>
-<p class="bd-error bd-gate__alert" data-bd-error="" id="bd-gate-alert-express" role="alert"></p>
-</form>
-<div class="bd-gate__member">
-<p class="bd-gate__member-line" data-bd-signed-out="">
-					Already a member under a different email?
-					<button aria-controls="bd-gate-signin" aria-expanded="false" class="bd-link" id="bd-gate-signin-toggle" type="button">Sign in</button>
-</p>
-<div class="bd-gate__signin" hidden="" id="bd-gate-signin">
-<div class="bd-signin" data-bd-signin="">
-<form class="bd-signin__step" data-bd-signin-request="" novalidate="">
-<div class="bd-field">
-<label class="bd-field__label" for="bd-gate-signin-email">Email address</label>
-<p class="bd-field__hint" id="bd-gate-signin-email-hint">Use the address your membership is under. We email you a sign-in link and a 6-digit code.</p>
-<input aria-describedby="bd-gate-signin-email-hint bd-gate-signin-email-error" autocapitalize="off" autocomplete="email" class="bd-field__input" data-bd-email="" id="bd-gate-signin-email" name="email" required="" spellcheck="false" type="email"/>
-<p class="bd-error" data-bd-error="" id="bd-gate-signin-email-error"></p>
-</div>
-<button class="bd-btn bd-btn--secondary" data-bd-submit="" type="submit">Email me a sign-in link</button>
-</form>
-<form class="bd-signin__step" data-bd-signin-verify="" hidden="" novalidate="">
-<p class="bd-signin__notice" data-bd-signin-notice=""></p>
-<p class="bd-signin__sent" id="bd-gate-signin-sent">
-			Check your email. We sent a sign-in link and a 6-digit code to <strong data-bd-sent-to=""></strong>.
-			Open the link, or enter the code here.
-		</p>
-<div class="bd-field">
-<label class="bd-field__label" for="bd-gate-signin-code">6-digit code</label>
-<p class="bd-field__hint" id="bd-gate-signin-code-hint">The code and the link work for 20 minutes, once.</p>
-<input aria-describedby="bd-gate-signin-sent bd-gate-signin-code-hint bd-gate-signin-code-error" autocomplete="one-time-code" class="bd-field__input bd-field__input--code" data-bd-code="" id="bd-gate-signin-code" inputmode="numeric" maxlength="6" name="code" pattern="[0-9]{6}" type="text"/>
-<p class="bd-error" data-bd-error="" id="bd-gate-signin-code-error"></p>
-</div>
-<button class="bd-btn bd-btn--secondary" data-bd-submit="" type="submit">Sign in</button>
-<p class="bd-signin__more">
-<span data-bd-resend-wait="">Didn’t get it? You can send a new email after 30 seconds.</span>
-<button class="bd-link" data-bd-resend="" disabled="" type="button">Send a new email</button>
-<button class="bd-link" data-bd-change-email="" type="button">Use a different email</button>
-</p>
-</form>
-</div>
-</div>
-</div>
-<p class="bd-gate__fine">Payments are processed by Stripe. Card numbers never reach Bushwick Daily’s servers.</p>
-</div>
-<p class="bd-gate__progress" id="bd-gate-progress" role="status"></p>
-<p class="bd-gate__note" id="bd-gate-newsletter-note" role="status"></p>
-<p class="bd-gate__member-line bd-gate__signed-in" data-bd-signed-in="" hidden="">
-			You’re signed in as <strong data-bd-email-masked=""></strong>. Become a member to keep reading.
-			<button class="bd-link" data-bd-signout="" type="button">Sign out</button>
-</p>
 <noscript>
 <p class="bd-gate__noscript">Joining and signing in need JavaScript, which is off in this browser. Turn it on and reload this page, or email <a href="mailto:alec@bushwickdaily.com">alec@bushwickdaily.com</a>.</p>
 </noscript>
 </div>
-</section>
-</div></div>
+</section></div></div>
 
 <footer class="article__tags">
 <a class="article__tag" href="https://bushwickdaily.com/tag/j-train/">
@@ -2103,5 +1991,376 @@ img:is([sizes=auto i],[sizes^="auto," i]){contain-intrinsic-size:3000px 1500px}
 
 
 
-<template id="bd-unlocked-template"><div><div class="bd-unlock-note" role="status">Membership active. Your confirmation email is on its way to r…@example.com.</div><div class="bd-paywalled bd-just-unlocked"><p>On the weekends of October 17 and 18 and October 24 and 25, from 3:30 a.m. Saturday to 10 p.m. Sunday, J trains will run only between Jamaica Center-Parsons/Archer and Myrtle Avenue-Broadway, and shuttle buses will replace them between Myrtle Avenue-Broadway and Essex Street, according to the MTA. The M will run in two sections, between Middle Village-Metropolitan Avenue and Myrtle-Wyckoff Avenues and between Myrtle-Wyckoff Avenues and Myrtle Avenue-Broadway, with trains every 20 minutes. The same changes return on the weekends of November 7 and 8, November 14 and 15, and November 21 and 22, but the MTA’s announcement and its notices give different start and end days for those weekends, so riders should check the MTA’s service alerts before traveling. The weekend work skips New York City Marathon weekend, October 31 and November 1.</p><p>The switches were last replaced in 1997 and connect Williamsburg, Bushwick, Bedford-Stuyvesant, East New York, Ozone Park and Jamaica with Lower Manhattan, the MTA said. “These switches have reached the end of their useful life and replacement of these 29-year-old switches is crucial to the continued reliability of subway service along this corridor,” Megan Flynn, assistant director of government and community relations at New York City Transit, said in a notice to community partners.</p><p>Riders can check service on the MTA website or the MyMTA app, call 511, or sign up for <a href="https://cloud.info.mta.org/create-mta-service-alerts">real-time email and text alerts</a>. The MTA Weekender newsletter covers weekend service changes.</p></div></div></template><script src="states.js"></script></body>
+<div aria-labelledby="bd-sheet-plans-title" aria-modal="true" class="bd-sheet" data-bd-sheet="" hidden="" id="bd-sheet" role="dialog">
+<div aria-hidden="true" class="bd-sheet__scrim"></div>
+<div class="bd-sheet__panel">
+<div class="bd-sheet__bar">
+<button class="bd-sheet__back" data-bd-sheet-back="" hidden="" type="button"><span aria-hidden="true">←</span> Back</button>
+<span class="bd-sheet__mark"><svg aria-hidden="true" focusable="false" viewbox="0 0 443 65" xmlns="http://www.w3.org/2000/svg">
+<defs>
+<filter height="130%" id="bd-sheet-mark-shadow" width="130%" x="-10%" y="-10%">
+<fedropshadow dx="4" dy="5" flood-color="#ffe135" flood-opacity="1" stddeviation="0"></fedropshadow>
+</filter>
+</defs>
+<style>.letter { fill: #fff; stroke: #000; stroke-width: 0.5; stroke-linejoin: round; filter: url(#bd-sheet-mark-shadow); }</style>
+<g class="letter">
+<path d="M15.56.58h14.77c4.66,0,8.12.36,10.37,1.09s3.88,2.2,4.88,4.41c1.01,2.21.99,5.78-.06,10.7-.71,3.33-1.72,5.64-3.04,6.96-1.32,1.31-3.59,2.32-6.81,3.02,3.26.77,5.3,2.06,6.14,3.85.84,1.79.86,4.54.07,8.25l-1.12,5.28c-.82,3.85-1.86,6.7-3.14,8.55-1.27,1.85-2.94,3.12-5.01,3.8s-6.08,1.02-12.03,1.02H3.46L15.56.58ZM28.29,10.32l-2.69,12.66c.64-.02,1.13-.04,1.48-.04,1.45,0,2.45-.36,3.01-1.07.55-.71,1.18-2.76,1.9-6.13.38-1.78.48-3.03.3-3.74s-.51-1.17-1-1.35c-.49-.19-1.49-.29-3.01-.32h.01ZM23.72,31.83l-3.39,15.93c2.1-.07,3.5-.4,4.2-.98.7-.59,1.29-2.03,1.78-4.32l1.13-5.31c.52-2.44.57-3.91.17-4.43-.41-.52-1.7-.81-3.89-.88h0Z"></path>
+<path d="M84.76,1.58l-8.09,38.04c-.92,4.31-1.7,7.34-2.35,9.09s-1.87,3.54-3.64,5.38-3.89,3.23-6.36,4.18c-2.46.95-5.23,1.42-8.3,1.42-3.4,0-6.28-.56-8.64-1.69s-4-2.59-4.9-4.39c-.91-1.8-1.26-3.71-1.07-5.71s.97-6.22,2.33-12.64L50.9,1.58h14.8l-9.07,42.68c-.53,2.48-.73,4.07-.61,4.76.12.69.59,1.04,1.41,1.04.94,0,1.62-.38,2.05-1.14s.95-2.56,1.55-5.4L69.95,1.58h14.81Z"></path>
+<path d="M114.18,18.81h-13.75l.9-4.22c.42-1.97.51-3.22.27-3.76-.24-.54-.77-.81-1.59-.81-.89,0-1.64.36-2.25,1.09s-1.07,1.83-1.39,3.31c-.4,1.9-.45,3.33-.14,4.29.29.96,1.43,2.12,3.44,3.48,5.76,3.91,9.22,7.12,10.4,9.63,1.18,2.51,1.17,6.55-.01,12.13-.86,4.06-1.97,7.04-3.33,8.96s-3.53,3.53-6.53,4.83c-3,1.30-6.3,1.95-9.91,1.95-3.96,0-7.18-.75-9.66-2.25s-3.91-3.41-4.28-5.73c-.37-2.32-.11-5.61.8-9.88l.79-3.73h13.75l-1.47,6.93c-.45,2.13-.55,3.5-.29,4.11s.88.91,1.86.91,1.8-.39,2.44-1.16,1.13-1.92,1.45-3.45c.71-3.35.72-5.54.03-6.57-.72-1.03-2.66-2.75-5.83-5.17-3.16-2.44-5.22-4.21-6.18-5.31s-1.63-2.62-2-4.57c-.37-1.95-.24-4.43.41-7.45.93-4.36,2.16-7.55,3.7-9.56,1.54-2.02,3.68-3.59,6.4-4.73,2.73-1.14,5.85-1.71,9.36-1.71,3.84,0,6.99.62,9.43,1.86,2.44,1.24,3.9,2.81,4.38,4.69.48,1.89.24,5.09-.73,9.62l-.48,2.25Z"></path>
+<path d="M154.75,1.58l-12.1,56.92h-14.8l5.08-23.91h-4.43l-5.08,23.91h-14.8L120.72,1.58h14.8l-4.33,20.36h4.43l4.33-20.36h14.8Z"></path>
+<path d="M214.41,1.58l-18.69,56.92h-18.48c.17-8.74.79-18.69,1.86-29.85-1.61,4.78-5.10,14.73-10.47,29.85h-18.37l5.47-56.92h14.38l-2.66,19.86-2.57,19.2c2.66-9.94,6.79-22.96,12.39-39.06h15.37c-.15,1.66-.94,7.92-2.38,18.77l-2.97,21.66c3.77-13.78,8.01-27.25,12.72-40.43h14.4Z"></path>
+<path d="M228.13,1.58l-12.1,56.92h-14.8L213.33,1.58h14.8Z"></path>
+<path d="M259.36,26.37h-14.8l2.1-9.89c.61-2.88.83-4.67.67-5.38s-.79-1.07-1.86-1.07c-1.22,0-2.08.43-2.6,1.3-.51.87-1.08,2.74-1.69,5.62l-5.62,26.44c-.59,2.77-.81,4.57-.66,5.41s.8,1.27,1.95,1.27,1.91-.42,2.43-1.27c.52-.85,1.11-2.83,1.78-5.96l1.52-7.15h14.8l-.47,2.22c-1.25,5.89-2.56,10.07-3.91,12.53-1.36,2.46-3.65,4.62-6.9,6.48-3.24,1.85-6.95,2.78-11.12,2.78s-7.74-.79-10.22-2.36-3.88-3.74-4.2-6.52.11-6.96,1.29-12.53l3.53-16.63c.87-4.10,1.67-7.18,2.38-9.23.72-2.05,1.97-4.03,3.77-5.92,1.8-1.9,4.05-3.39,6.75-4.48,2.70-1.09,5.66-1.63,8.87-1.63,4.36,0,7.78.84,10.26,2.53,2.48,1.69,3.89,3.79,4.25,6.3.36,2.52-.03,6.43-1.16,11.74l-1.15,5.41Z"></path>
+<path d="M301.22,1.58l-13.95,25.7,2.66,31.22h-15.29l-.81-24.4-5.19,24.4h-14.8l12.1-56.92h14.8l-4.7,22.11,11.29-22.11h13.89Z"></path>
+<path d="M307.27,1.58h11.07c7.15,0,11.91.33,14.29.98,2.38.66,4.07,1.73,5.06,3.23s1.46,3.17,1.4,5.01-.67,5.46-1.81,10.85l-4.24,19.93c-1.09,5.11-2.05,8.53-2.90,10.25s-1.97,3.07-3.37,4.04-3.02,1.65-4.86,2.04-4.53.58-8.07.58h-18.67l12.1-56.92ZM320,11.32l-7.96,37.44c2.13,0,3.54-.43,4.21-1.28.67-.86,1.41-3.18,2.22-6.98l4.7-22.11c.55-2.58.82-4.23.81-4.96,0-.73-.27-1.26-.78-1.6s-1.58-.51-3.2-.51Z"></path>
+<path d="M367.65,1.58l-3.63,56.92h-15.13l1.38-10.23h-5.29l-3.06,10.23h-15.3L346.26,1.58h21.39ZM352.02,38.18c.62-6.45,1.56-14.42,2.83-23.91-3.82,10.90-6.47,18.87-7.92,23.91h5.09Z"></path>
+<path d="M390.43,1.58l-12.1,56.92h-14.8l12.1-56.92h14.8Z"></path>
+<path d="M408.17,1.58l-9.68,45.53h9l-2.42,11.39h-23.8l12.1-56.92h14.8Z"></path>
+<path d="M442.61,1.58l-18.51,36.32-4.38,20.6h-13.71l4.38-20.6-2.69-36.32h13.6c-.24,11.11-.63,18.59-1.17,22.43,2.11-6.07,5.07-13.55,8.89-22.43h13.6Z"></path>
+</g>
+</svg></span>
+<button aria-label="Close and go back to the story" class="bd-sheet__close" data-bd-sheet-close="" type="button"><svg aria-hidden="true" focusable="false" height="24" viewbox="0 0 24 24" width="24"><path d="M5 5l14 14M19 5L5 19" stroke="currentColor" stroke-linecap="square" stroke-width="2.25"></path></svg></button>
+</div>
+<div class="bd-sheet__scroll" data-bd-sheet-scroll="">
+<div class="bd-sheet__body bd-gate bd-gate--sheet" data-bd-wallets="pending">
+<section class="bd-sheet__step bd-sheet__step--code" data-bd-sheet-step="code" hidden="">
+<form class="bd-gate__code" data-bd-signin-verify="" novalidate="">
+<p class="bd-signin__notice" data-bd-signin-notice=""></p>
+<h2 class="bd-gate__step-title" data-bd-sheet-heading="" id="bd-gate-code-sent" tabindex="-1">Welcome back. We emailed a <span class="bd-nowrap">6-digit</span> code to <strong data-bd-sent-to=""></strong>.</h2>
+<div class="bd-gate__row">
+<label class="bd-sr-only" for="bd-gate-code">6-digit code</label>
+<input aria-describedby="bd-gate-code-sent bd-gate-code-error" autocomplete="one-time-code" class="bd-field__input bd-field__input--code" data-bd-code="" data-bd-sheet-focus="" id="bd-gate-code" inputmode="numeric" maxlength="6" name="code" pattern="[0-9]{6}" type="text"/>
+<button class="bd-btn bd-btn--primary" data-bd-submit="" type="submit">Continue</button>
+</div>
+<p class="bd-error" data-bd-error="" id="bd-gate-code-error"></p>
+<p class="bd-gate__code-more">
+<button class="bd-link" data-bd-resend="" disabled="" type="button">Resend code</button>
+<span aria-hidden="true">·</span>
+<button class="bd-link" data-bd-change-email="" type="button">Use a different email</button>
+</p>
+<p class="bd-gate__code-wait" data-bd-resend-wait="">You can resend the code after 30 seconds.</p>
+</form>
+</section>
+<section class="bd-sheet__step bd-sheet__step--plans" data-bd-sheet-step="plans" hidden="">
+<h2 class="bd-sheet__title" data-bd-sheet-heading="" id="bd-sheet-plans-title" tabindex="-1">You’re out of <em>free articles.</em></h2>
+<p class="bd-sheet__lede" data-bd-c-line=""><span data-bd-signed-in-prefix="" hidden="">You’re signed in as <strong data-bd-account-email=""></strong>. </span>A membership unlocks this story and every other one: <strong>$6.99 a month</strong> or <strong>$70 a year</strong>.</p>
+<fieldset class="bd-cadence">
+<legend class="bd-sr-only">How often to pay</legend>
+<label class="bd-cadence__opt" data-bd-plan="monthly"><input checked="" class="bd-cadence__input" form="bd-gate-join" name="bd_plan" type="radio" value="monthly"/><span class="bd-cadence__name">Monthly</span></label>
+<label class="bd-cadence__opt" data-bd-plan="annual"><input class="bd-cadence__input" form="bd-gate-join" name="bd_plan" type="radio" value="annual"/><span class="bd-cadence__name">Yearly</span><span class="bd-cadence__save">Save $13.88</span></label>
+</fieldset>
+<div class="bd-offer">
+<p class="bd-offer__name">Bushwick Daily membership</p>
+<p aria-live="polite" class="bd-offer__price"><span class="bd-offer__amount" data-bd-offer-amount="">$6.99</span><span class="bd-offer__per" data-bd-offer-per="">/month</span></p>
+<p class="bd-offer__basis" data-bd-offer-basis="">Billed every month. Cancel anytime online.</p>
+<p class="bd-offer__why">Members are the reason a neighborhood paper like ours can keep reporting with no hedge fund behind it.</p>
+<p class="bd-offer__label" id="bd-offer-includes">What a membership includes</p>
+<ul aria-labelledby="bd-offer-includes" class="bd-offer__list">
+<li>Every members-only story on bushwickdaily.com, for as long as your membership is active</li>
+<li data-bd-offer-newsletter="">The Bushwick Daily newsletter</li>
+<li>A direct line to the publisher for story tips, complaints and ideas</li>
+</ul>
+</div>
+<div class="bd-sheet__actions">
+<button class="bd-btn bd-btn--primary" data-bd-sheet-next="pay" type="button">Continue</button>
+</div>
+<p class="bd-gate__member-line" data-bd-signed-out="">Already a member under a different email? <button class="bd-link" data-bd-sheet-goto="signin" type="button">Sign in</button></p>
+<p class="bd-gate__member-line" data-bd-signed-in="" hidden="">Paid with a different email? <button class="bd-link" data-bd-signout="" type="button">Sign out</button>, then sign in with that one.</p>
+</section>
+<section class="bd-sheet__step bd-sheet__step--signin" data-bd-sheet-parent="plans" data-bd-sheet-step="signin" hidden="">
+<h2 class="bd-sheet__step-title" data-bd-sheet-heading="" id="bd-sheet-signin-title" tabindex="-1">Sign in</h2>
+<div class="bd-signin" data-bd-signin="">
+<form class="bd-signin__step" data-bd-signin-request="" novalidate="">
+<div class="bd-field">
+<label class="bd-field__label" for="bd-gate-signin-email">Email address</label>
+<p class="bd-field__hint" id="bd-gate-signin-email-hint">Use the address your membership is under. We email you a sign-in link and a 6-digit code.</p>
+<input aria-describedby="bd-gate-signin-email-hint bd-gate-signin-email-error" autocapitalize="off" autocomplete="email" class="bd-field__input" data-bd-email="" id="bd-gate-signin-email" name="email" required="" spellcheck="false" type="email"/>
+<p class="bd-error" data-bd-error="" id="bd-gate-signin-email-error"></p>
+</div>
+<button class="bd-btn bd-btn--primary" data-bd-submit="" type="submit">Email me a sign-in link</button>
+</form>
+<form class="bd-signin__step" data-bd-signin-verify="" hidden="" novalidate="">
+<p class="bd-signin__notice" data-bd-signin-notice=""></p>
+<p class="bd-signin__sent" id="bd-gate-signin-sent">
+			Check your email. We sent a sign-in link and a 6-digit code to <strong data-bd-sent-to=""></strong>.
+			Open the link, or enter the code here.
+		</p>
+<div class="bd-field">
+<label class="bd-field__label" for="bd-gate-signin-code">6-digit code</label>
+<p class="bd-field__hint" id="bd-gate-signin-code-hint">The code and the link work for 20 minutes, once.</p>
+<input aria-describedby="bd-gate-signin-sent bd-gate-signin-code-hint bd-gate-signin-code-error" autocomplete="one-time-code" class="bd-field__input bd-field__input--code" data-bd-code="" id="bd-gate-signin-code" inputmode="numeric" maxlength="6" name="code" pattern="[0-9]{6}" type="text"/>
+<p class="bd-error" data-bd-error="" id="bd-gate-signin-code-error"></p>
+</div>
+<button class="bd-btn bd-btn--primary" data-bd-submit="" type="submit">Sign in</button>
+<p class="bd-signin__more">
+<span data-bd-resend-wait="">Didn’t get it? You can send a new email after 30 seconds.</span>
+<button class="bd-link" data-bd-resend="" disabled="" type="button">Send a new email</button>
+<button class="bd-link" data-bd-change-email="" type="button">Use a different email</button>
+</p>
+</form>
+</div>
+</section>
+<section class="bd-sheet__step bd-sheet__step--pay" data-bd-sheet-parent="plans" data-bd-sheet-step="pay" hidden="">
+<h2 class="bd-sheet__step-title" data-bd-sheet-heading="" id="bd-sheet-pay-title" tabindex="-1">Payment</h2>
+<div class="bd-sheet__summary">
+<p class="bd-sheet__summary-plan"><span data-bd-summary-plan="">Monthly membership</span> <span class="bd-sheet__summary-price" data-bd-summary-price="">$6.99 a month</span></p>
+<p class="bd-sheet__summary-for">For <strong data-bd-step-email=""></strong></p>
+<button class="bd-link bd-sheet__summary-change" data-bd-sheet-goto="plans" type="button">Change<span class="bd-sr-only"> plan</span></button>
+</div>
+<form class="bd-gate__form" id="bd-gate-join" novalidate="">
+<div class="bd-gate__consent">
+<input aria-describedby="bd-gate-consent-error" class="bd-check" id="bd-gate-consent" name="bd_consent" type="checkbox"/>
+<label class="bd-gate__disclosure" for="bd-gate-consent" id="bd-gate-disclosure">By checking this box, you agree to the Bushwick Daily Membership Terms and authorize Bushwick Daily to charge $6.99 now and every month after that to your payment method. Your membership renews automatically every month until you cancel. To avoid the next charge, cancel before your next renewal date, anytime online at bushwickdaily.com/account/; you keep access until the end of the period you paid for. There is no minimum term or cancellation fee. The price may change for future renewals, only after at least 14 days' notice by email.</label>
+<p class="bd-error bd-gate__consent-error" data-bd-error="" id="bd-gate-consent-error"></p>
+</div>
+<p class="bd-gate__legal">
+<a data-bd-sheet-goto="terms" href="/membership-terms/">Membership terms</a><span aria-hidden="true"> · </span><a href="/privacy-policy/" rel="noopener" target="_blank">Privacy policy<span class="bd-sr-only"> (opens in a new tab)</span><span aria-hidden="true" class="bd-ext">↗</span></a>
+</p>
+<div class="bd-gate__pay">
+<div aria-busy="true" class="bd-gate__express" data-state="loading" id="bd-gate-express">
+<div class="bd-gate__express-mount" id="bd-gate-express-mount"></div>
+<p class="bd-gate__express-note" id="bd-gate-express-note"><span class="bd-sr-only">Loading payment options.</span></p>
+</div>
+<button aria-controls="bd-gate-card-panel" aria-expanded="false" class="bd-btn bd-btn--secondary bd-gate__card-toggle" id="bd-gate-card-toggle" type="button">Pay with card</button>
+<div class="bd-gate__card" hidden="" id="bd-gate-card-panel">
+<div class="bd-gate__payment-mount" data-state="empty" id="bd-gate-payment-element"></div>
+<button class="bd-btn bd-btn--primary bd-gate__submit" id="bd-gate-submit" type="submit">Subscribe for $6.99 a month</button>
+<p class="bd-error bd-gate__alert" data-bd-error="" id="bd-gate-alert" role="alert"></p>
+</div>
+<p class="bd-gate__progress" id="bd-gate-progress" role="status"></p></div>
+</form>
+<p class="bd-gate__fine">Payments are processed by Stripe. Card numbers never reach Bushwick Daily’s servers.</p>
+</section>
+<section class="bd-sheet__step bd-sheet__step--terms" data-bd-sheet-parent="pay" data-bd-sheet-step="terms" hidden="">
+<h2 class="bd-sheet__step-title" data-bd-sheet-heading="" id="bd-sheet-terms-title" tabindex="-1">Membership terms</h2>
+<div class="bd-sheet__terms">
+<p class="bd-terms__eyebrow">Bushwick Daily</p>
+<p><strong>Version 2026-10-12.</strong> Effective October 12, 2026.</p>
+<p>These membership terms are a contract between you and Brooklyn New Media, LLC, a New York limited liability company that publishes Bushwick Daily at bushwickdaily.com (“Bushwick Daily”, “we”, “us”). They apply to paid Bushwick Daily memberships and to your use of members-only stories.</p>
+<p><strong>Important: section 13 says that you and we will resolve most disputes by individual arbitration, not in court, and that neither of us may bring a class action. You can opt out of arbitration within 30 days, as section 13.7 explains.</strong></p>
+<h3 id="agreement">1. Who we are and how you agree</h3>
+<ul>
+<li>You agree to these terms when you check the box at checkout that says you agree to them and then complete your payment.</li>
+<li>If you did not agree to these terms at our checkout (for example, because your support for Bushwick Daily began before these terms existed, or someone gave you a membership), these terms apply to you only after you agree to them in a way we show you, such as a checkbox. Until then, any paid subscription you already have stays on the terms you agreed to when you started it.</li>
+<li>You must be at least 18 years old to buy a membership. A parent or legal guardian may buy a membership for a person aged 13 to 17; the parent or guardian agrees to these terms and is responsible for that membership. We do not sell memberships to children under 13 and do not knowingly collect personal information from them.</li>
+<li>You agree that we may send you these terms, receipts, confirmations and notices about your membership by email, to the address on your membership. If you want a paper copy of these terms or of any notice, email us and we will mail one at no charge.</li>
+</ul>
+<h3 id="what-you-get">2. What a membership includes</h3>
+<p>A membership gives you access to every story we mark as members-only on bushwickdaily.com for as long as your membership is active.</p>
+<ul>
+<li>We decide which stories are members-only. We may make a members-only story free to everyone, or make a free story members-only.</li>
+<li>We do not promise a set number of members-only stories, a publishing schedule, or particular subjects.</li>
+<li>If we make a change that materially reduces what a membership includes, we email you before the change takes effect. If you cancel before it takes effect, or within 14 days after, we give you a pro rata refund (section 4.4) for the unused part of your current paid period.</li>
+<li>If we stop offering memberships altogether, we give you a pro rata refund (section 4.4) for the unused part of your current paid period.</li>
+</ul>
+<h3 id="price-and-billing">3. Price, billing and automatic renewal</h3>
+<p><strong>Your membership renews automatically and continues until you cancel. We charge your payment method the price of your plan at the start of each renewal period until you cancel.</strong> Each renewal period is as long as your plan: one month on a monthly plan, one year on a yearly plan.</p>
+<ul>
+<li><strong>Price.</strong> Before you pay, the checkout shows the price of each plan, and the sentence next to the agreement checkbox states the exact amount we will charge and how often. All prices are in US dollars.</li>
+<li><strong>First charge.</strong> We charge the first payment when you join. Your membership starts when that payment succeeds.</li>
+<li><strong>Renewal date.</strong> Your next renewal date and amount are shown on your account page at <a href="https://bushwickdaily.com/account/">bushwickdaily.com/account/</a> and in the confirmation email we send when you join.</li>
+<li><strong>Price changes.</strong> The price can change only for future renewal periods, and only after the notice in section 5.3.</li>
+<li><strong>No minimum.</strong> There is no minimum term, no minimum purchase and no cancellation fee.</li>
+<li><strong>Cancellation policy.</strong> You can cancel at any time, as section 4 describes. Canceling stops all future charges. You keep access until the end of the period you have already paid for, and we do not refund that period except in the cases listed in section 4.4.</li>
+<li><strong>Confirmation.</strong> Promptly after you join, we email you a confirmation that states your plan, the amount, how often we will charge it, that the membership renews automatically, how to cancel, and the text you agreed to at checkout. Please keep it.</li>
+</ul>
+<h3 id="how-to-cancel">4. How to cancel</h3>
+<h3 id="cancel-online">4.1 Online</h3>
+<p>You can cancel online at any time, the same way you joined:</p>
+<ul>
+<li>Go to <a href="https://bushwickdaily.com/account/">bushwickdaily.com/account/</a> and sign in with the email address on your membership. We email you a sign-in link and a 6-digit code.</li>
+<li>Choose <strong>Cancel membership</strong>, then <strong>Confirm cancel</strong>.</li>
+</ul>
+<p>You do not need to call us, write to us, or respond to any offer. We email you a confirmation of the cancellation. You can also cancel on Stripe’s billing page, which you open from your account page with <strong>Manage billing</strong>.</p>
+<h3 id="cancel-email">4.2 By email</h3>
+<p>You can also cancel by emailing <a href="mailto:alec@bushwickdaily.com">alec@bushwickdaily.com</a> from any email address. Say that you want to cancel, and give the email address on your membership. We may ask for details that identify the membership, such as the date and amount of a charge, but we will not require you to sign in. We cancel the membership within 2 business days after we receive your email. If we charge you after we received it, we refund that charge in full.</p>
+<h3 id="after-cancel">4.3 What happens when you cancel</h3>
+<ul>
+<li>Your membership does not renew, and we do not charge you again.</li>
+<li>You keep access until the end of the period you have already paid for.</li>
+<li>Until that date, you can undo the cancellation on your account page with <strong>Resume membership</strong>.</li>
+<li>To avoid the next charge, cancel before your renewal date. On a yearly plan, cancel at any time before the renewal date in your reminder email (section 5.1) and the yearly renewal will not happen.</li>
+</ul>
+<h3 id="refunds">4.4 Refunds</h3>
+<p>We do not refund a payment, in whole or in part, for a period that has already started, except in these cases:</p>
+<ul>
+<li>a charge made after we received your cancellation email (section 4.2), or a duplicate or mistaken charge: we refund that charge in full;</li>
+<li>you cancel within 14 days after the first charge at a new, higher price (section 5.3): pro rata refund of that charge;</li>
+<li>we end your membership under section 8.4; we stop offering memberships (section 2); or you cancel after a change that section 2 or section 15 describes, or after an event in section 18 that lets you cancel with a refund: pro rata refund;</li>
+<li>any other case in which the law requires a refund.</li>
+</ul>
+<p>A <strong>pro rata refund</strong> is the part of a charge that matches the unused days left in the period it paid for, counted from the day the membership ends. We send refunds to the payment method you paid with.</p>
+<h3 id="reminders-and-price-changes">5. Renewal reminders and price changes</h3>
+<h3 id="reminder-yearly">5.1 Yearly plans</h3>
+<p>Before each yearly renewal, we email you a reminder at least 30 days and no more than 40 days before the renewal date. It states the renewal date, the amount we will charge, and how to cancel.</p>
+<h3 id="reminder-monthly">5.2 Monthly plans</h3>
+<p>Once every 12 months, we email you a reminder at least 25 days and no more than 40 days before the renewal that begins each new 12-month period of your membership. It states your plan, the amount and how often we charge it, and how to cancel.</p>
+<h3 id="price-changes">5.3 Price changes</h3>
+<ul>
+<li>We may change the price of a plan for future renewal periods. We never change the price of a period you have already paid for.</li>
+<li>We email you at least 14 days and no more than 30 days before the first renewal at which the new price applies to you. The email states the current price, the new price, the date the new price first applies to you, and how to cancel.</li>
+<li>If you do not want to pay the new price, cancel before that date and you will not be charged it.</li>
+<li>If you are charged the new price, you can still cancel within 14 days after that charge, and we give you a pro rata refund of it.</li>
+</ul>
+<h3 id="other-renewal-changes">5.4 Other changes to renewal or cancellation terms</h3>
+<p>If we make any other material change to how your membership renews, how much or how often we charge, or how you cancel, we email you at least 14 days and no more than 30 days before the change takes effect, with instructions on how to cancel.</p>
+<h3 id="payments">6. Payments</h3>
+<ul>
+<li>Stripe processes our payments. Card numbers and the details from Apple Pay, Google Pay or Link go directly to Stripe. We never receive or store your full card number. Stripe’s privacy policy (<a href="https://stripe.com/privacy">stripe.com/privacy</a>) covers the information Stripe processes.</li>
+<li>You authorize us, through Stripe, to charge your payment method the amounts described in sections 3, 5 and 7 until you cancel.</li>
+<li>You must have the right to use the payment method you give us, and you must keep it up to date. You can update your card and see your receipts from your account page with <strong>Manage billing</strong>, which opens Stripe’s billing page.</li>
+<li><strong>Failed payments.</strong> If a renewal charge fails, Stripe may try it again over the following days, and we or Stripe may email you. Your access continues for up to 14 days after the failed charge while those retries are pending. If the charge has not succeeded by then, your access stops; if it still fails after the retries, your membership ends. You can join again at any time.</li>
+<li><strong>Disputed charges.</strong> If you think a charge is wrong, please email us first at <a href="mailto:alec@bushwickdaily.com">alec@bushwickdaily.com</a>; we refund any charge made in error. You keep every right you have to dispute a charge with your bank or card issuer. While a charge is disputed, or after it is reversed, we may pause the membership that charge paid for.</li>
+</ul>
+<h3 id="taxes">7. Taxes</h3>
+<p>The amount stated next to the agreement checkbox is the total we charge. We do not currently add sales tax to memberships. If the law requires us to collect sales or other tax on memberships where you live, we will add it only to future charges, after the notice in section 5.3 and with the same rights to cancel and to a refund that section 5.3 gives for a price change. We will not charge you tax for a period you have already paid for.</p>
+<h3 id="account">8. Your account and signing in</h3>
+<h3 id="sign-in">8.1 Signing in</h3>
+<p>There is no password. When you ask to sign in, we email you a sign-in link and a 6-digit code. They can be used once, and they expire after 20 minutes. Anyone who can read your email can sign in to your membership, so keep your email account secure. After you sign in on a device, you stay signed in there for up to 180 days unless you sign out.</p>
+<h3 id="one-person">8.2 One person per membership</h3>
+<p>A membership is for one person. Do not share your sign-in links, codes or signed-in session with anyone, and do not let other people use your membership to read members-only stories. You are responsible for activity under your membership that you allowed, or that happened because you shared a sign-in link or code.</p>
+<h3 id="your-email">8.3 Your email address</h3>
+<p>Use an email address that you control and that works. To change the email address on your membership, email us.</p>
+<h3 id="suspension">8.4 Suspending or ending a membership</h3>
+<p>We may suspend or end a membership if we reasonably believe that it is being shared against section 8.2; that it is being used to break section 9; that it was bought or used with fraud or with a payment method its holder did not authorize; or that suspending it is necessary to protect our systems or other readers. We tell you by email what we did and why, unless telling you would help someone get around our security or interfere with an investigation. If we end a membership under this section, we give a pro rata refund for the unused part of the current period, unless the payment was not authorized by its holder or has been reversed.</p>
+<h3 id="using-stories">9. Using our stories</h3>
+<h3 id="license">9.1 What you may do</h3>
+<p>Our stories, photographs, video, audio, graphics and page design are owned by us or by the people who license them to us, and they are protected by copyright. While your membership is active, we give you a personal, non-exclusive, non-transferable and revocable license to read members-only stories for your own non-commercial use. You may share links to any story, and you may quote short passages with credit to Bushwick Daily, as copyright law allows.</p>
+<h3 id="restrictions">9.2 What you may not do</h3>
+<p>Unless we agree in writing, you may not:</p>
+<ul>
+<li>copy, republish, post, send, sell or otherwise share the full text, or substantial parts, of a members-only story, including by pasting it into a group chat, a forum, a social media post or a shared document;</li>
+<li>scrape, crawl, index, bulk-download or otherwise collect our content with a bot, script, browser extension or other automated tool; a screen reader or other assistive technology, or your browser’s built-in reading-mode or translation feature, that you use for your own reading is allowed;</li>
+<li>use any Bushwick Daily content, including members-only stories, to train, fine-tune, test or improve an artificial-intelligence or machine-learning model; to supply content to such a model while it generates answers (for example, retrieval-augmented generation or “grounding”); or to build a dataset, corpus or archive;</li>
+<li>give members-only content to an artificial-intelligence service that may keep it or use it for any purpose in the item above;</li>
+<li>get around, disable or interfere with the paywall, sign-in or any other access control, or use another person’s sign-in link, code or session;</li>
+<li>remove or change credits, copyright notices or other notices on our content;</li>
+<li>frame or mirror our pages, or present our content as your own;</li>
+<li>use your membership for a commercial purpose, or in a way that breaks the law or harms our systems or other readers.</li>
+</ul>
+<p>Getting around the paywall can also violate federal copyright law (17 U.S.C. § 1201). We keep all rights that these terms do not expressly give you. “Bushwick Daily” and our logos are our trademarks, and these terms give you no right to use them.</p>
+<h3 id="comments">9.3 Comments</h3>
+<p>A membership does not include posting comments or other content. If we add that, we will publish rules for it before it starts.</p>
+<h3 id="promotions">10. Gifts, complimentary memberships and promotions</h3>
+<ul>
+<li>We may offer gift memberships, complimentary memberships, discounts or trials. An offer may have its own terms, which we show you before you accept it. Where those terms conflict with these terms, the offer’s terms control for that offer, except that section 13 controls unless the offer’s terms expressly say that they replace section 13.</li>
+<li>Before you accept a trial or an introductory price, we tell you the price that follows it, when that price starts, and how to cancel before you are charged it. We send any reminder the law requires before the first charge at the regular price.</li>
+<li>A complimentary membership costs nothing, does not turn into a paid membership, and ends on the date we set. We may end a complimentary membership at any time.</li>
+<li>Gift memberships, discounts and promotional codes have no cash value and cannot be sold or exchanged for money, except where the law requires.</li>
+</ul>
+<h3 id="disclaimers">11. Disclaimers</h3>
+<p>We work to keep bushwickdaily.com available and our reporting accurate, and to correct errors. But to the fullest extent the law allows, we provide the membership and our content “as is” and “as available”. We do not promise that the site will be uninterrupted, free of errors or free of harmful code, and we disclaim the implied warranties of merchantability, fitness for a particular purpose and non-infringement. Our stories are journalism. They are not legal, financial, medical or other professional advice. Section 12.3 applies to this section.</p>
+<h3 id="liability">12. Limits on liability, and your responsibility for misuse</h3>
+<h3 id="liability-cap">12.1 Limit on our liability</h3>
+<p>Except as section 12.3 says, our total liability to you for all claims arising out of or relating to these terms or your membership is limited to the greater of (a) the amount you paid us for your membership in the 12 months before the event that gave rise to the claim, or (b) US$100.</p>
+<h3 id="loss-types">12.2 Types of loss</h3>
+<p>Except as section 12.3 says, we are not liable for indirect, incidental, special, consequential or punitive damages, or for lost profits or lost data, arising out of or relating to these terms or your membership.</p>
+<h3 id="liability-exceptions">12.3 What these limits do not cover</h3>
+<p>Sections 11, 12.1 and 12.2 do not limit or exclude:</p>
+<ul>
+<li>liability for our fraud, gross negligence, willful misconduct or intentional wrongdoing;</li>
+<li>liability for death or personal injury caused by our negligence;</li>
+<li>any refund these terms promise;</li>
+<li>any right or remedy that the law of the state where you live does not allow a contract to limit or waive, including your rights under the California Consumers Legal Remedies Act (Cal. Civ. Code § 1751).</li>
+</ul>
+<h3 id="misuse">12.4 Your responsibility for misuse</h3>
+<p>If someone else makes a claim against us because you broke section 8.2 or section 9, or broke the law in using your membership, you will pay our resulting losses, including reasonable lawyers’ fees, to the extent your conduct caused them. This does not cover any part of a claim that our own conduct caused.</p>
+<h3 id="disputes">13. Resolving disputes</h3>
+<h3 id="informal">13.1 Talk to us first</h3>
+<p>Before either of us starts an arbitration or a court case (other than a case in small-claims court, or a request to a court for an urgent order to stop intellectual-property infringement under section 13.3), the one with the claim sends the other a written notice that gives the claimant’s name, the email address on the membership, a description of the claim, and the relief wanted. You send yours to <a href="mailto:alec@bushwickdaily.com">alec@bushwickdaily.com</a>; we send ours to the email address on your membership. We then both try in good faith to resolve the claim for 45 days. If a deadline for bringing the claim would pass during those 45 days, the claimant may start the arbitration or case to preserve the claim, and it is paused until the 45 days end.</p>
+<h3 id="arbitration">13.2 Agreement to arbitrate</h3>
+<p>You and we agree to resolve by binding individual arbitration any dispute, claim or controversy between you and us that arises out of or relates to these terms, your membership, our charges, members-only stories, or our communications with you about your membership, whether it is based on contract, statute, tort or any other legal theory. Section 13 continues after your membership ends.</p>
+<h3 id="not-arbitrated">13.3 What is not arbitrated</h3>
+<ul>
+<li><strong>Small claims.</strong> Either of us may bring an individual claim in small-claims court if the claim qualifies there, for as long as it stays in that court.</li>
+<li><strong>Intellectual property.</strong> Either of us may bring a claim in court to stop the infringement or misappropriation of a copyright, trademark, trade secret or other intellectual property.</li>
+<li><strong>Public injunctive relief.</strong> If a court decides that the law does not allow a claim for public injunctive relief (relief whose main purpose is to protect the general public) to be arbitrated or waived, that claim alone goes to court under section 14, after the arbitration of every other claim, and the court case is paused until that arbitration ends.</li>
+<li><strong>Opt-outs.</strong> The claims of a person who opted out under section 13.7.</li>
+</ul>
+<h3 id="arbitration-rules">13.4 How the arbitration works</h3>
+<ul>
+<li><strong>Law.</strong> These terms involve interstate commerce: we sell memberships online to readers in many states, and a national payment company processes the payments. The Federal Arbitration Act (9 U.S.C. § 1 and following) governs section 13.</li>
+<li><strong>Administrator and rules.</strong> The American Arbitration Association (AAA) administers the arbitration under its Consumer Arbitration Rules in effect when the claim is filed, as section 13 modifies them. The rules and the filing forms are at adr.org. If the AAA will not or cannot administer the arbitration, and you and we do not agree on another administrator within 30 days, the claim may be brought in court under section 14.</li>
+<li><strong>Who decides.</strong> The arbitrator decides every question about the claims, including whether a claim must be arbitrated, except that a court decides: whether section 13.5 is valid and how it applies; the public-injunctive-relief exception in section 13.3; whether a person opted out under section 13.7; and whether another agreement between you and us changes or replaces section 13.</li>
+<li><strong>Fees.</strong> You pay no more than the consumer filing fee in the AAA’s Consumer Arbitration Fee Schedule (US$225 in its 2026 schedule). We pay every other AAA fee and the arbitrator’s compensation. If the arbitrator rules in your favor on any claim, we also repay your filing fee. AAA fees and the arbitrator’s compensation can be shifted to you only where the AAA’s rules or the law allow it, such as when the arbitrator finds a claim frivolous or brought to harass.</li>
+<li><strong>Lawyers’ fees.</strong> Each of us pays our own lawyers, unless the arbitrator awards lawyers’ fees under a law that allows it. We will not ask for our lawyers’ fees from you unless the arbitrator finds your claim frivolous.</li>
+<li><strong>Hearing.</strong> A claim of US$25,000 or less is decided on written submissions, unless you and we agree otherwise or the arbitrator decides a hearing is needed. Any hearing takes place by video or telephone, or in person in the county where you live, as you choose.</li>
+<li><strong>Relief.</strong> The arbitrator applies the same law, including the same deadlines for bringing claims, that a court would apply. The arbitrator may award any individual relief that a court could award, including damages, lawyers’ fees and an injunction, but only in favor of the individual party seeking relief and only to the extent needed for that party’s individual claim.</li>
+<li><strong>Award.</strong> The award is binding on you and us. A court with jurisdiction may enter judgment on it, and either of us may ask a court to vacate, modify or correct it on the grounds that the Federal Arbitration Act allows (9 U.S.C. §§ 10 and 11).</li>
+</ul>
+<h3 id="no-class-actions">13.5 No class actions</h3>
+<p><strong>You and we may bring claims against each other only individually, and not as a plaintiff or class member in any class, collective, consolidated or representative action or arbitration.</strong> The arbitrator may not combine more than one person’s claims or preside over any class, collective or representative proceeding, except that the AAA may assign several individual cases to one arbitrator as its rules allow, with each case decided on its own. If a court decides that this section 13.5 cannot be enforced as to a particular claim or form of relief, that claim or relief, and only that, is removed from arbitration and goes to court under section 14, where it is paused until the arbitration of the individual claims ends. It never goes to class arbitration.</p>
+<h3 id="jury-waiver">13.6 Jury trial waiver</h3>
+<p><strong>An arbitration has no judge or jury.</strong> If a claim goes to court instead, you and we each waive a jury trial, unless the law of the place where the court sits does not allow a jury waiver that was agreed before the dispute arose.</p>
+<h3 id="opt-out">13.7 Your right to opt out of arbitration</h3>
+<p>You can opt out of arbitration within 30 days after the day you first agree to these terms. Email <a href="mailto:alec@bushwickdaily.com">alec@bushwickdaily.com</a> with the subject “Arbitration opt-out”, your name, the email address on your membership, and a statement that you opt out of arbitration. If you opt out, sections 13.2 to 13.5 and 13.8 do not apply to you, and claims between you and us go to court under section 14; sections 13.1 and 13.6 still apply. Opting out does not affect any other part of these terms or your membership. If you opted out of an earlier version of section 13, that opt-out still applies.</p>
+<h3 id="mass-filings">13.8 Mass filings</h3>
+<p>If 25 or more similar demands for arbitration are filed against us, or by us, by or with the help of the same or coordinated lawyers, the AAA’s Mass Arbitration Supplementary Rules apply to them, as those rules provide. Each claimant must still have sent their own notice under section 13.1.</p>
+<h3 id="changes-to-13">13.9 Changes to section 13</h3>
+<p>If we change section 13 after you agree to it, the change does not apply to a claim that either of us had notice of before the change took effect. You may reject a change to section 13 by emailing us within 30 days after we notify you of it; the version of section 13 you last agreed to then continues to apply to you.</p>
+<h3 id="governing-law">14. Governing law and courts</h3>
+<p>New York law governs these terms and any claim between you and us, without regard to its conflict-of-law rules, except that the Federal Arbitration Act governs section 13. This choice of law does not take away any protection that the consumer laws of the state where you live give you and that a contract cannot waive.</p>
+<p>A claim that is not arbitrated must be brought in the state courts in Kings County, New York, or in the United States District Court for the Eastern District of New York, and you and we agree to the personal jurisdiction of those courts. There are two exceptions: either of us may use the small-claims court for the county where you live, and you may bring an individual claim in a court where you live if the law of your state gives you that right and a contract cannot take it away.</p>
+<h3 id="changes">15. Changes to these terms</h3>
+<ul>
+<li>We may change these terms. Each version has its version date at the top. We keep earlier versions and will send you any of them on request.</li>
+<li>We email you at least 14 days before a change that materially affects your rights or your membership takes effect. We may make a change sooner, without that notice, if the law requires it or to stop fraud or a security threat; we still tell you about it.</li>
+<li>Price changes follow section 5.3. Other changes to renewal, charges or cancellation follow section 5.4. Changes to section 13 follow section 13.9.</li>
+<li>If you keep your membership after a change takes effect, the change applies to you from that date. If you do not agree to a change, you can cancel. If you cancel before the change takes effect, or within 14 days after it takes effect, we give you a pro rata refund for the unused part of your current period.</li>
+</ul>
+<h3 id="privacy">16. Privacy and membership data</h3>
+<p>Our <a href="/privacy-policy/">privacy policy</a> describes how we handle personal information on bushwickdaily.com. This section adds what we keep for memberships.</p>
+<h3 id="data-kept">16.1 What we keep</h3>
+<ul>
+<li>Your email address, and your name if you give it at checkout.</li>
+<li>Your membership details from Stripe: Stripe’s customer and subscription identifiers, your plan, the price, the status, the renewal date and whether the membership is set to cancel.</li>
+<li>A consent record for each purchase: when you agreed, the exact text next to the checkbox that you agreed to, the version of these terms, your plan and price, the page you joined from, whether you paid by card or with Apple Pay, Google Pay or Link, a keyed hash of your IP address (not the address itself), and your browser’s user-agent string.</li>
+<li>Sign-in records: hashed sign-in links and codes, hashed session identifiers, and a hash of your browser’s user-agent string.</li>
+<li>A record of each membership email we send you (confirmation, cancellation, reminders).</li>
+<li>Short-lived keyed hashes of email addresses and IP addresses, used to limit repeated requests.</li>
+</ul>
+<p>We never receive your full card number.</p>
+<h3 id="data-use">16.2 Why we use it</h3>
+<p>We use this information to provide your membership, take payments, send the notices that these terms and the law require, prevent fraud and abuse, keep proof of your consent, and meet our legal, tax and accounting obligations. We do not sell membership information. Besides membership emails, we may occasionally email members about Bushwick Daily; every such email has an unsubscribe link.</p>
+<h3 id="data-providers">16.3 Service providers</h3>
+<p>Stripe processes payments. Amazon Web Services hosts our membership system and sends our membership emails. Cloudflare delivers our website. We share membership information with them only as needed for those services, and otherwise only where the law requires.</p>
+<h3 id="cookies">16.4 Cookies</h3>
+<p>Signing in sets a cookie named <strong>bd_member_session</strong> that keeps you signed in for up to 180 days, and a cookie named <strong>bd_member</strong> that tells our pages you are signed in. Checkout sets a cookie named <strong>bd_checkout</strong> that lasts up to 2 hours. These cookies are necessary for the membership to work.</p>
+<h3 id="retention">16.5 How long we keep it</h3>
+<ul>
+<li>Consent records: at least 3 years after you agree, and at least 1 year after your membership ends, whichever is later.</li>
+<li>Sign-in links and codes: deleted within 2 days after they expire.</li>
+<li>Signed-in sessions: deleted within 31 days after they expire or you sign out.</li>
+<li>Request-limit records: deleted within 2 days.</li>
+<li>Membership and payment records: while you are a member, and afterward for as long as we need them for tax, accounting and legal purposes.</li>
+</ul>
+<h3 id="your-choices">16.6 Your choices</h3>
+<p>Email <a href="mailto:alec@bushwickdaily.com">alec@bushwickdaily.com</a> to ask for a copy of your membership information, to correct it, or to delete it. We delete what the law and these terms do not require us to keep; we keep consent and payment records for the periods in section 16.5.</p>
+<h3 id="contact">17. Contact and notices</h3>
+<p>Brooklyn New Media, LLC publishes Bushwick Daily. For questions about your membership or a charge, and for every notice to us under these terms, email <a href="mailto:alec@bushwickdaily.com">alec@bushwickdaily.com</a>. We send notices to the email address on your membership. A notice to you counts as given when we send it, unless we learn that it was not delivered.</p>
+<h3 id="general">18. General terms</h3>
+<ul>
+<li><strong>Whole agreement.</strong> These terms and the text next to the checkbox that you agreed to at checkout are the whole agreement between you and us about your membership. If that text and these terms conflict, that text controls.</li>
+<li><strong>Severability.</strong> If a court or arbitrator finds part of these terms unenforceable, that part is enforced to the extent allowed and the rest of these terms stays in effect. Section 13.5 says what happens if the class-action waiver cannot be enforced.</li>
+<li><strong>No waiver.</strong> If we do not enforce a term right away, we can still enforce it later.</li>
+<li><strong>Transfer.</strong> Your membership is personal and you may not transfer it. We may transfer these terms to a business that takes over Bushwick Daily; we will tell you, and your rights under these terms, including your right to cancel, continue.</li>
+<li><strong>Events outside our control.</strong> We are not liable for a delay or failure caused by events outside our reasonable control, such as an outage at a service provider, a natural disaster or an act of government. If such an event stops access to members-only stories for more than 30 days in a row, you may cancel and receive a pro rata refund.</li>
+<li><strong>Survival.</strong> Sections 4.4, 9, 11, 12, 13, 14, 16 and 18 continue after your membership ends.</li>
+<li><strong>Interpretation.</strong> “Including” means “including but not limited to”. Headings are for convenience only.</li>
+</ul>
+</div>
+</section>
+<section class="bd-sheet__step bd-sheet__step--done" data-bd-sheet-step="success" hidden="">
+<div role="status">
+<h2 class="bd-sheet__title" data-bd-sheet-heading="" id="bd-sheet-success-title" tabindex="-1">You’re a <em>member.</em></h2>
+<p class="bd-sheet__lede bd-sheet__lede--big">Enjoy the story.</p>
+<p class="bd-sheet__receipt">Your confirmation email is on its way to <strong data-bd-step-email=""></strong>.</p>
+</div>
+<button class="bd-btn bd-btn--primary" data-bd-sheet-done="" data-bd-sheet-focus="" type="button">Read the story</button>
+</section>
+<p class="bd-gate__note" id="bd-gate-newsletter-note" role="status"></p>
+</div>
+</div>
+</div>
+</div><template id="bd-unlocked-template"><div><div class="bd-unlock-note" role="status">Membership active. Your confirmation email is on its way to reader@example.com.</div><div class="bd-paywalled bd-just-unlocked"><p>On the weekends of October 17 and 18 and October 24 and 25, from 3:30 a.m. Saturday to 10 p.m. Sunday, J trains will run only between Jamaica Center-Parsons/Archer and Myrtle Avenue-Broadway, and shuttle buses will replace them between Myrtle Avenue-Broadway and Essex Street, according to the MTA. The M will run in two sections, between Middle Village-Metropolitan Avenue and Myrtle-Wyckoff Avenues and between Myrtle-Wyckoff Avenues and Myrtle Avenue-Broadway, with trains every 20 minutes. The same changes return on the weekends of November 7 and 8, November 14 and 15, and November 21 and 22, but the MTA’s announcement and its notices give different start and end days for those weekends, so riders should check the MTA’s service alerts before traveling. The weekend work skips New York City Marathon weekend, October 31 and November 1.</p><p>The switches were last replaced in 1997 and connect Williamsburg, Bushwick, Bedford-Stuyvesant, East New York, Ozone Park and Jamaica with Lower Manhattan, the MTA said. “These switches have reached the end of their useful life and replacement of these 29-year-old switches is crucial to the continued reliability of subway service along this corridor,” Megan Flynn, assistant director of government and community relations at New York City Transit, said in a notice to community partners.</p><p>Riders can check service on the MTA website or the MyMTA app, call 511, or sign up for <a href="https://cloud.info.mta.org/create-mta-service-alerts">real-time email and text alerts</a>. The MTA Weekender newsletter covers weekend service changes.</p></div></div></template><script src="sheet.js"></script></body>
 </html>

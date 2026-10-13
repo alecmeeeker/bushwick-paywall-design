@@ -1,5 +1,345 @@
-<!doctype html><html lang=en><head><meta name="robots" content="noindex,nofollow"><meta charset=utf-8><meta name=viewport content='width=device-width,initial-scale=1'><title>Paywall design proposal — Bushwick Daily</title><style>body{background:#0a0a0a;color:#e8e8e8;font:16px/1.6 -apple-system,Inter,Helvetica,Arial,sans-serif;max-width:900px;margin:0 auto;padding:24px 16px}a{color:#ffe135}code{background:#1c1c1c;padding:1px 4px;border-radius:3px}table{border-collapse:collapse;width:100%;font-size:14px;display:block;overflow-x:auto}td,th{border:1px solid #333;padding:6px;vertical-align:top}h1,h2,h3{color:#fff;line-height:1.25}pre{background:#1c1c1c;padding:12px;overflow-x:auto}</style></head><body><h1>Paywall design proposal: every reader-facing step in the site's own design (2026-10-13)</h1>
-<p>Status: <strong>proposal with mockups. Nothing here is deployed and no production file was changed.</strong> Branch
+<!doctype html><html lang=en><head><meta name="robots" content="noindex,nofollow"><meta charset=utf-8><meta name=viewport content='width=device-width,initial-scale=1'><title>Paywall design proposal</title><style>body{background:#0a0a0a;color:#e8e8e8;font:16px/1.6 -apple-system,Inter,Helvetica,Arial,sans-serif;max-width:900px;margin:0 auto;padding:24px 16px}a{color:#ffe135}code{background:#1c1c1c;padding:1px 4px;border-radius:3px}table{border-collapse:collapse;width:100%;font-size:14px;display:block;overflow-x:auto}td,th{border:1px solid #333;padding:6px;vertical-align:top}h1,h2,h3{color:#fff;line-height:1.25}pre{background:#1c1c1c;padding:12px;overflow-x:auto}</style></head><body><h1>Paywall design proposal: every reader-facing step in the site's own design (2026-10-13)</h1>
+<h2>V2. v2 changes: the full-screen membership sheet (2026-10-13, branch <code>design/paywall-v2-sheet</code>)</h2>
+<p>Status: mockups and a build spec. No production file changed, nothing deployed, Stripe in test mode only. Sections 0-9
+below are v1 and still hold unless this section changes them. The owner cut the scope (2026-10-13): this section is
+the build spec. The real sheet will be reviewed on a preview link. The curated Hell Gate / 404 Media comparison was
+not built.</p>
+<p><strong>Why (owner, 2026-10-13, verbatim):</strong>
+- "they force the issue and make it clear that this is the payment gate. rather than continuing to give the user
+  scrollability, payment becomes the only focus"
+- The trigger: "situations when the user signs into their account and they have zero free articles left and they need
+  to subscribe to read the article"
+- "I am not saying that the full page should be on landing. that is specifically not at all what i am saying"</p>
+<p><strong>Journalism purpose.</strong> A reader who has decided to pay gets one task on screen, on the article they came to read.
+Every exit returns them to the paragraph they were on. Research 27 measured that Hell Gate and 404 Media fail here:
+- Hell Gate's gate link opens a new tab (F11).
+- Portal ignores Escape on phones (F6) and ignores browser Back (F8).
+- Both sites send the reader to checkout.stripe.com to pay (research 28 NOTES:22, :37).</p>
+<h3>V2-1 Trigger and states</h3>
+<table>
+<thead>
+<tr>
+<th>Where</th>
+<th>What the reader sees</th>
+<th>Render (<code>img/</code>, <code>-desktop</code> / <code>-iphone13</code>)</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Landing (card in the article)</td>
+<td>The free lead, then the card with <strong>S1 only</strong>: address, newsletter box (checked), Continue. v1 copy and order (G-7, G-8).</td>
+<td><code>gate-arrive-proposed</code>, <code>gate-s1-proposed</code>, <code>gate-s1-invalid-proposed</code></td>
+</tr>
+<tr>
+<td>Card, signed in without a membership</td>
+<td>Variant C headline "You're out of free articles.", then "You're signed in as {email}. A membership unlocks this story and every other one: $6.99 a month or $70 a year.", <strong>See plans</strong>, and "Not you? Sign out". <strong>The sheet does not open by itself.</strong> This replaces today's automatic jump to the plans (<code>membership.js:505-521</code>).</td>
+<td><code>gate-signed-in-proposed</code></td>
+</tr>
+<tr>
+<td>Sheet opens</td>
+<td>After Continue, once <code>gate/start</code> has answered (code or plans), so the sheet never opens empty. Also after See plans.</td>
+<td>—</td>
+</tr>
+<tr>
+<td>Sheet: S2a code (existing member)</td>
+<td>gate.php's code form, moved into the sheet as is. On success the sheet closes and the story unlocks in place.</td>
+<td><code>sheet-code-proposed</code>, <code>sheet-code-wrong-proposed</code></td>
+</tr>
+<tr>
+<td>Sheet: plans</td>
+<td>The C headline and line, the Monthly/Yearly switch, one plan card, and Continue.</td>
+<td><code>sheet-plans-proposed</code>, <code>sheet-plans-yearly-proposed</code>, <code>sheet-plans-signed-in-proposed</code></td>
+</tr>
+<tr>
+<td>Sheet: sign in under another address</td>
+<td>The shared sign-in partial, moved into the sheet as is. Its submit button is primary here.</td>
+<td><code>sheet-signin-proposed</code></td>
+</tr>
+<tr>
+<td>Sheet: payment</td>
+<td>See V2-3.</td>
+<td><code>sheet-pay-proposed</code> (Apple Pay), <code>sheet-pay-card-proposed</code> (no wallet), <code>sheet-pay-consent-error-proposed</code>, <code>sheet-pay-card-errors-proposed</code>, <code>sheet-pay-declined-proposed</code></td>
+</tr>
+<tr>
+<td>Sheet: membership terms</td>
+<td><code>partials/terms-body.html</code>, read inside the sheet. ← Back returns to payment. The article never leaves the page.</td>
+<td><code>sheet-terms-proposed</code></td>
+</tr>
+<tr>
+<td>Sheet: success</td>
+<td>"You're a member." / "Enjoy the story." / "Your confirmation email is on its way to {email}." / <strong>Read the story</strong>. The sheet closes by itself after 2 s; the button closes it sooner.</td>
+<td><code>sheet-success-proposed</code></td>
+</tr>
+<tr>
+<td>After close</td>
+<td>The story unlocked in place. The page's scroll position is unchanged. After a payment (not after a sign-in), the v1 receipt line (G-11) stays: the success screen closes by itself, so the receipt must also live in the article.</td>
+<td><code>gate-unlocked-proposed</code></td>
+</tr>
+</tbody>
+</table>
+<p>Copy rules:
+- Variant C is the only copy (COPY-VARIANTS.md). A and B are not rendered.
+- The prices in the C line come from the gate's plan config: <code>build_mockups.py</code> <code>c_line()</code>, <code>sheet.js</code> <code>money()</code>. They
+  are never typed separately.
+- <strong>Decision: the signed-in line shows the full address, not <code>email_masked</code>.</strong>
+  - Why: the line exists so the reader can tell which account is signed in (COPY-VARIANTS.md). "r…@gmail.com" cannot
+    tell two Gmail addresses apart.
+  - Source of the full address: <code>me</code> returns it (<code>membership/app.py:374</code>). Hell Gate shows it in full (research 28,
+    hellgate-07).
+  - The payment summary also shows the full address the reader typed, so a typo in the local part is visible before
+    paying.
+  - This departs from the masking in <code>membership.js:102-104</code> for these lines. The owner may overrule.</p>
+<h3>V2-2 Exits, focus, scroll lock (what the build ports from <code>mockups/sheet.js</code>, <code>BDSheet</code>)</h3>
+<table>
+<thead>
+<tr>
+<th>Behaviour</th>
+<th>Specification</th>
+<th>Measured on the mockup (<code>verify_sheet.py</code>, <code>evidence/sheet-behaviour.json</code>; Chromium 145.0.7632.6, Playwright WebKit 26.0)</th>
+<th>Portal (research 27)</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Close X (top right)</td>
+<td>Closes. Scroll position restored. Focus goes back to the control that opened the sheet.</td>
+<td>Closed, scroll restored, focus on the trigger: chromium-desktop, chromium-iphone13, webkit-iphone13</td>
+<td>closes, keeps scroll (F7)</td>
+</tr>
+<tr>
+<td>Escape</td>
+<td>A <code>keydown</code> listener on the page's own document, in the capture phase. No part of the sheet is in an iframe.</td>
+<td>Closed, scroll restored, focus on the trigger: <strong>all three set-ups, including both iPhone 13 emulations</strong></td>
+<td>does <strong>not</strong> close on mobile (F6)</td>
+</tr>
+<tr>
+<td>Browser Back</td>
+<td>Opening pushes <strong>one</strong> history entry (<code>pushState</code>, no URL or hash change), before the lock. <code>popstate</code> closes the sheet. X, Escape and success consume that entry with <code>history.back()</code>, so the next Back leaves the article as expected.</td>
+<td><code>page.go_back()</code>: closed, same document, URL unchanged, scroll restored, focus on the trigger: all three</td>
+<td>Back never closes it (F8)</td>
+</tr>
+<tr>
+<td>← Back in the sheet</td>
+<td>Goes to the previous step (<code>data-bd-sheet-parent</code>): payment → plans, sign-in → plans, terms → payment. Hidden on the first step.</td>
+<td>pay → plans, sheet still open: all three</td>
+<td>—</td>
+</tr>
+<tr>
+<td>While a payment processes</td>
+<td>X and Escape wait (the X is <code>aria-disabled</code>). Back still closes, because a browser cannot be stopped from going back without trapping the reader. The payment chain in <code>membership.js</code> continues; the outcome lands in the article.</td>
+<td>not measured (mock)</td>
+<td>—</td>
+</tr>
+<tr>
+<td>Dialog semantics</td>
+<td><code>role="dialog"</code>, <code>aria-modal="true"</code>. <code>aria-labelledby</code> = the visible step heading, so the name changes per step.</td>
+<td>role, aria-modal and name "You're out of free articles." on open: all three</td>
+<td>—</td>
+</tr>
+<tr>
+<td>Focus</td>
+<td>On open, focus moves to the step heading (<code>tabindex=-1</code>, no ring) or the step's field (the code input). Every other <code>&lt;body&gt;</code> child gets <code>inert</code> while the sheet is open.</td>
+<td>30 × Tab: 0 focus stops in the inert page, all three. 7 body children inert.</td>
+<td>the iframe (F5)</td>
+</tr>
+<tr>
+<td>Scroll lock</td>
+<td><code>body {position:fixed; top:-scrollY; left:0; right:0; width:100%; overflow:hidden}</code>. Classic scrollbar width compensated with <code>padding-right</code>. <code>history.scrollRestoration='manual'</code> while open. Restored with an instant <code>scrollTo</code> (the site sets <code>html{scroll-behavior:smooth}</code>, <code>overflow-fix.css:564</code>). The sheet's own scroll box has <code>overscroll-behavior: contain</code>.</td>
+<td>Desktop wheel 500 px at the centre, the scrim edge and the bottom strip: page offset held at −1648 px, 0 movement. Chromium iPhone 13 touch gesture (CDP, 400 px): page held at −1818 px; the sheet's content scrolled 241 px. WebKit: not measurable (Playwright cannot scroll mobile WebKit).</td>
+<td><code>overflow:hidden</code> on body (F2)</td>
+</tr>
+</tbody>
+</table>
+<p>Why a fixed body and not Portal's <code>overflow:hidden</code>:
+- <code>overflow:hidden</code> on <code>&lt;body&gt;</code> did not stop touch scrolling on iOS. WebKit bug 153852, "<body> with overflow:hidden CSS
+  is scrollable on iOS", is RESOLVED FIXED. Its patch landed 2019-05-07. A commenter on 2019-09-21 reported that it
+  landed in iOS 13 "but there are cases where it doesn't work". WebKit itself names no release.
+- A fixed body cannot scroll in any engine, whatever that engine does with <code>overflow</code> on <code>&lt;body&gt;</code>.
+- Cost: on desktop, the site's sticky header moves off-screen behind the blurred scrim while the sheet is open.</p>
+<p>Why not <code>&lt;dialog&gt;.showModal()</code>:
+- <code>showModal()</code> makes everything outside the dialog inert, including elements added later.
+- Stripe "automatically displays the authentication UI in a pop-up modal" for 3-D Secure (docs.stripe.com, "Authenticate
+  with 3D Secure"). Where Stripe attaches that modal is not documented (UNVERIFIED). If it lands outside a modal
+  <code>&lt;dialog&gt;</code>, the reader could not complete 3-D Secure.
+- <code>BDSheet.inert()</code> marks only the <code>&lt;body&gt;</code> children that exist at open time, so a later Stripe overlay stays usable.
+  <code>inert</code> is "Baseline, widely available … since April 2023" (MDN).
+- z-index 100000 sits above every fixed layer the article prints: progress bar 9999 (<code>single.php:263</code>), newsletter
+  popup 10000 (<code>:1278</code>), Support button 99990 (<code>bd-support-cta.php:21</code>).</p>
+<p>Layout:
+- <strong>Phones (&lt; 768 px):</strong> the sheet is 100% of the viewport (<code>100dvh</code>) and opaque (<code>#0a0a0a</code>), with the 3 px yellow
+  rule, a top bar (← Back, the site's SVG wordmark, X) and one scroll box.
+  - Safe-area padding uses <code>env(safe-area-inset-*)</code>. These values are 0 today, because <code>single.php:177</code> has no
+    <code>viewport-fit=cover</code>, so content stays inside the safe area. The build does not add <code>viewport-fit=cover</code>.
+  - On the plans step, Continue is pinned to the bottom of the screen (<code>position: sticky</code>), so it is visible on any
+    phone height. Measured: Continue at y 604–652 on 664.
+- <strong>From 768 px</strong> (<code>single.php:320</code>): a 48rem panel, centred, with an 8px radius, over the page dimmed to
+  <code>rgba(10,10,10,.72)</code> and blurred 6 px.
+  - The plans step fits in 1440×900 without scrolling inside the panel. Measured panel: 824–827 px tall.
+  - Clicking the dimmed page does nothing. Decision: a stray click must not discard a typed card number. The exits are
+    X, Escape and Back.</p>
+<h3>V2-3 Payment step: layout and the measured scroll</h3>
+<p>Order, top to bottom:
+1. <strong>Summary</strong>: "Monthly membership · $6.99 a month", "For reader@example.com", and Change (back to plans).
+2. <strong>The consent box</strong>, with the 527-a disclosure verbatim at 16px white.
+3. "Membership terms" (opens in the sheet) · "Privacy policy ↗".
+4. <strong>The black Apple Pay button</strong>, with its error line under it.
+5. <strong>"Pay with card"</strong>: a text link that reveals the card form.
+6. <strong>The card form</strong>: Stripe Payment Element, Appearance from section 4.
+7. <strong>Subscribe for $6.99 a month</strong>, with its error line directly under it (D-1545).
+8. The fine print.</p>
+<p>Decisions in this layout:
+- <strong>The consent box sits above BOTH pay buttons.</strong> This is a deliberate departure from the order in the brief (Apple
+  Pay, then the card link, then consent). <code>membership.js:982-989</code> refuses to open the wallet sheet until the box is
+  checked (spec D8). A wallet button placed above an unchecked box would make the reader's first tap fail.
+- <strong>No wallet in the browser:</strong> the card form opens at once and the toggle is hidden. The card form is the only
+  path, so a "Pay with card" tap would only add a step.
+- <strong>"Pay with card", not "Pay with card instead".</strong> This uses the owner's wording. It changes <code>membership.js:947</code>.
+- <strong>Privacy policy in a new tab.</strong> This is the only new tab, and it is labelled "(opens in a new tab)". It is a
+  reference page, not the payment flow. The terms open inside the sheet.</p>
+<p><strong>Measured on iPhone 13 (390×664), monthly plan, disclosure verbatim</strong> (<code>verify_sheet.py</code>, <code>payment_step_iphone13</code> in
+<code>evidence/sheet-behaviour.json</code>). The disclosure text equals <code>cfg.disclosures.monthly</code> (checked). Stripe was loaded in
+test mode, so the card form has its real height.
+- The sheet's scroll box is <strong>605 px</strong> tall: 664 minus the 59 px top bar.
+- The consent box is 464 px tall (Chromium) / 454 px (WebKit).</p>
+<table>
+<thead>
+<tr>
+<th>Case</th>
+<th>Payment step height</th>
+<th>Scroll inside the sheet to see the button whole</th>
+<th>…and the error line under it</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Apple Pay on screen (card form closed)</td>
+<td><strong>922 px</strong> (Chromium) / 910 (WebKit)</td>
+<td>Apple Pay: <strong>171 px</strong> / 159</td>
+<td>—</td>
+</tr>
+<tr>
+<td>No wallet: card form open, Subscribe</td>
+<td><strong>1,326 px</strong> / 1,309</td>
+<td>Subscribe: <strong>600 px</strong> / 584</td>
+<td><strong>630 px</strong> / 614</td>
+</tr>
+</tbody>
+</table>
+<p>Not measured:
+- Apple Pay on screen and then "Pay with card" tapped. The wallet button and the link stay above the card form, so the
+  Subscribe scroll is larger than 600 px by about their height. The exact figure is UNVERIFIED.</p>
+<p>Finding (low severity):
+- The card form shows Stripe's own mandate line under the fields: "By subscribing, you authorize Brooklyn New Media, LLC
+  to charge you according to the terms until you cancel."
+- The 527-a disclosure names "Bushwick Daily". Both names are correct: terms section 1 says Brooklyn New Media, LLC
+  publishes Bushwick Daily. Still, the reader sees two authorizations with two different names.
+- Stripe's <code>terms</code> option can hide the mandate line. Stripe says: "Consult your legal and compliance advisors before
+  making any changes to the text of mandates". So no change in this pass; legal review item.
+- Production shows the same line today: <code>membership.js:1043-1050</code> sets no <code>terms</code>.</p>
+<h3>V2-4 Plan card: "What a membership includes" (no invented perk)</h3>
+<table>
+<thead>
+<tr>
+<th>Line on the card</th>
+<th>Source</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Name "Bushwick Daily membership"</td>
+<td>gate config <code>apple_pay_label</code> (gate.php output; also the Apple Pay sheet label)</td>
+</tr>
+<tr>
+<td>"$6.99 /month" · "Billed every month. Cancel anytime online." / "$70 /year" · "Save $13.88 vs. 12 monthly payments. Cancel anytime online."</td>
+<td>Prices: gate config <code>plans</code>. "Billed every month", "Save $13.88" and "vs. 12 monthly payments" are gate.php's own strings. "Cancel anytime online" comes from the disclosure ("cancel … anytime online") and terms section 3 ("You can cancel at any time").</td>
+</tr>
+<tr>
+<td>Switch: "Monthly" / "Yearly · Save $13.88" (the saving in dollars, not a percentage)</td>
+<td>12 × $6.99 − $70 = $13.88. Asserted in <code>build_mockups.py</code> <code>yearly_saving()</code>.</td>
+</tr>
+<tr>
+<td>"Members are the reason a neighborhood paper like ours can keep reporting with no hedge fund behind it."</td>
+<td><code>sales/clock.py:1099</code> (the owner's thank-you), verbatim</td>
+</tr>
+<tr>
+<td>"Every members-only story on bushwickdaily.com, for as long as your membership is active"</td>
+<td>Membership Terms section 2 (<code>partials/terms-body.html:21</code>: "access to every story we mark as members-only on bushwickdaily.com for as long as your membership is active"). Also <code>sales/clock.py:1167</code>.</td>
+</tr>
+<tr>
+<td>"The Bushwick Daily newsletter", <strong>shown only to a reader who asked for it</strong> (S1 box left checked)</td>
+<td><code>sales/clock.py:1170-1172</code>. Its rule <code>newsletter_perk()</code> (<code>:1136-1146</code>) never promises the newsletter to a reader who did not ask. The gate product's tier is <code>newsletter: opt_in</code> (<code>sales/kb/membership_tiers.json</code>). The newsletter is also free without a membership, which is why the line is conditional. A signed-in reader does not see it, because <code>me</code> returns no list status (<code>membership/app.py:358-384</code>).</td>
+</tr>
+<tr>
+<td>"A direct line to the publisher for story tips, complaints and ideas"</td>
+<td><code>sales/clock.py:1173</code>: every tier's thank-you, including the gate's <code>member</code> tier. <strong>Decision: listed.</strong> It is promised to every member already. The owner may drop it from the public card.</td>
+</tr>
+</tbody>
+</table>
+<p>Not listed:
+- The tote and the public thanks: <code>tote:false</code>, <code>public_thanks:false</code> for <code>prod_VQV3b2ZAcC1By4</code> in
+  <code>membership_tiers.json</code>.
+- Ad-free reading: not promised anywhere in the repo.</p>
+<h3>V2-5 Files the build takes as spec</h3>
+<table>
+<thead>
+<tr>
+<th>File</th>
+<th>What it specifies</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>mockups/sheet.js</code>, part 1 (<code>BDSheet</code>)</td>
+<td>The controller to port into <code>membership.js</code> unchanged: open/show/back/close, the history entry, Escape, the scroll lock, inert, focus return, busy. Part 2 is the mockup driver only.</td>
+</tr>
+<tr>
+<td><code>mockups/proposed.css</code>, section "v2" (end of file), plus <code>.bd-sheet</code> in the token rule at the top</td>
+<td>Every sheet style, with its token source. Port with v1's notes (section 5): <code>--brand-*</code> tokens, <code>not-prose</code> for the card.</td>
+</tr>
+<tr>
+<td><code>build_mockups.py</code> <code>gate_v2()</code></td>
+<td>The markup: the card (S1 and the member step) and the sheet (steps code / plans / signin / pay / terms / success), assembled from gate.php's own output. That keeps the 527-a disclosure, the code form, the sign-in partial, the express slot and the alert slots verbatim. The new copy is only what V2-1 and V2-4 list.</td>
+</tr>
+<tr>
+<td><code>verify_sheet.py</code></td>
+<td>The behaviour checks above. It belongs in the build's test suite against the real page (preview link), with the same three set-ups.</td>
+</tr>
+</tbody>
+</table>
+<p>What the build changes beyond v1's section 5:
+- <code>gate.php</code>: splits into the card (S1 and the member step) and a sheet partial printed at the end of <code>&lt;body&gt;</code>.
+- <code>membership.js</code>:
+  - <code>Gate</code> gets two roots (card, sheet). It opens the sheet from <code>start()</code> / <code>showCode()</code> / <code>showPlans()</code>.
+  - No auto-plans for signed-in readers (<code>:505-521</code> becomes "show the member step").
+  - <code>unlock()</code> closes the sheet first.
+  - "Pay with card" is relabelled (<code>:947</code>).
+  - The card form opens at once when there is no wallet.
+  - The signed-in line uses <code>me.email</code>.
+- The DiMieri page's baked-in gate takes the same split. Its v1 render (<code>dimieri-gate-proposed</code>) shows S1, which is
+  unchanged.</p>
+<h3>V2-6 Removed from v1</h3>
+<p>Removed:
+- The end-of-article box on free articles: the <code>free-article-*</code> mockups, renders and compare rows. Owner: no
+  end-of-article box; only articles marked <code>open</code> are free.
+- The v1 in-card S2a/S2b renders (<code>gate-s2a*</code>, <code>gate-s2b*</code>, <code>gate-free-account-proposed</code>). The sheet supersedes them;
+  v1 remains at commit 27ced8ca0.</p>
+<p>Decision: open articles keep what they print today (band, rail, "Support Us"; the sticky bar goes at go-live,
+G-3). This proposal adds nothing to them.</p>
+<p>Line numbers: <code>single.php</code> grew 12 lines in 843d73aa7. v1's <code>single.php</code> citations in sections 1-7 are 12 lines
+early (e.g. tokens are at <code>:195-205</code>, not <code>:183-193</code>). V2 citations are re-read at 8ca9af690.</p>
+<h3>V2-7 UNVERIFIED, and what I could not reach</h3>
+<p>UNVERIFIED:
+- Real iOS Safari, for all of the following: touch scroll behind the sheet, Escape from a hardware keyboard, Back, <code>100dvh</code> under iOS 26's toolbars, and the safe areas. Every phone result above is Chromium or Playwright WebKit with the iPhone 13 profile.
+- How Apple Pay looks on a real device: the button is a labelled stand-in.
+- Where Stripe attaches its 3-D Secure modal (it needs a PaymentIntent; none was created).
+- The Payment Element height with Apple Pay present and the card form opened.</p>
+<p>Could not reach:
+- The curated Hell Gate / 404 Media comparison: cut by the owner. No research 27/28 image is used in this version, so
+  the privacy rule on <code>404-20</code> and <code>hellgate-07</code> was not engaged.
+- Any real device or wallet.
+- Any live endpoint (none touched).</p>
+<hr />
+<p>Status (v1): <strong>proposal with mockups. Nothing here is deployed and no production file was changed.</strong> Branch
 <code>design/paywall-site-aligned</code>. This is step 4 ("Design pass") of <code>docs/paywall/ROLLOUT-PLAN.md</code>.</p>
 <p><strong>Why (the owner, 2026-10-13):</strong> "the UX needs to be updated to reflect the site as a whole not the anthony dimieri
 article. the rest of the website uses different design and even logo is not correct in dimieri." And: "the design of
