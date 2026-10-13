@@ -410,10 +410,10 @@
 
   function success(autoClose) {
     sheet.show('success');
-    if (!autoClose) return;
-    // V2-1: the success screen stays up for 2 s, then the sheet closes by itself; "Read the story" closes it sooner.
-    window.clearTimeout(doneTimer);
-    doneTimer = window.setTimeout(function () { finish(); }, 2000);
+    // v2.2 (owner, 2026-10-13: "this isn't a rate per article this is access to the site"): no auto-close. The success
+    // screen says the whole site is open and how sign-in works on other devices; the reader closes it ("Keep reading",
+    // X, Escape or Back all unlock the story in place).
+    void autoClose;
   }
   function finish() {
     window.clearTimeout(doneTimer);
